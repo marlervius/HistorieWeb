@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
+import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { createServer } from "node:net";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
-const workerUrl = new URL("../dist/server/index.js", import.meta.url);
 const projectRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 const publicRoutes = [
   "/",
@@ -17,13 +18,62 @@ const publicRoutes = [
   "/laereverk/02-fra-jegere-til-bysamfunn/2-2-jordbruksrevolusjonen",
 ];
 
+let baseUrl;
+let serverProcess;
+let serverOutput = "";
+
+async function getFreePort() {
+  const server = createServer();
+  await new Promise((resolve, reject) => {
+    server.once("error", reject);
+    server.listen(0, "127.0.0.1", resolve);
+  });
+  const { port } = server.address();
+  await new Promise((resolve, reject) => {
+    server.close((error) => (error ? reject(error) : resolve()));
+  });
+  return port;
+}
+
+async function startProductionServer() {
+  const port = await getFreePort();
+  const nextCli = join(projectRoot, "node_modules", "next", "dist", "bin", "next");
+  serverProcess = spawn(process.execPath, [nextCli, "start", "--hostname", "127.0.0.1", "--port", String(port)], {
+    cwd: projectRoot,
+    env: { ...process.env, NEXT_TELEMETRY_DISABLED: "1" },
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  serverProcess.stdout.on("data", (chunk) => { serverOutput += chunk; });
+  serverProcess.stderr.on("data", (chunk) => { serverOutput += chunk; });
+  baseUrl = `http://127.0.0.1:${port}`;
+
+  for (let attempt = 0; attempt < 80; attempt += 1) {
+    if (serverProcess.exitCode !== null) {
+      throw new Error(`Next.js-serveren stoppet før den svarte:\n${serverOutput}`);
+    }
+    try {
+      const response = await fetch(baseUrl);
+      if (response.status >= 200 && response.status < 500) return;
+    } catch {
+      // Serveren bruker normalt noen hundre millisekunder på å starte.
+    }
+    await new Promise((resolve) => setTimeout(resolve, 250));
+  }
+  throw new Error(`Next.js-serveren svarte ikke innen tidsfristen:\n${serverOutput}`);
+}
+
+test.before(async () => {
+  await startProductionServer();
+});
+
+test.after(async () => {
+  if (!serverProcess || serverProcess.exitCode !== null) return;
+  serverProcess.kill();
+  await new Promise((resolve) => serverProcess.once("exit", resolve));
+});
+
 async function render(pathname) {
-  const { default: worker } = await import(`${workerUrl.href}?test=${process.pid}-${Date.now()}-${pathname}`);
-  return worker.fetch(
-    new Request(`http://localhost${pathname}`, { headers: { accept: "text/html" } }),
-    { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } },
-    { waitUntil() {}, passThroughOnException() {} },
-  );
+  return fetch(new URL(pathname, baseUrl));
 }
 
 test("renders the public homepage", async () => {
@@ -33,7 +83,7 @@ test("renders the public homepage", async () => {
   assert.match(html, /Historie i sammenheng/);
   assert.match(html, /Fakta gir oss punktene/);
   assert.match(html, /Jordbruksrevolusjonen/);
-  assert.match(html, /http:\/\/localhost(?::3000)?\/og\.png/);
+  assert.match(html, /https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/og\.png/);
   assert.equal(existsSync(join(projectRoot, "public", "og.png")), true);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape|react-loading-skeleton/);
 });
@@ -57,7 +107,7 @@ test("renders the reference chapter and its source-backed sections", async () =>
 });
 
 test("renders every public information route", async () => {
-  for (const pathname of ["/laereverk", "/lange-linjer", "/begreper", "/tidslinje", "/laerere", "/om"]) {
+  for (const pathname of publicRoutes.slice(1)) {
     const response = await render(pathname);
     assert.equal(response.status, 200, pathname);
     const html = await response.text();
@@ -75,8 +125,8 @@ test("all internal page links render and every linked public file exists", async
 
   for (const href of hrefs) {
     if (href.startsWith("#")) continue;
-    const url = new URL(href, "http://localhost");
-    if (url.origin !== "http://localhost") continue;
+    const url = new URL(href, baseUrl);
+    if (url.origin !== baseUrl) continue;
     if (/\.(?:pdf|docx?|png|jpe?g|webp|svg)$/i.test(url.pathname)) {
       assert.equal(existsSync(join(projectRoot, "public", url.pathname.slice(1))), true, `Mangler offentlig fil: ${url.pathname}`);
       continue;

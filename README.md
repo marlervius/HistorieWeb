@@ -11,7 +11,7 @@ npm ci
 npm run dev
 ```
 
-Åpne adressen som vises av `vinext`, vanligvis `http://localhost:3000`.
+Åpne `http://localhost:3000`.
 
 ## Kontroller
 
@@ -21,7 +21,7 @@ npm run lint
 npm test
 ```
 
-`npm test` bygger først produksjonsversjonen og kjører deretter server-renderingstester for forsiden, læreverket, verktøysidene og referansekapitlet.
+`npm test` bygger først produksjonsversjonen, starter den ordinære Next.js-serveren og kjører deretter HTTP-baserte server-renderingstester for forsiden, læreverket, verktøysidene og referansekapitlet.
 
 ## Innholdsarkitektur
 
@@ -29,7 +29,7 @@ npm test
 - `components/` inneholder gjenbrukbare komponenter for navigasjon, stabile lenker, oppgaver og begrepssøk.
 - `app/` inneholder sidene. Kapittelruten er dynamisk: `/laereverk/[section]/[chapter]`.
 - `docs/` inneholder produktstrategi, kvalitetsstandard og prioritert veikart.
-- `.openai/hosting.json` inneholder ingen D1- eller R2-bindinger. Første versjon har ingen database, innlogging, analyse, cookies eller elevregistrering.
+- Applikasjonen bruker ordinær Next.js App Router og Node.js-serveren uten database, innlogging, analyse, cookies eller elevregistrering.
 
 Faginnholdet ligger ikke direkte i store sidekomponenter. Navigasjonen og oversiktene bygges fra innholdsmodellen, slik at et nytt kapittel kan legges til uten å endre hovedmenyen.
 
@@ -66,13 +66,13 @@ Gjenstår:
 - kort oppsummerings-PDF for kapittel 2.2
 - eventuell bevisst offentliggjøring av lærerressurser som nå bare er dokumentert som lokale kilder
 
-## Vercel preview
+## Vercel-import
 
-Prosjektet er klart for en preview-deploy etter at endringene er lagt i et Git-repository:
+Importer GitHub-repositoriet som et nytt prosjekt i Vercel:
 
-1. Koble prosjektet til Vercel og velg dette prosjektets rotmappe.
-2. Bruk `npm run build` som byggkommando og Node.js `22.x`.
-3. Kontroller preview-adressen på mobil og desktop.
-4. Verifiser alle hovedrutene og oppgavesettet før eventuell produksjonslansering.
+1. Velg **Add New → Project**, importer `marlervius/HistorieWeb`, og velg prosjektets rotmappe.
+2. La Vercel oppdage rammeverket som **Next.js**. Ikke legg til `vercel.json` eller en egendefinert output-mappe.
+3. Velg Node.js `22.x` under prosjektinnstillingene. Prosjektet tilbyr standardkommandoene `next dev`, `next build` og `next start`; Vercel bruker sin vanlige Next.js-deteksjon for byggingen.
+4. Opprett først en preview-deploy, og kontroller alle hovedrutene, metadata, oppgaver og mobilvisning før eventuell produksjonslansering.
 
 Ingen produksjonspublisering eller Git-push er gjort fra denne arbeidsøkten.
