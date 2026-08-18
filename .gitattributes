@@ -1,0 +1,27 @@
+# Linjeskift
+# Alle tekstfiler lagres med LF i repoet og sjekkes ut med LF.
+# Dette hindrer at Windows-verktoy introduserer CRLF og gjor hele filer
+# "endret" i git uten at innholdet faktisk er endret.
+* text=auto eol=lf
+
+# Binaerfiler skal aldri normaliseres.
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.webp   binary
+*.ico    binary
+*.pdf    binary
+*.docx   binary
+*.xlsx   binary
+*.pptx   binary
+*.woff   binary
+*.woff2  binary
+*.ttf    binary
+
+# SVG er tekst, men skal ikke diffes som prosa.
+*.svg    text eol=lf
+
+# Genererte filer: LF, men merkes som generert slik at GitHub
+# kollapser dem i pull requests.
+package-lock.json  text eol=lf linguist-generated=true
