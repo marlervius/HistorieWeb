@@ -45,7 +45,7 @@ function reflectionTask(id = "L1"): LearningTask {
 }
 
 function validAnswer() {
-  return "Jordbruk kan ha endret hverdagen fordi flere mennesker kunne bo fast, men utviklingen var ulik i ulike regioner.";
+  return "Jordbruk kunne gi mer mat, men også hardere arbeid i ulike regioner.";
 }
 
 function storeStates(states: Record<string, unknown>, chapterId = "test-kapittel", version = progressVersion) {

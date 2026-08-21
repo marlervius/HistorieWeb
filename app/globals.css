@@ -229,6 +229,42 @@ textarea { resize: vertical; min-height: 120px; padding: 11px; font-size: 15px; 
 .card-source { display: block; margin-top: 18px; color: var(--teal); font-family: Arial, sans-serif; font-size: 10px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
 .empty-state { padding: 30px; border: 1px dashed var(--line-dark); color: var(--ink-soft); }
 
+.teacher-index { margin: 42px 0 0; padding: 18px 20px; border: 1px solid var(--line); background: var(--paper-warm); }
+.teacher-index h2 { margin: 0 0 10px; font-family: Arial, sans-serif; }
+.teacher-index ul { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: 0; padding-left: 18px; }
+.teacher-chapter { margin-top: 76px; border-top: 4px solid var(--teal); }
+.teacher-chapter-header { padding: 38px 0 42px; border-bottom: 1px solid var(--line); }
+.teacher-chapter-header h2 { max-width: 900px; margin: 12px 0 16px; font-size: clamp(32px, 5vw, 58px); font-weight: 500; line-height: 1.05; overflow-wrap: anywhere; }
+.teacher-chapter-intro { max-width: 780px; margin: 0; font-size: 21px; line-height: 1.45; }
+.teacher-meta { margin: 18px 0 22px; color: var(--ink-soft); font: 12px Arial, sans-serif; }
+.teacher-section { padding-top: 52px; }
+.teacher-section h4 { margin: 0 0 10px; font-size: 21px; font-weight: 500; }
+.teacher-section h5 { margin: 0 0 8px; color: var(--teal); font: 800 11px Arial, sans-serif; letter-spacing: .06em; text-transform: uppercase; }
+.teacher-phase-list { display: grid; gap: 14px; margin: 20px 0 0; padding: 0; list-style: none; counter-reset: teacher-phase; }
+.teacher-phase { padding: 24px; border: 1px solid var(--line); background: rgb(255 255 255 / 48%); counter-increment: teacher-phase; }
+.teacher-phase-heading { display: grid; grid-template-columns: auto 1fr; column-gap: 16px; align-items: baseline; }
+.teacher-phase-heading .eyebrow { grid-column: 1; }
+.teacher-phase-heading h4 { grid-column: 2; margin: 0; }
+.teacher-phase-heading p { grid-column: 2; margin: 8px 0 0; color: var(--ink-soft); }
+.teacher-phase-actions { margin-top: 22px; }
+.teacher-related-links { margin-top: 18px; padding-top: 12px; border-top: 1px solid var(--line); color: var(--ink-soft); font: 12px Arial, sans-serif; }
+.teacher-related-links span { font-weight: 800; }
+.teacher-related-links ul { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 8px 0 0; padding-left: 18px; }
+.teacher-misconception-grid, .teacher-criteria-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.teacher-misconception, .teacher-criterion { min-width: 0; padding: 20px; border: 1px solid var(--line); background: rgb(255 255 255 / 48%); }
+.teacher-misconception h4, .teacher-criterion h4 { color: var(--teal-dark); }
+.teacher-misconception dl { margin: 0; }
+.teacher-misconception dt { margin-top: 14px; color: var(--teal); font: 800 11px Arial, sans-serif; letter-spacing: .04em; text-transform: uppercase; }
+.teacher-misconception dt:first-of-type { margin-top: 0; }
+.teacher-misconception dd { margin: 4px 0 0; color: var(--ink-soft); font-size: 15px; }
+.teacher-criterion p { margin: 0 0 12px; color: var(--ink-soft); font-size: 15px; }
+.teacher-criterion p:last-child { margin-bottom: 0; }
+.teacher-resource-list li > a { display: block; color: inherit; text-decoration: none; }
+.teacher-resource-list li > a:hover { color: var(--teal-dark); }
+.local-resource { background: var(--paper-warm) !important; }
+.local-resource-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+.local-badge { flex: 0 0 auto; padding: 4px 7px; background: var(--ochre-pale); color: var(--ink-soft); font: 800 10px Arial, sans-serif; letter-spacing: .05em; text-transform: uppercase; }
+
 .info-table { width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 13px; }
 .info-table th, .info-table td { padding: 14px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
 .info-table th { color: var(--teal); font-size: 11px; letter-spacing: .07em; text-transform: uppercase; }
@@ -247,6 +283,10 @@ textarea { resize: vertical; min-height: 120px; padding: 11px; font-size: 15px; 
   .hero { grid-template-columns: 1fr; gap: 30px; }
   .home-grid, .card-grid, .feature-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .chapter-layout { grid-template-columns: 1fr; gap: 0; }
+  .teacher-misconception-grid, .teacher-criteria-grid { grid-template-columns: 1fr; }
+  .teacher-phase-heading { grid-template-columns: 1fr; }
+  .teacher-phase-heading .eyebrow, .teacher-phase-heading h4, .teacher-phase-heading p { grid-column: 1; }
+  .local-resource-heading { flex-direction: column; }
   .chapter-rail { position: static; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; padding-top: 30px; order: 0; }
   .chapter-content { order: 1; }
   .rail-box + .rail-box { margin-top: 0; }

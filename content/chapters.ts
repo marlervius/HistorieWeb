@@ -1,5 +1,84 @@
 export type Phase = "Fakta" | "Forståelse" | "Lange linjer" | "Kildeblikk";
 
+export const chapterSectionIds = [
+  "forkunnskap",
+  "mal",
+  "tid-og-sted",
+  "tidslinje",
+  "fakta",
+  "forstaelse",
+  "fagtekst",
+  "kildeblikk",
+  "lange-linjer",
+  "oppgaver",
+  "oppsummering",
+  "repetisjon",
+  "kilder",
+  "pdf",
+] as const;
+
+export type ChapterSectionId = (typeof chapterSectionIds)[number];
+
+export type TeachingPhase = {
+  id: string;
+  title: string;
+  duration: string;
+  purpose: string;
+  teacherActions: string[];
+  studentActions: string[];
+  sectionIds: ChapterSectionId[];
+};
+
+export type TeacherMisconception = {
+  belief: string;
+  whyUnderstandable: string;
+  diagnosticQuestion: string;
+  response: string;
+};
+
+export type TeacherAssessmentCriterion = {
+  area: "Faktakunnskap" | "Historiske begreper" | "Årsaker og virkninger" | "Kildebruk" | "Konkrete eksempler" | "Nyansering og historisk usikkerhet";
+  shortAnswer: string;
+  extendedAnswer: string;
+};
+
+export type TeacherResource = {
+  label: string;
+  description: string;
+  visibility: "public" | "local";
+  href?: string;
+  sectionId?: ChapterSectionId;
+};
+
+export type TeacherGuide = {
+  overview: string;
+  teachingPhases: TeachingPhase[];
+  priorKnowledgeActivation: {
+    prompt: string;
+    cues: string[];
+    sectionIds: ChapterSectionId[];
+  };
+  textWork: {
+    instructions: string[];
+    sectionIds: ChapterSectionId[];
+  };
+  taskUse: {
+    sequence: string;
+    firstAttempt: string;
+    retry: string;
+    openResponses: string;
+    sectionIds: ChapterSectionId[];
+  };
+  selfAssessmentAndReview: {
+    selfAssessment: string[];
+    repetition: string[];
+    sectionIds: ChapterSectionId[];
+  };
+  misconceptions: TeacherMisconception[];
+  assessmentCriteria: TeacherAssessmentCriterion[];
+  resources: TeacherResource[];
+};
+
 export type TaskKind = "choice" | "order" | "match" | "sort" | "reflection";
 
 export type LearningTask = {
@@ -74,7 +153,7 @@ export type Chapter = {
   tasks: LearningTask[];
   progressVersion: number;
   summaryPdf?: { label: string; href: string };
-  teacherResources?: { label: string; description: string; href?: string }[];
+  teacherGuide?: TeacherGuide;
   sources: { id: string; title: string; href: string; note: string }[];
   lastChecked: string;
 };
@@ -513,6 +592,199 @@ const tasks: LearningTask[] = [
   },
 ];
 
+const teacherGuide2_2: TeacherGuide = {
+  overview:
+    "Kapitlet følger progresjonen forkunnskaper → fakta → forståelse → kildearbeid → lange linjer → egenvurdering → repetisjon. Elevene undersøker en gradvis og regional overgang, og må hele tiden skille mellom det sporene viser, en mulig tolkning og det materialet ikke kan bevise.",
+  teachingPhases: [
+    {
+      id: "forkunnskaper",
+      title: "Hent fram forkunnskaper",
+      duration: "0–10 min",
+      purpose: "Synliggjør elevenes første forestillinger og spørsmål før faglige presiseringer.",
+      teacherActions: ["Skriv «jordbruksrevolusjonen» på tavla.", "Be elevene notere tre assosiasjoner og ett spørsmål uten å korrigere alt ennå."],
+      studentActions: ["Noter egne assosiasjoner.", "Formuler ett spørsmål som kan undersøkes i kapitlet."],
+      sectionIds: ["forkunnskap"],
+    },
+    {
+      id: "kartet",
+      title: "Bygg tid- og stedskartet",
+      duration: "10–25 min",
+      purpose: "Gi elevene et rammeverk for regionale forskjeller, arter og periodisering.",
+      teacherActions: ["Bruk tidslinjen og kartdelen som felles orientering.", "Be elevene markere minst tre regioner og forklare hvorfor én startdato ikke passer overalt."],
+      studentActions: ["Finn tidspunkter og regioner i elevkapitlet.", "Bruk begrepet domestisering i en egen setning."],
+      sectionIds: ["tid-og-sted", "tidslinje", "mal"],
+    },
+    {
+      id: "fakta",
+      title: "Sikre faktapunktene",
+      duration: "25–45 min",
+      purpose: "Etabler presise faktapunkter før elevene lager forklaringer og lange linjer.",
+      teacherActions: ["La elevene arbeide med faktaoppgavene.", "Stopp ved region- og artskoblingene og la elevene begrunne valgene muntlig."],
+      studentActions: ["Løs faktaoppgavene uten å lete etter et ferdig svar.", "Marker hvilke faktapunkter du fortsatt må undersøke i fagteksten."],
+      sectionIds: ["fakta", "oppgaver"],
+    },
+    {
+      id: "forstaelse",
+      title: "Les og forklar",
+      duration: "45–80 min",
+      purpose: "Koble mulige forutsetninger til mulige følger uten å gjøre utviklingen automatisk.",
+      teacherActions: ["La elevene lese utvalgte deler av fagteksten.", "Be dem lage to kolonner for mulige forutsetninger og mulige følger.", "Stopp ved befolkningsparadokset og spør hva som er forskjellen på befolkningsvekst og individuell helse."],
+      studentActions: ["Finn formuleringer som viser forbehold.", "Forklar minst én årsak–virkning-kobling med «kan» eller «bidro til»."],
+      sectionIds: ["fagtekst", "forstaelse"],
+    },
+    {
+      id: "kildearbeid",
+      title: "Arbeid med spor",
+      duration: "80–100 min",
+      purpose: "Øv på å skille funn, slutning og kildebegrensning.",
+      teacherActions: ["La elevene arbeide parvis med Çatalhöyük og Göbekli Tepe.", "Be hvert par formulere én påstand med konkret belegg og én begrensning."],
+      studentActions: ["Pek på konkrete materielle spor.", "Skill mellom hva sporet støtter og hva det ikke kan avgjøre alene."],
+      sectionIds: ["kildeblikk"],
+    },
+    {
+      id: "lange-linjer",
+      title: "Koble til større utviklinger",
+      duration: "100–120 min",
+      purpose: "La elevene bruke faktapunkter og kildearbeid til å vurdere brudd, kontinuitet og bærekraft.",
+      teacherActions: ["La elevene velge en lang linje og bruke minst tre historiske punkter.", "Avslutt med en exit-lapp med tre punkter, én lang linje og én reservasjon."],
+      studentActions: ["Skriv en sammenhengende forklaring.", "Vis både mulige gevinster og kostnader, og hvem eller hva som kunne bli ulikt berørt."],
+      sectionIds: ["lange-linjer", "oppgaver"],
+    },
+    {
+      id: "repetisjon",
+      title: "Egenvurder og repeter",
+      duration: "Etter økten",
+      purpose: "Flytt elevene fra gjenlesing til gjenhenting og revisjon over tid.",
+      teacherActions: ["Bruk egenvurderingen som en kort metakognitiv stopp.", "Avtal en ny økt der fakta- og kildeoppgaver hentes fram uten at fagteksten åpnes først."],
+      studentActions: ["Marker hvilke læringsmål du kan forklare med egne ord.", "Gå tilbake til oppgavene etter noen dager og sammenlign begrunnelse og forbehold."],
+      sectionIds: ["oppsummering", "repetisjon"],
+    },
+  ],
+  priorKnowledgeActivation: {
+    prompt: "Be elevene skrive tre ting de forbinder med jordbruksrevolusjonen og ett spørsmål de vil ha svar på.",
+    cues: [
+      "Hva tror du ordet «revolusjon» betyr i denne sammenhengen?",
+      "Måtte mennesker bli bønder før de kunne bo fast eller samarbeide om store prosjekter?",
+      "Hva kan ha blitt bedre, og hva kan ha blitt vanskeligere?",
+    ],
+    sectionIds: ["forkunnskap"],
+  },
+  textWork: {
+    instructions: [
+      "La elevene bruke tidslinjen og begrepslisten som støtte før de leser hele fagteksten.",
+      "Be dem markere mulige forutsetninger med én farge og mulige følger med en annen.",
+      "Be elevene samle setninger som viser forbehold eller regional forskjell.",
+      "La dem forklare ett avsnitt med egne ord før de går videre til lange linjer.",
+    ],
+    sectionIds: ["fagtekst", "tid-og-sted", "forstaelse"],
+  },
+  taskUse: {
+    sequence: "Arbeid i rekkefølgen fakta → forståelse → lange linjer → kildeblikk.",
+    firstAttempt: "La elevene gjøre et eget første forsøk. Ved første feil skal de bruke det avgrensede hintet som støtte.",
+    retry: "Be elevene prøve på nytt før de leser forklaringen. Samtal om hva som endret seg i begrunnelsen, ikke bare om svaret ble riktig.",
+    openResponses: "For åpne svar skal eleven skrive et eget, meningsbærende svar før modellresponsen vises. Bruk modellen til å finne konkrete eksempler, koblinger og forbehold som kan forbedres.",
+    sectionIds: ["oppgaver", "fakta", "forstaelse", "lange-linjer", "kildeblikk"],
+  },
+  selfAssessmentAndReview: {
+    selfAssessment: [
+      "Bruk læringsmålene som en sjekkliste: Kan eleven forklare med egne ord, eller kjenner eleven bare igjen formuleringen?",
+      "Be eleven velge ett mål som er sikkert, ett som er på vei og ett som trenger et nytt forsøk.",
+      "La eleven hente fram ett konkret funn og forklare hva det kan og ikke kan vise.",
+    ],
+    repetition: [
+      "Nå: Lukk fagteksten og gjenfortell oppsummeringen med egne ord.",
+      "Om 2–3 dager: Hent fram faktaoppgavene uten å lese først, og bruk bare hint hvis du står fast.",
+      "Om 1–2 uker: Svar på en langlinje- og kildeoppgave på nytt og sammenlign eksempler og forbehold.",
+    ],
+    sectionIds: ["oppsummering", "repetisjon", "oppgaver"],
+  },
+  misconceptions: [
+    {
+      belief: "«Jordbruk ble oppfunnet én gang.»",
+      whyUnderstandable: "En vanlig fortelling starter i én kjent region og hopper raskt til spredning.",
+      diagnosticQuestion: "Hvilke regioner og arter finner du i kapitlet, og har de samme tidspunkt?",
+      response: "Bruk flere regioner i samme forklaring. Skill mellom lokal utvikling, spredning av mennesker og opptak av kunnskap.",
+    },
+    {
+      belief: "«Revolusjon betyr at alt skjedde raskt.»",
+      whyUnderstandable: "I dagligtale betyr revolusjon ofte en plutselig hendelse.",
+      diagnosticQuestion: "Hva er forskjellen på tempoet i prosessen og hvor store følgene ble?",
+      response: "Presiser at ordet her viser til grunnleggende følger, mens overgangen kunne ta mange generasjoner og ha mellomformer.",
+    },
+    {
+      belief: "«Folk ble bofaste først etter jordbruket.»",
+      whyUnderstandable: "Kart og lærebøker kobler ofte landsbyer direkte til dyrking.",
+      diagnosticQuestion: "Hvilke ressurser kan gjøre et jeger- og sankersamfunn fast eller sesongfast?",
+      response: "Vis at bofasthet kunne finnes før fullt utviklet jordbruk, og at matstrategier kan kombineres.",
+    },
+    {
+      belief: "«Jakt og sanking sluttet med en gang.»",
+      whyUnderstandable: "En trinnvis fortelling gjør jeger og bonde til to adskilte kategorier.",
+      diagnosticQuestion: "Finn spor eller formuleringer som viser blandede matstrategier.",
+      response: "La elevene bruke brudd og kontinuitet i samme setning: dyrking fikk større betydning, men jakt, fiske og sanking kunne fortsette.",
+    },
+    {
+      belief: "«Bønder fikk automatisk bedre liv.»",
+      whyUnderstandable: "Mer mat per areal kan høres ut som bedre helse for hver person.",
+      diagnosticQuestion: "Hvordan kan en befolkning vokse samtidig som kosthold, arbeid eller smitte blir mer belastende?",
+      response: "Skill mellom hvor mange et område kan brødfø og livsvilkårene til enkeltmennesker. Vei gevinster og kostnader mot hverandre.",
+    },
+    {
+      belief: "«Overskudd skapte automatisk stater.»",
+      whyUnderstandable: "Mange oversikter tegner en rett kjede fra mat til by og stat.",
+      diagnosticQuestion: "Hvilket mellomledd må forklares før overskudd kan knyttes til spesialisering eller makt?",
+      response: "Bruk forbehold: lagring kunne forsørge andre oppgaver og kontroll kunne bidra til ulikhet, men utviklingen var ikke uunngåelig.",
+    },
+    {
+      belief: "«Arkeologiske funn viser nøyaktig hva folk tenkte.»",
+      whyUnderstandable: "Materielle spor er konkrete, mens tolkningen av menneskers tanker er vanskeligere å se.",
+      diagnosticQuestion: "Hva er et konkret funn, hva er en rimelig slutning, og hva kan materialet ikke avgjøre alene?",
+      response: "Krev at elevene bruker tre ledd: belegg, avgrenset tolkning og kildebegrensning.",
+    },
+  ],
+  assessmentCriteria: [
+    {
+      area: "Faktakunnskap",
+      shortAnswer: "Gjengir relevante faktapunkter presist og svarer direkte på spørsmålet.",
+      extendedAnswer: "Velger flere faktapunkter som faktisk belyser problemstillingen, uten å blande regionale tidspunkt eller gjøre en mulighet til en sikker regel.",
+    },
+    {
+      area: "Historiske begreper",
+      shortAnswer: "Bruker begreper som domestisering, bofasthet, brudd og kontinuitet med riktig betydning.",
+      extendedAnswer: "Definerer eller presiserer begrepene når det trengs, og bruker dem til å strukturere en historisk forklaring.",
+    },
+    {
+      area: "Årsaker og virkninger",
+      shortAnswer: "Knytter en mulig forutsetning til en mulig følge med en forklart kobling.",
+      extendedAnswer: "Forklarer flere ledd i en årsakskjede og viser at årsaker og virkninger kunne virke sammen ulikt i ulike regioner.",
+    },
+    {
+      area: "Kildebruk",
+      shortAnswer: "Bruker minst ett konkret spor og skiller det fra en tolkning.",
+      extendedAnswer: "Sammenstiller spor fra mer enn ett sted og forklarer tydelig hva materialet ikke kan bevise alene.",
+    },
+    {
+      area: "Konkrete eksempler",
+      shortAnswer: "Bruker et navngitt sted, en region, en art eller et tidsrom som støtter poenget.",
+      extendedAnswer: "Integrerer flere konkrete eksempler i resonnementet og forklarer hvorfor hvert eksempel er relevant.",
+    },
+    {
+      area: "Nyansering og historisk usikkerhet",
+      shortAnswer: "Bruker forbehold som «kan», «mulig» eller «bidro til» der materialet ikke gir en sikker kjede.",
+      extendedAnswer: "Veier ulike perspektiver mot hverandre, viser regional eller sosial variasjon og markerer hvor tolkningen er usikker.",
+    },
+  ],
+  resources: [
+    { label: "Start i elevkapitlet", description: "Åpne hovedspørsmål og læringsmål før undervisningen begynner.", visibility: "public", sectionId: "mal" },
+    { label: "Bruk tidslinjen", description: "Orienter klassen i tid, sted og regionale forskjeller.", visibility: "public", sectionId: "tid-og-sted" },
+    { label: "Arbeid med kildeblikk", description: "La elevene skille funn, tolkning og begrensning.", visibility: "public", sectionId: "kildeblikk" },
+    { label: "Åpne oppgavene", description: "Bruk oppgavene til gjenhenting, respons og nytt forsøk.", visibility: "public", sectionId: "oppgaver" },
+    { label: "Planlegg repetisjon", description: "Finn forslag til egenvurdering og repetisjon over tid.", visibility: "public", sectionId: "repetisjon" },
+    { label: "Lokalt undervisningsmateriale", description: "Et mer detaljert internt arbeidsmateriale finnes i prosjektmappen. Det er ikke offentlig publisert, og siden viser ingen nedlastingslenke.", visibility: "local" },
+    { label: "Lokalt arbeidsark", description: "Et lokalt arbeidsark finnes som redaksjonelt arbeidsmateriale. Det er ikke offentlig publisert, og innholdet legges ikke i nettleseren.", visibility: "local" },
+  ],
+};
+
 export const jordbruksrevolusjonen: Chapter = {
   id: "2.2",
   number: "2.2",
@@ -683,10 +955,7 @@ export const jordbruksrevolusjonen: Chapter = {
   ],
   tasks,
   progressVersion: 2,
-  teacherResources: [
-    { label: "Lærerveiledning og fasit", description: "Det lokale kildedokumentet inneholder undervisningsløp, misoppfatninger, fasit og vurderingskriterier." },
-    { label: "Kortprøve", description: "Det lokale kildedokumentet inneholder en kortprøve på 40 poeng med fakta, forståelse, lange linjer og kildeblikk." },
-  ],
+  teacherGuide: teacherGuide2_2,
   sources: [
     { id: "udir", title: "Utdanningsdirektoratet · Kompetansemål etter vg2 (HIS01-03)", href: "https://www.udir.no/lk20/his01-03/kompetansemaal-og-vurdering/kv84", note: "Gjeldende kompetansemål og føringer for underveisvurdering i historie vg2." },
     { id: "openstax", title: "OpenStax · World History Volume 1: 2.3 The Neolithic Revolution", href: "https://openstax.org/books/world-history-volume-1/pages/2-3-the-neolithic-revolution", note: "Åpen læreboktekst om neolittisk tid og konsekvenser av overgangen." },
@@ -700,7 +969,7 @@ export const jordbruksrevolusjonen: Chapter = {
     { id: "holocene-ics", title: "International Commission on Stratigraphy · GSSP tables", href: "https://stratigraphy.org/gssps/", note: "Offisiell stratigrafisk datering av Holocens base til 11 700 år før 2000 (b2k)." },
     { id: "scientific-reports", title: "Scientific Reports (2023) · Bioarchaeological data and the transition to farming", href: "https://www.nature.com/articles/s41598-023-49406-5", note: "Forskning på forholdet mellom vekst, kosthold og demografi gjennom overgangen til jordbruk i det sentrale Middelhavsområdet." },
   ],
-  lastChecked: "20. august 2026",
+  lastChecked: "21. august 2026",
 };
 
 export const chapters = [jordbruksrevolusjonen];
@@ -709,6 +978,131 @@ export const curriculumSections = curriculumSectionDefinitions.map((section) => 
   ...section,
   chapters: chapters.filter((chapter) => chapter.sectionSlug === section.slug),
 }));
+
+const publicAssetPaths = new Set(["/favicon.svg", "/og.png"]);
+const teacherAssessmentAreas: TeacherAssessmentCriterion["area"][] = [
+  "Faktakunnskap",
+  "Historiske begreper",
+  "Årsaker og virkninger",
+  "Kildebruk",
+  "Konkrete eksempler",
+  "Nyansering og historisk usikkerhet",
+];
+
+function hasText(value: unknown): value is string {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
+function validateSectionIds(chapterId: string, label: string, sectionIds: unknown, issues: string[]) {
+  if (!Array.isArray(sectionIds) || sectionIds.length === 0) {
+    issues.push("Lærerelementet " + label + " i " + chapterId + " mangler kapittelseksjon");
+    return;
+  }
+  for (const sectionId of sectionIds) {
+    if (typeof sectionId !== "string" || !chapterSectionIds.includes(sectionId as ChapterSectionId)) {
+      issues.push("Ukjent kapittelseksjon i lærerelementet " + label + " for " + chapterId + ": " + String(sectionId));
+    }
+  }
+}
+
+function validateStringList(chapterId: string, label: string, values: unknown, issues: string[]) {
+  if (!Array.isArray(values) || values.length === 0 || values.some((value) => !hasText(value))) {
+    issues.push("Lærerelementet " + label + " i " + chapterId + " mangler tekst");
+  }
+}
+
+export function getTeacherGuideIssues(chapterId: string, teacherGuide: TeacherGuide | undefined) {
+  const issues: string[] = [];
+  if (!teacherGuide) {
+    issues.push("Publisert kapittel " + chapterId + " mangler lærerdata");
+    return issues;
+  }
+  if (!hasText(teacherGuide.overview)) issues.push("Læreroversikten for " + chapterId + " mangler kapitteloversikt");
+  if (!Array.isArray(teacherGuide.teachingPhases) || teacherGuide.teachingPhases.length < 3) {
+    issues.push("Læreroversikten for " + chapterId + " mangler undervisningsfaser");
+  } else {
+    const phaseIds = new Set<string>();
+    for (const phase of teacherGuide.teachingPhases) {
+      if (!hasText(phase.id) || phaseIds.has(phase.id)) issues.push("Undervisningsfase med tom eller duplisert ID i " + chapterId);
+      phaseIds.add(phase.id);
+      for (const [label, value] of [["tittel", phase.title], ["varighet", phase.duration], ["formål", phase.purpose]] as const) {
+        if (!hasText(value)) issues.push("Undervisningsfasen " + (phase.id || "ukjent") + " i " + chapterId + " mangler " + label);
+      }
+      validateStringList(chapterId, "lærerhandlinger i " + (phase.id || "ukjent"), phase.teacherActions, issues);
+      validateStringList(chapterId, "elevhandlinger i " + (phase.id || "ukjent"), phase.studentActions, issues);
+      validateSectionIds(chapterId, "undervisningsfase " + (phase.id || "ukjent"), phase.sectionIds, issues);
+    }
+  }
+  if (!teacherGuide.priorKnowledgeActivation || !hasText(teacherGuide.priorKnowledgeActivation.prompt)) {
+    issues.push("Læreroversikten for " + chapterId + " mangler forkunnskapsaktivering");
+  } else {
+    validateStringList(chapterId, "forkunnskapsaktivering", teacherGuide.priorKnowledgeActivation.cues, issues);
+    validateSectionIds(chapterId, "forkunnskapsaktivering", teacherGuide.priorKnowledgeActivation.sectionIds, issues);
+  }
+  if (!teacherGuide.textWork) {
+    issues.push("Læreroversikten for " + chapterId + " mangler arbeid underveis i fagteksten");
+  } else {
+    validateStringList(chapterId, "arbeid underveis i fagteksten", teacherGuide.textWork.instructions, issues);
+    validateSectionIds(chapterId, "arbeid underveis i fagteksten", teacherGuide.textWork.sectionIds, issues);
+  }
+  if (!teacherGuide.taskUse) {
+    issues.push("Læreroversikten for " + chapterId + " mangler oppgavebruk");
+  } else {
+    for (const [label, value] of [["rekkefølge", teacherGuide.taskUse.sequence], ["første forsøk", teacherGuide.taskUse.firstAttempt], ["nytt forsøk", teacherGuide.taskUse.retry], ["åpne svar", teacherGuide.taskUse.openResponses]] as const) {
+      if (!hasText(value)) issues.push("Oppgavebruken for " + chapterId + " mangler " + label);
+    }
+    validateSectionIds(chapterId, "oppgavebruk", teacherGuide.taskUse.sectionIds, issues);
+  }
+  if (!teacherGuide.selfAssessmentAndReview) {
+    issues.push("Læreroversikten for " + chapterId + " mangler egenvurdering og repetisjon");
+  } else {
+    validateStringList(chapterId, "egenvurdering", teacherGuide.selfAssessmentAndReview.selfAssessment, issues);
+    validateStringList(chapterId, "repetisjon", teacherGuide.selfAssessmentAndReview.repetition, issues);
+    validateSectionIds(chapterId, "egenvurdering og repetisjon", teacherGuide.selfAssessmentAndReview.sectionIds, issues);
+  }
+  if (!Array.isArray(teacherGuide.misconceptions) || teacherGuide.misconceptions.length === 0) {
+    issues.push("Læreroversikten for " + chapterId + " mangler misoppfatninger");
+  } else {
+    teacherGuide.misconceptions.forEach((item, index) => {
+      for (const [label, value] of [["forestilling", item.belief], ["hvorfor", item.whyUnderstandable], ["avdekkende spørsmål", item.diagnosticQuestion], ["respons", item.response]] as const) {
+        if (!hasText(value)) issues.push("Misoppfatning " + (index + 1) + " i " + chapterId + " mangler " + label);
+      }
+    });
+  }
+  if (!Array.isArray(teacherGuide.assessmentCriteria) || teacherGuide.assessmentCriteria.length === 0) {
+    issues.push("Læreroversikten for " + chapterId + " mangler vurderingskriterier");
+  } else {
+    const areas = new Set<string>();
+    for (const criterion of teacherGuide.assessmentCriteria) {
+      if (!teacherAssessmentAreas.includes(criterion.area)) issues.push("Ukjent vurderingsområde i " + chapterId + ": " + criterion.area);
+      if (areas.has(criterion.area)) issues.push("Duplisert vurderingsområde i " + chapterId + ": " + criterion.area);
+      areas.add(criterion.area);
+      if (!hasText(criterion.shortAnswer) || !hasText(criterion.extendedAnswer)) issues.push("Vurderingsområdet " + criterion.area + " i " + chapterId + " mangler kriterietekst");
+    }
+    for (const area of teacherAssessmentAreas) if (!areas.has(area)) issues.push("Vurderingsområdet " + area + " mangler i " + chapterId);
+  }
+  if (!Array.isArray(teacherGuide.resources) || teacherGuide.resources.length === 0) {
+    issues.push("Læreroversikten for " + chapterId + " mangler ressursmarkører");
+  } else {
+    teacherGuide.resources.forEach((resource, index) => {
+      if (!hasText(resource.label) || !hasText(resource.description)) issues.push("Lærerressurs " + (index + 1) + " i " + chapterId + " mangler tekst");
+      if (resource.visibility !== "public" && resource.visibility !== "local") issues.push("Lærerressurs " + (index + 1) + " i " + chapterId + " har ugyldig synlighet");
+      if (resource.visibility === "local") {
+        if (resource.href || resource.sectionId) issues.push("Lokal lærerressurs " + (resource.label || index + 1) + " i " + chapterId + " kan ikke ha offentlig lenke");
+      } else {
+        if (resource.href && resource.sectionId) issues.push("Offentlig lærerressurs " + (resource.label || index + 1) + " i " + chapterId + " har to lenkemål");
+        if (!resource.href && !resource.sectionId) issues.push("Offentlig lærerressurs " + (resource.label || index + 1) + " i " + chapterId + " mangler lenkemål");
+        if (resource.sectionId && !chapterSectionIds.includes(resource.sectionId)) issues.push("Offentlig lærerressurs " + (resource.label || index + 1) + " peker til ukjent seksjon");
+        if (resource.href) {
+          const path = resource.href.split("#")[0];
+          if (path.startsWith("/") && !publicAssetPaths.has(path)) issues.push("Offentlig lærerressurs " + (resource.label || index + 1) + " peker til manglende fil: " + path);
+          if (!path.startsWith("/") && !path.startsWith("https://")) issues.push("Offentlig lærerressurs " + (resource.label || index + 1) + " må bruke HTTPS eller rot-relativ sti");
+        }
+      }
+    });
+  }
+  return issues;
+}
 
 export function getContentModelIssues() {
   const issues: string[] = [];
@@ -763,7 +1157,12 @@ export function getContentModelIssues() {
     for (const sourceLook of chapter.sourceLooks) {
       for (const sourceId of sourceLook.sourceIds) if (!sourceIds.has(sourceId)) issues.push(`Ukjent kilde-ID i kildeblikket for ${chapter.id}: ${sourceId}`);
     }
-    if (chapter.summaryPdf && !chapter.summaryPdf.href.startsWith("/")) issues.push(`PDF-stien for ${chapter.id} må være rot-relativ`);
+    if (chapter.status === "published" || chapter.teacherGuide) issues.push(...getTeacherGuideIssues(chapter.id, chapter.teacherGuide));
+    if (chapter.summaryPdf) {
+      const summaryPath = chapter.summaryPdf.href.split("#")[0];
+      if (!summaryPath.startsWith("/")) issues.push("PDF-stien for " + chapter.id + " må være rot-relativ");
+      else if (!publicAssetPaths.has(summaryPath)) issues.push("Oppsummerings-PDF for " + chapter.id + " finnes ikke i public: " + summaryPath);
+    }
   }
 
   return issues;

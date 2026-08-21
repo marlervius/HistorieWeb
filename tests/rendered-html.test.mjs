@@ -100,13 +100,37 @@ test("renders the reference chapter and its source-backed sections", async () =>
   assert.match(html, /Plan for repetisjon/);
   assert.match(html, /Egenvurdering/);
   assert.match(html, /Utdanningsdirektoratet/);
-  assert.match(html, /20\. august 2026/);
+  assert.match(html, /21\. august 2026/);
   assert.match(html, /Kildehenvisning/);
   assert.match(html, /Øv på nytt/);
   assert.match(html, /self-assessment-status/);
   assert.match(html, /role="status"/);
   assert.match(html, /Oppsummerings-PDF/);
   assert.doesNotMatch(html, /href="[^"]*kort-fortalt\.pdf"/);
+});
+
+test("renders the public teacher overview without local assessment material", async () => {
+  const response = await render("/laerere");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /Fra læringsmål til lange linjer/);
+  assert.match(html, /Jordbruksrevolusjonen/);
+  assert.match(html, /Relevante kompetansemål/);
+  assert.match(html, /En mulig gjennomføring/);
+  assert.match(html, /Aktiver forkunnskaper og arbeid underveis/);
+  assert.match(html, /Gjenhenting og nytt forsøk/);
+  assert.match(html, /Avdekk og møt misoppfatninger/);
+  assert.match(html, /Observerbare kriterier for elevsvar/);
+  assert.match(html, /Lokalt · ikke publisert/);
+  assert.match(html, /#mal/);
+  assert.match(html, /#fagtekst/);
+  assert.match(html, /#kildeblikk/);
+  const chapterResponse = await render("/laereverk/02-fra-jegere-til-bysamfunn/2-2-jordbruksrevolusjonen");
+  const chapterHtml = await chapterResponse.text();
+  for (const sectionId of ["mal", "tid-og-sted", "tidslinje", "fakta", "forstaelse", "fagtekst", "kildeblikk", "lange-linjer", "oppgaver", "oppsummering", "repetisjon"]) {
+    assert.match(chapterHtml, new RegExp(`id="${sectionId}"`), sectionId);
+  }
+  assert.doesNotMatch(html, /kort-fortalt\.pdf|\.docx|fasit|testoppgave|prøveoppgave/i);
 });
 
 test("renders every public information route", async () => {
