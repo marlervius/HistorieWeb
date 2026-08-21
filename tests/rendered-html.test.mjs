@@ -100,7 +100,10 @@ test("renders the reference chapter and its source-backed sections", async () =>
   assert.match(html, /Plan for repetisjon/);
   assert.match(html, /Egenvurdering/);
   assert.match(html, /Utdanningsdirektoratet/);
-  assert.match(html, /17\. august 2026/);
+  assert.match(html, /20\. august 2026/);
+  assert.match(html, /Kildehenvisning/);
+  assert.match(html, /Øv på nytt/);
+  assert.match(html, /self-assessment-status/);
   assert.match(html, /role="status"/);
   assert.match(html, /Oppsummerings-PDF/);
   assert.doesNotMatch(html, /href="[^"]*kort-fortalt\.pdf"/);

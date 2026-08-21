@@ -1,6 +1,6 @@
 :root {
   --ink: #24342f;
-  --ink-soft: #60716a;
+  --ink-soft: #55665f;
   --paper: #fbfaf6;
   --paper-warm: #f2eee5;
   --paper-strong: #e9e1d2;
@@ -109,8 +109,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .meta-row { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-top: 28px; color: var(--ink-soft); font-family: Arial, sans-serif; font-size: 12px; }
 .meta-row strong { color: var(--ink); }
 .chapter-layout { display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 56px; align-items: start; }
-.chapter-content { min-width: 0; }
-.chapter-rail { position: sticky; top: 20px; padding-top: 54px; }
+.chapter-content { min-width: 0; order: 1; }
+.chapter-rail { position: sticky; top: 20px; padding-top: 54px; order: 2; }
 .rail-box { padding: 20px; border: 1px solid var(--line); background: var(--paper-warm); }
 .rail-box + .rail-box { margin-top: 14px; }
 .rail-box h2 { margin: 0 0 12px; font-family: Arial, sans-serif; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
@@ -148,6 +148,11 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .timeline-date { padding-right: 20px; color: var(--teal); font-family: Arial, sans-serif; font-size: 12px; font-weight: 800; text-align: right; }
 .timeline-content h3 { margin: 0 0 4px; font-size: 21px; font-weight: 500; }
 .timeline-content p { max-width: 620px; margin: 0; color: var(--ink-soft); font-size: 16px; }
+.claim-sources { white-space: nowrap; }
+.claim-sources sup { margin-left: 3px; font-family: Arial, sans-serif; font-size: 10px; }
+.claim-sources a { color: var(--teal); text-underline-offset: 2px; }
+.source-citation { margin-bottom: 0 !important; }
+.source-number { color: var(--teal); font-family: Arial, sans-serif; }
 .summary-box { padding: 30px; background: var(--teal); color: var(--paper); }
 .summary-box h2 { margin-top: 0; }
 .summary-box .fact-list { color: var(--paper); }
@@ -172,6 +177,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .progress-track { width: 180px; height: 7px; overflow: hidden; background: var(--paper-strong); }
 .progress-track span { display: block; height: 100%; background: var(--teal); transition: width .2s ease; }
 .task-phase + .task-phase { margin-top: 54px; }
+.phase-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-left: auto; }
+.phase-last-completed { color: var(--ink-soft); font-family: Arial, sans-serif; font-size: 11px; }
 .task-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 .task-card { display: flex; min-width: 0; flex-direction: column; padding: 22px; border: 1px solid var(--line); background: rgb(255 255 255 / 50%); }
 .task-card.is-complete { border-color: var(--teal); background: rgb(220 233 226 / 34%); }
@@ -192,6 +199,7 @@ textarea { resize: vertical; min-height: 120px; padding: 11px; font-size: 15px; 
 .task-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: auto; padding-top: 20px; }
 .task-feedback { flex: 1 1 100%; margin: 0; padding: 11px 12px; border-left: 3px solid var(--ochre); background: var(--ochre-pale); font-family: Arial, sans-serif; font-size: 12px; line-height: 1.5; }
 .task-feedback.success { border-left-color: var(--teal); background: var(--forest-pale); }
+.task-feedback.is-empty { visibility: hidden; height: 0; margin: 0; overflow: hidden; padding: 0; border: 0; }
 .local-note { margin: 22px 0 0; color: var(--ink-soft); font-family: Arial, sans-serif; font-size: 12px; }
 
 .self-assessment { display: grid; gap: 10px; margin: 22px 0 0; padding: 24px; border: 1px solid var(--line); background: var(--paper-warm); }
@@ -199,6 +207,7 @@ textarea { resize: vertical; min-height: 120px; padding: 11px; font-size: 15px; 
 .self-assessment > p { margin: 0 0 4px; color: var(--ink-soft); font-family: Arial, sans-serif; font-size: 13px; }
 .self-assessment label { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 10px; align-items: start; min-height: 36px; padding: 7px 0; font-family: Arial, sans-serif; font-size: 13px; cursor: pointer; }
 .self-assessment input { width: 18px; height: 18px; margin: 2px 0 0; accent-color: var(--teal); }
+.self-assessment-status { margin: 4px 0 0; color: var(--teal); font-family: Arial, sans-serif; font-size: 12px; }
 .review-plan { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; counter-reset: review-step; }
 .review-plan li { display: grid; grid-template-columns: minmax(110px, .28fr) minmax(0, 1fr); gap: 16px; padding: 18px 20px; border: 1px solid var(--line); background: rgb(255 255 255 / 42%); counter-increment: review-step; }
 .review-plan strong { color: var(--teal); }
@@ -238,7 +247,8 @@ textarea { resize: vertical; min-height: 120px; padding: 11px; font-size: 15px; 
   .hero { grid-template-columns: 1fr; gap: 30px; }
   .home-grid, .card-grid, .feature-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .chapter-layout { grid-template-columns: 1fr; gap: 0; }
-  .chapter-rail { position: static; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; padding-top: 30px; order: -1; }
+  .chapter-rail { position: static; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; padding-top: 30px; order: 0; }
+  .chapter-content { order: 1; }
   .rail-box + .rail-box { margin-top: 0; }
   .chain { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .chain-step:nth-child(3)::after { display: none; }
@@ -250,7 +260,7 @@ textarea { resize: vertical; min-height: 120px; padding: 11px; font-size: 15px; 
   .page-main { padding-top: 44px; padding-bottom: 72px; }
   .hero { padding-top: 18px; padding-bottom: 58px; }
   .hero h1, .page-intro h1, .chapter-hero h1 { font-size: 49px; }
-  .chapter-hero h1 { font-size: 36px; }
+  .chapter-hero h1 { font-size: clamp(21px, 7vw, 29px); letter-spacing: -.065em; overflow-wrap: normal; hyphens: auto; }
   .hero-aside { padding: 22px; }
   .hero-aside p { font-size: 22px; }
   .home-grid, .card-grid, .feature-row, .line-grid, .columns-2, .source-grid, .task-grid, .glossary-grid { grid-template-columns: 1fr; }

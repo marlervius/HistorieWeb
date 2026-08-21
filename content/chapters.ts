@@ -24,12 +24,19 @@ export type TimelinePoint = {
   date: string;
   title: string;
   description: string;
+  sourceIds: string[];
+};
+
+export type CitedClaim = {
+  text: string;
+  sourceIds: string[];
 };
 
 export type SourceLook = {
   label: string;
   period: string;
   place: string;
+  sourceIds: string[];
   evidence: string[];
   supports: string;
   cannotProve: string;
@@ -52,7 +59,7 @@ export type Chapter = {
   status: "published" | "coming-soon";
   learningGoals: string[];
   competenceGoals: string[];
-  facts: string[];
+  facts: CitedClaim[];
   concepts: { term: string; definition: string }[];
   narrative: { heading: string; paragraphs: string[] }[];
   causes: string[];
@@ -68,7 +75,7 @@ export type Chapter = {
   progressVersion: number;
   summaryPdf?: { label: string; href: string };
   teacherResources?: { label: string; description: string; href?: string }[];
-  sources: { title: string; href: string; note: string }[];
+  sources: { id: string; title: string; href: string; note: string }[];
   lastChecked: string;
 };
 
@@ -165,13 +172,13 @@ const tasks: LearningTask[] = [
     prompt: "Hvilken forklaring på domestisering er mest presis?",
     points: 1,
     options: [
-      "At mennesker begynte å spise bare planter.",
+      "At mennesker endret kostholdet og spiste flere planter enn før.",
       "En gradvis prosess der menneskelig utvalg endrer planter og dyr over generasjoner.",
-      "At alle mennesker ble bofaste på samme tid.",
-      "At ville dyr forsvant da jordbruket begynte.",
+      "At mennesker flyttet mindre og ble bofaste i løpet av én generasjon.",
+      "At ville dyr forsvant fra områdene der dyrking og husdyrhold begynte.",
     ],
     correct: 1,
-    hint: "Se etter forklaringen som handler om flere generasjoner og både planter og dyr.",
+    hint: "Se etter en forklaring som beskriver endring over tid hos både planter og dyr.",
     explanation:
       "Domestisering er både biologisk og kulturell. Mennesker påvirker hvilke egenskaper som føres videre, og de nye artene endrer samtidig menneskenes arbeid og samfunn.",
   },
@@ -183,13 +190,13 @@ const tasks: LearningTask[] = [
     prompt: "Hvilket utsagn beskriver utviklingen av jordbruk best?",
     points: 1,
     options: [
-      "Jordbruk oppstod én gang, og spredte seg derfra til alle andre steder.",
+      "Jordbruk oppstod i én region og spredte seg gradvis til andre områder.",
       "Jordbruk utviklet seg i flere regioner, til ulike tider og med ulike arter.",
-      "Alle samfunn ble bønder samtidig etter siste istid.",
-      "Jordbruk begynte først etter at de første statene var dannet.",
+      "Jordbruk begynte omtrent samtidig i mange områder etter siste istid.",
+      "Jordbruk ble først mulig etter at de første statene var dannet.",
     ],
     correct: 1,
-    hint: "Se på eksemplene fra Sørvest-Asia, Kina, Mesoamerika, Andes og Ny-Guinea.",
+    hint: "Sammenlign tidspunkt, arter og miljø i flere av regionene som kapitlet nevner.",
     explanation:
       "Det er mer presist å snakke om flere jordbruksrevolusjoner eller regionale overganger. Samfunn utviklet ulike løsninger med lokale arter og matstrategier.",
   },
@@ -243,10 +250,10 @@ const tasks: LearningTask[] = [
     prompt: "Hvorfor kan vi bruke ordet «revolusjon» selv om overgangen tok mange generasjoner?",
     points: 1,
     options: [
-      "Fordi alle endringer i steinalderen skjedde raskt.",
-      "Fordi jordbruk alltid ga bedre helse.",
-      "Fordi følgene for menneskers samfunn og natur ble grunnleggende, selv om prosessen var langsom.",
-      "Fordi det bare fantes én jordbruksregion.",
+      "Fordi endringene i steinalderen vanligvis skjedde på kort tid.",
+      "Fordi jordbruk ga bedre helse for de fleste som tok det i bruk.",
+      "Fordi følgene for samfunn og natur ble grunnleggende, selv om prosessen var langsom.",
+      "Fordi én jordbruksregion satte i gang samme utvikling overalt.",
     ],
     correct: 2,
     hint: "Skill mellom tempoet i prosessen og hvor dyptgripende følgene ble.",
@@ -261,13 +268,13 @@ const tasks: LearningTask[] = [
     prompt: "Hva støtter funnene fra Çatalhöyük best?",
     points: 1,
     options: [
-      "At innbyggerne bare levde av jakt.",
+      "At innbyggerne hovedsakelig levde av jakt og ikke dyrket planter.",
       "At stedet var en langvarig, tett og organisert bosetning med lagring.",
-      "At alle hadde nøyaktig samme tanker og makt.",
-      "At en konge styrte byen fra et palass.",
+      "At alle innbyggerne hadde samme tanker, roller og tilgang til ressurser.",
+      "At en konge styrte stedet fra et stort administrativt palass.",
     ],
     correct: 1,
-    hint: "Se på husene, lagrene, kornrestene og de mange bosetningslagene.",
+    hint: "Bruk flere typer materielle spor og formuler en påstand som ikke går lenger enn de støtter.",
     explanation:
       "Funnene støtter varig bosetning og organisert ressursbruk. De beviser ikke alene et bestemt styresett eller alles tanker.",
   },
@@ -279,13 +286,13 @@ const tasks: LearningTask[] = [
     prompt: "Hvilket utsagn forklarer best hvorfor mennesker begynte med jordbruk?",
     points: 1,
     options: [
-      "Én enkelt klimaendring forklarer overgangen overalt.",
-      "Alle måtte bli bønder da bestanden økte.",
+      "En klimaendring kan forklare overgangen i de fleste regioner.",
+      "Befolkningsvekst gjorde at alle grupper måtte bli bønder.",
       "Flere forhold virket sammen, og kombinasjonen var ulik fra region til region.",
-      "Jordbruk var alltid mer effektivt enn jakt og sanking.",
+      "Jordbruk ga større utbytte enn jakt og sanking i alle miljøer.",
     ],
     correct: 2,
-    hint: "I kildematerialet nevnes klima, artskunnskap, ressurspress, befolkning og sosiale valg.",
+    hint: "Vurder om forklaringen åpner for flere årsaker og regionale forskjeller.",
     explanation:
       "Det finnes ingen forklaring som passer alle regioner. Historiske forklaringer må åpne for kombinasjoner og lokale forskjeller.",
   },
@@ -321,13 +328,13 @@ const tasks: LearningTask[] = [
     prompt: "Hvordan kunne et matoverskudd påvirke arbeidsdelingen?",
     points: 1,
     options: [
-      "Ingen kunne gjøre andre oppgaver enn matproduksjon.",
+      "De fleste måtte bruke mer tid på matproduksjon og fikk færre andre oppgaver.",
       "Overskudd kunne forsørge mennesker som arbeidet med håndverk, handel, ritualer eller ledelse.",
-      "Overskudd gjorde alle samfunn helt like.",
-      "Mat kunne aldri lagres i jordbrukssamfunn.",
+      "Overskudd fjernet forskjeller mellom samfunn og gjorde arbeidsdelingen lik.",
+      "Lagring hadde liten betydning for hvordan mennesker fordelte arbeidet.",
     ],
     correct: 1,
-    hint: "Tenk på hva lagret mat gjør mulig for personer som ikke produserer all maten sin selv.",
+    hint: "Tenk på hva lagret mat kan gjøre mulig for personer som ikke produserer all maten sin selv.",
     explanation:
       "Lagring og overskudd kunne frigjøre tid til andre oppgaver. Det kunne bidra til spesialisering, men utviklingen var ikke lik eller automatisk overalt.",
   },
@@ -339,15 +346,15 @@ const tasks: LearningTask[] = [
     prompt: "Hvordan kunne befolkningen vokse selv om helsen til mange tidlige bønder ble dårligere?",
     points: 1,
     options: [
-      "Alle fikk mer variert kosthold.",
-      "Flere kalorier per areal og ofte kortere fødselsintervall kunne øke befolkningen, selv med mer slit og ensidig kost.",
-      "Smittepresset forsvant i større bosetninger.",
-      "Befolkningen vokste bare fordi ingen flyttet.",
+      "Mange fikk et mer variert kosthold og mindre fysisk arbeid.",
+      "Flere kalorier per areal og trolig kortere fødselsintervall kunne øke befolkningen, selv med mer slit og ensidig kost.",
+      "Smittepresset ble mindre fordi flere mennesker bodde tett sammen.",
+      "Befolkningen vokste fordi alle familier sluttet å flytte mellom steder.",
     ],
     correct: 1,
-    hint: "Skill mellom hvor mange et område kan brødfø, og hvordan hvert enkelt menneske har det.",
+    hint: "Skill mellom et områdes kapasitet til å forsørge mennesker og livsvilkårene til hver enkelt.",
     explanation:
-      "Befolkningsvekst og individuell helse er ikke det samme. Jordbruk kunne forsørge flere, samtidig som kosthold, arbeid og smitte ble en belastning.",
+      "Befolkningsvekst og individuell helse er ikke det samme. Jordbruk kunne forsørge flere, samtidig som kosthold, arbeid og smitte ble en belastning. Fødselsintervaller kan ikke måles direkte i dette materialet, så mekanismen må formuleres som en mulig forklaring.",
   },
   {
     id: "U5",
@@ -357,13 +364,13 @@ const tasks: LearningTask[] = [
     prompt: "Hvorfor kunne større og tettere bosetninger gi mer smitte?",
     points: 1,
     options: [
-      "Fordi jakt og sanking alltid forsvant.",
+      "Fordi jakt og sanking ble mindre viktig i alle områder.",
       "Fordi tett bosetning, avfall, lagre og nær kontakt med husdyr kunne gi flere smitteveier.",
-      "Fordi alle sykdommer skyldtes mangel på metall.",
-      "Fordi mat aldri kunne lagres.",
+      "Fordi sykdommer først oppstod da mennesker begynte å bruke metall.",
+      "Fordi lagring av mat hindret mennesker i å flytte etter ressursene.",
     ],
     correct: 1,
-    hint: "Se etter flere mennesker, flere dyr og flere kontaktflater på samme sted.",
+    hint: "Se etter forhold som skaper flere kontaktflater mellom mennesker, dyr, avfall og lagre.",
     explanation:
       "Tetthet, avfall, lagre og nær kontakt med husdyr kunne øke smittepresset. Det er en mulig følge, ikke en lik erfaring for alle.",
   },
@@ -398,10 +405,10 @@ const tasks: LearningTask[] = [
     prompt: "Hvilket utsagn viser best både brudd og kontinuitet?",
     points: 1,
     options: [
-      "Jordbruk erstattet alle eldre levemåter med en gang.",
-      "Jakt og sanking fortsatte aldri etter at noen begynte å dyrke.",
+      "Jordbruk endret eldre levemåter raskt i alle samfunn som tok det i bruk.",
+      "Jakt og sanking fikk mindre betydning etter at noen begynte å dyrke.",
       "Mange samfunn kombinerte dyrking og husdyrhold med jakt, fiske og sanking over lang tid.",
-      "Bofasthet fantes aldri før jordbruk.",
+      "Bofasthet ble først mulig etter at mennesker hadde begynt med jordbruk.",
     ],
     correct: 2,
     hint: "Kontinuitet betyr noe som fortsetter, mens brudd betyr tydelig endring.",
@@ -416,13 +423,13 @@ const tasks: LearningTask[] = [
     prompt: "Hvilken vurdering er mest presis når vi kobler jordbruksrevolusjonen til bærekraft?",
     points: 1,
     options: [
-      "Jordbruk har alltid ødelagt naturen.",
-      "Jordbruk har alltid løst alle matproblemer.",
+      "Jordbruk økte produksjonen, men skadet naturen på samme måte i alle områder.",
+      "Jordbruk løste matmangel og miljøproblemer når produksjonen ble større.",
       "Jordbruk kunne øke produksjonen, men også gi erosjon, utarming, saltproblemer og tap av mangfold.",
-      "Bærekraft er et spørsmål som først oppstod i vår tid.",
+      "Bærekraft ble først et relevant spørsmål da moderne industri og byer vokste fram.",
     ],
     correct: 2,
-    hint: "Ta med både gevinster og kostnader, og unngå ord som «alltid».",
+    hint: "Vurder både mulige gevinster og kostnader, og spør om virkningen var lik overalt.",
     explanation:
       "Den lange linjen handler om valg: hvilke ressurser som brukes, hvem som får gevinstene, og hvilke kostnader framtidige generasjoner må bære.",
   },
@@ -446,13 +453,13 @@ const tasks: LearningTask[] = [
     prompt: "Hva kan funnene fra Çatalhöyük støtte som en forsvarlig slutning?",
     points: 1,
     options: [
-      "At alle innbyggerne hadde samme tro.",
+      "At innbyggerne delte den samme troen og hadde like ritualer.",
       "At stedet hadde langvarig bosetning og organisert ressursbruk.",
-      "At en bestemt konge styrte stedet.",
-      "At ingen jaktet eller sanket.",
+      "At en bestemt konge styrte stedet og fordelte alle ressursene.",
+      "At jakt og sanking ikke inngikk i matforsyningen på stedet.",
     ],
     correct: 1,
-    hint: "Koble konkrete funn til en moderat påstand, ikke til tanker eller ledere som ikke kan observeres direkte.",
+    hint: "Koble konkrete spor til en moderat påstand, og skill den fra tanker eller ledelse.",
     explanation:
       "Tette hus, lagre, kornrester og mange bosetningslag støtter varig og organisert ressursbruk. Funnene beviser ikke alt om makt eller tro.",
   },
@@ -482,15 +489,15 @@ const tasks: LearningTask[] = [
     prompt: "Hva viser Göbekli Tepe som utfordrer en enkel trapp fra jeger til bonde til komplekst samfunn?",
     points: 1,
     options: [
-      "At monumenter bare kunne bygges etter at stater oppstod.",
-      "At jegere og sankere kunne organisere omfattende samarbeid og monumentbygging.",
-      "At jordbruk var uviktig i alle regioner.",
-      "At arkeologiske funn alltid forteller den fulle historien.",
+      "At monumenter krevde en statlig administrasjon.",
+      "At omfattende samarbeid kunne organiseres før fullt utviklet jordbruk er sikkert dokumentert på stedet.",
+      "At jordbruk ikke hadde betydning for noen samfunn i regionen.",
+      "At arkeologiske funn gir et komplett bilde av fortiden.",
     ],
     correct: 1,
-    hint: "Tenk på datering, bygging og hvem som kan ha organisert arbeidet.",
+    hint: "Skill mellom det anlegget viser direkte, og hva arkeologer må slutte om menneskene som bygde det.",
     explanation:
-      "Göbekli Tepe viser at omfattende samarbeid og monumentbygging kunne finnes blant jegere og sankere før fullt utviklet jordbruk kan dokumenteres på stedet.",
+      "Göbekli Tepe viser at omfattende samarbeid og monumentbygging kunne organiseres før fullt utviklet jordbruk er sikkert dokumentert på stedet. At byggherrene levde av jakt og sanking, er en tolkning av flere spor – ikke et direkte observasjonspunkt.",
   },
   {
     id: "K4",
@@ -524,7 +531,7 @@ export const jordbruksrevolusjonen: Chapter = {
       "Hva kan ha blitt bedre – og hva kan ha blitt vanskeligere?",
     ],
   },
-  period: "Fra ca. 10 000 f.Kr. og framover, med regionale forskjeller",
+  period: "Fra ca. 9600 f.Kr. og framover, med regionale forskjeller",
   geography: "Sørvest-Asia, Kina, Ny-Guinea, Mesoamerika, Andes og deler av Afrika",
   status: "published",
   learningGoals: [
@@ -543,15 +550,15 @@ export const jordbruksrevolusjonen: Chapter = {
     "utforske hvordan kommunikasjon og kulturmøter har hatt betydning for mennesker i Norge og verden",
   ],
   facts: [
-    "Jordbruket utviklet seg gradvis og på ulike måter i flere deler av verden.",
-    "Tidlige dyrkings- og domestiseringsprosesser i Sørvest-Asia kan dateres til omtrent 10 000 f.Kr.; andre regioner utviklet egne systemer senere eller uavhengig.",
-    "Domestisering var en biologisk og kulturell prosess der menneskelig utvalg endret planter og dyr over mange generasjoner.",
-    "Mange samfunn kombinerte dyrking og husdyrhold med jakt, fiske og sanking i lang tid.",
-    "Jordbruk kunne gi mer mat per areal, gjøre lagring mulig og støtte større, mer bofaste befolkninger.",
-    "Matoverskudd kunne bidra til arbeidsdeling, handel, eiendom og mer varige forskjeller i makt.",
-    "Befolkninger kunne vokse selv om enkeltmennesker fikk mer ensidig kosthold, hardere arbeid og større smittepress.",
-    "Sterkere inngrep i jord, vann og vegetasjon kunne øke produksjonen, men også gi erosjon, utarming og tap av biologisk mangfold.",
-    "Çatalhöyük og Göbekli Tepe viser at bofasthet, samarbeid og jordbruk ikke utviklet seg i én enkel rekkefølge.",
+    { text: "Jordbruket utviklet seg gradvis og på ulike måter i flere deler av verden.", sourceIds: ["openstax"] },
+    { text: "Dyrking av ville kornslag i Sørvest-Asia kan dateres til ca. 9600 f.Kr.; domestiserte kornslag og husdyr kom senere og til ulik tid i ulike deler av regionen.", sourceIds: ["zeder", "openstax"] },
+    { text: "Domestisering var en biologisk og kulturell prosess der menneskelig utvalg endret planter og dyr over mange generasjoner.", sourceIds: ["zeder"] },
+    { text: "Mange samfunn kombinerte dyrking og husdyrhold med jakt, fiske og sanking i lang tid.", sourceIds: ["openstax", "catalhoyuk"] },
+    { text: "Jordbruk kunne gi mer mat per areal, gjøre lagring mulig og støtte større, mer bofaste befolkninger.", sourceIds: ["openstax", "catalhoyuk"] },
+    { text: "Matoverskudd kunne bidra til arbeidsdeling, handel, eiendom og mer varige forskjeller i makt.", sourceIds: ["openstax"] },
+    { text: "Befolkninger kunne vokse selv om enkeltmennesker fikk mer ensidig kosthold, hardere arbeid og større smittepress.", sourceIds: ["scientific-reports", "openstax"] },
+    { text: "Sterkere inngrep i jord, vann og vegetasjon kunne øke produksjonen, men også gi erosjon, utarming og tap av biologisk mangfold.", sourceIds: ["openstax"] },
+    { text: "Çatalhöyük og Göbekli Tepe viser at bofasthet, samarbeid og jordbruk ikke utviklet seg i én enkel rekkefølge.", sourceIds: ["catalhoyuk", "gobekli-unesco", "dai-gobekli"] },
   ],
   concepts: [
     { term: "Jordbruksrevolusjonen", definition: "Den langvarige overgangen der dyrking og husdyrhold fikk større betydning, med grunnleggende følger for samfunn og natur." },
@@ -590,19 +597,20 @@ export const jordbruksrevolusjonen: Chapter = {
     {
       heading: "Mange sentre – mange arter",
       paragraphs: [
-        "De tidligste godt dokumenterte prosessene med korn og husdyr fant sted i Sørvest-Asia fra omtrent 10 000 f.Kr. Her ble blant annet hvete, bygg, sau og geit viktige. Men jordbruk oppstod ikke bare der. I Kina ble ris og hirse sentrale; i Mesoamerika mais, squash og bønner; i Andes potet, quinoa og lama; og på Ny-Guinea blant annet taro og yam. Også i Afrika utviklet mennesker egne jordbrukssystemer.",
+        "De tidligste godt dokumenterte prosessene med dyrking fant sted i Sørvest-Asia fra omtrent 9600 f.Kr. Her ble blant annet hvete og bygg viktige, mens domestiserte kornslag og husdyr kom senere og til ulik tid. Men jordbruk oppstod ikke bare der. I Kina ble ris og hirse sentrale; i Mesoamerika mais, squash og bønner; i Andes potet, quinoa og lama; og på Ny-Guinea banan, og trolig også taro og yam. Også i Afrika utviklet mennesker egne jordbrukssystemer.",
         "Dette mangfoldet viser at jordbruksrevolusjonen best forstås i flertall: mange samfunn utviklet forskjellige løsninger tilpasset lokale klima, arter og tradisjoner. Noen steder spredte bønder og husdyr seg til nye områder. Andre steder ble arter, kunnskap og teknikker tatt opp av lokale grupper. Spredning var derfor både menneskeflytting og kulturmøte.",
       ],
     },
     {
       heading: "Følgene: hva ble mulig – og hva kostet det?",
       paragraphs: [
-        "Jordbruk kunne produsere flere kalorier på et avgrenset areal enn jakt og sanking. Når mat kunne lagres, ble det mulig å forsørge flere mennesker gjennom dårlige sesonger og å bli boende over lengre tid. Bofaste landsbyer ble vanligere, og befolkningen kunne vokse. Flere barn kunne fødes med kortere mellomrom fordi familier ikke måtte flytte på samme måte som mange mobile grupper.",
+        "Jordbruk kunne produsere flere kalorier på et avgrenset areal enn jakt og sanking. Når mat kunne lagres, ble det mulig å forsørge flere mennesker gjennom dårlige sesonger og å bli boende over lengre tid. Bofaste landsbyer ble vanligere, og befolkningen kunne vokse. Flere barn kan ha blitt født med kortere mellomrom fordi familier ikke måtte flytte på samme måte som mange mobile grupper. Dette er en utbredt forklaring på befolkningsveksten, men fødselsintervaller kan ikke måles direkte i det arkeologiske materialet.",
         "Her ligger et viktig paradoks: en befolkning kunne vokse selv om helsen til mange enkeltmennesker ble dårligere. Et mer ensidig kosthold, hardt fysisk arbeid, tettere bosetninger, avfall, skadedyr og nær kontakt med husdyr kunne øke ernæringsstress og smitte. Derfor må vi skille mellom hvor mange et område kan brødfø, og hvordan hvert enkelt menneske levde.",
         "Et lagringsbart overskudd kunne brukes til å forsørge mennesker som ikke produserte all maten sin selv. Håndverkere, handelsfolk, religiøse spesialister og ledere kunne få mer tid til andre oppgaver. Redskaper, keramikk, tekstiler og byggverk kunne bli mer spesialiserte. Bytte og handel bandt samfunn sammen, og varer som obsidian kunne bevege seg over store avstander.",
         "Men overskudd førte ikke automatisk til byer eller stater. Noen jordbrukssamfunn forble små og relativt like i lang tid. Historikeren må derfor bruke ord som «kunne» og «bidro til». Utviklingskjeden er en historisk mulighet, ikke en naturlov.",
         "Jord, dyr og lagret mat kunne kontrolleres, forsvares og arves. Dermed kunne forskjeller i rikdom bli mer varige. Den som styrte lagre, vann eller arbeidskraft, kunne få makt over andre. Over tid oppstod det noen steder tydeligere sosiale lag og politiske ledere. Kjønn og alder kunne også påvirke hvem som gjorde ulike typer arbeid og hvem som hadde tilgang til ressurser.",
-        "Jordbruk gjorde menneskers inngrep i naturen mer varige. Skog ble ryddet, beitedyr påvirket vegetasjon, jord ble pløyd, og vann ble ledet til åkre. Dette kunne øke produksjonen, men også gi erosjon, utarming av jord, saltproblemer og tap av biologisk mangfold. Samtidig har bønder gjennom historien utviklet kunnskap som kan bevare jord og vann, for eksempel vekstskifte, terrasser og lokale plantesorter.",
+        "Det er likevel farlig å lese senere stater rett inn i de første landsbyene. Arkeologiske funn kan vise forskjeller i hus, gravgaver og kosthold, men de forteller ikke alltid hvem som bestemte eller hvordan mennesker opplevde rettferdighet. Makt må undersøkes, ikke antas.",
+        "Jordbruk gjorde menneskers inngrep i naturen mer varige. Skog ble ryddet, beitedyr påvirket vegetasjon, jord ble pløyd, og vann ble ledet til åkre. Dette kunne øke produksjonen, men også gi erosjon, utarming av jord, saltproblemer og tap av biologisk mangfold. Avhengighet av noen få arter kunne gjøre samfunn sårbare for avlingssvikt. Samtidig har bønder gjennom historien utviklet kunnskap som kan bevare jord og vann, for eksempel vekstskifte, terrasser og lokale plantesorter.",
       ],
     },
   ],
@@ -633,7 +641,7 @@ export const jordbruksrevolusjonen: Chapter = {
     "Mer mat per areal",
     "Lagring",
     "Arbeidsdeling og spesialisering",
-    "Handel og mer varige ressurser",
+    "Handel og lagre som kan kontrolleres over tid",
     "Mulige forskjeller i rikdom og makt",
   ],
   sourceLooks: [
@@ -641,7 +649,8 @@ export const jordbruksrevolusjonen: Chapter = {
       label: "Kilde A · Çatalhöyük",
       period: "ca. 7400–6200 f.Kr.",
       place: "Anatolia",
-      evidence: ["18 lag med bosetning", "tettbygde hus og takadkomst", "ildsteder, lagerrom, kornrester, dyrebein og obsidian", "begravelser under husgulv"],
+      sourceIds: ["catalhoyuk", "catalhoyuk-guide"],
+      evidence: ["18 neolittiske lag i den østre haugen", "tettbygde hus og takadkomst", "ildsteder, lagerrom, kornrester, dyrebein og obsidian", "begravelser under husgulv"],
       supports: "Materialet støtter langvarig bosetning, lagring og organisert ressursbruk.",
       cannotProve: "Det beviser ikke alene at alle hadde samme tro, at samfunnet var helt likt eller at én bestemt leder styrte.",
     },
@@ -649,9 +658,10 @@ export const jordbruksrevolusjonen: Chapter = {
       label: "Kilde B · Göbekli Tepe",
       period: "ca. 9600–8200 f.Kr.",
       place: "Sørøst-Anatolia",
-      evidence: ["monumentale steinanlegg", "planlegging, samarbeid og spesialisert steinarbeid", "jegere og sankere som byggherrer", "T-formede søyler med bilder av ville dyr"],
-      supports: "Funnene viser at omfattende samarbeid og monumentbygging kunne finnes blant jegere og sankere før fullt utviklet jordbruk.",
-      cannotProve: "Materialet beviser ikke at jordbruk var uviktig, eller at vi kjenner den nøyaktige betydningen av anleggene.",
+      sourceIds: ["gobekli-unesco", "dai-gobekli", "gobekli-grain"],
+      evidence: ["monumentale steinanlegg av megalitter", "T-formede søyler med bilder av ville dyr", "dyrebein fra ville arter", "ingen sikre domestiserte arter i de eldste lagene", "spor etter omfattende bearbeiding av korn"],
+      supports: "Materialet støtter at omfattende samarbeid og monumentbygging kunne organiseres før fullt utviklet jordbruk kan dokumenteres på stedet. At byggherrene levde av jakt og sanking, er en tolkning bygget på flere spor.",
+      cannotProve: "Materialet beviser ikke at jordbruk var uviktig, eller at vi kjenner den nøyaktige betydningen av anleggene. Det avgjør heller ikke om stedet først og fremst var en samlingsplass eller en fast bosetning; nyere undersøkelser gjør tolkningen mer sammensatt.",
     },
   ],
   longLineIds: ["mat-og-naturressurser", "demografi", "handel-og-okonomi", "kommunikasjon-og-kulturmoter", "makt-og-legitimering"],
@@ -663,27 +673,34 @@ export const jordbruksrevolusjonen: Chapter = {
     "Overgangen hadde også kostnader: hardt arbeid, sykdom, ensidig kosthold og sterkere naturinngrep.",
   ],
   timeline: [
-    { date: "ca. 11 700 f.Kr.", title: "Siste istid tar slutt", description: "Holocen begynner, og varmere eller mer stabile lokale miljøer endrer ressursgrunnlaget." },
-    { date: "ca. 10 000–9000 f.Kr.", title: "Tidlig dyrking i Sørvest-Asia", description: "Hvete, bygg, sau og geit blir gradvis viktige i en lang prosess." },
-    { date: "ca. 9600–8200 f.Kr.", title: "Göbekli Tepe", description: "Jegere og sankere organiserer monumentale fellesprosjekter." },
-    { date: "ca. 7400–6200 f.Kr.", title: "Çatalhöyük", description: "En stor, tett og langvarig bosetning kombinerer flere matstrategier." },
-    { date: "senere årtusener", title: "Flere regionale jordbrukssystemer", description: "Ris, hirse, mais, squash, bønner, potet, quinoa, taro og yam blir viktige i ulike regioner." },
-    { date: "fram mot ca. 3500–3000 f.Kr.", title: "Større bysamfunn noen steder", description: "Overskudd, spesialisering og maktkonsentrasjon blir viktig i noen områder, men ikke som automatisk følge overalt." },
+    { date: "ca. 9700 f.Kr.", title: "Holocen begynner", description: "Holocen begynner – formelt datert til 11 700 år før nåtid, altså ca. 9700 f.Kr. Varmere og ofte mer stabile lokale miljøer endrer ressursgrunnlaget.", sourceIds: ["holocene-ics", "openstax"] },
+    { date: "ca. 9600–8800 f.Kr.", title: "Dyrking av ville kornslag", description: "Mennesker sår og høster ville kornslag i deler av Sørvest-Asia før plantene er biologisk domestiserte.", sourceIds: ["zeder", "openstax"] },
+    { date: "ca. 8700–8000 f.Kr.", title: "Domestiserte kornslag, sau og geit", description: "Hvete og bygg får domestiserte trekk, mens sau og geit holdes i flokk. Tidspunktet varierer mellom regioner.", sourceIds: ["zeder"] },
+    { date: "ca. 9600–8200 f.Kr.", title: "Göbekli Tepe", description: "Monumentale fellesprosjekter viser at samarbeid og store anlegg ikke kan plasseres i en enkel trapp etter jordbruket.", sourceIds: ["gobekli-unesco", "dai-gobekli"] },
+    { date: "ca. 7400–6200 f.Kr.", title: "Çatalhöyük", description: "En stor, tett og langvarig bosetning kombinerer flere matstrategier.", sourceIds: ["catalhoyuk", "catalhoyuk-guide"] },
+    { date: "senere årtusener", title: "Flere regionale jordbrukssystemer", description: "Ris, hirse, mais, squash, bønner, potet, quinoa, banan, taro og yam blir viktige i ulike regioner.", sourceIds: ["openstax", "denham"] },
+    { date: "fram mot ca. 3500–3000 f.Kr.", title: "Større bysamfunn noen steder", description: "Overskudd, spesialisering og maktkonsentrasjon blir viktig i noen områder, men ikke som automatisk følge overalt.", sourceIds: ["openstax"] },
   ],
   tasks,
-  progressVersion: 1,
+  progressVersion: 2,
   teacherResources: [
     { label: "Lærerveiledning og fasit", description: "Det lokale kildedokumentet inneholder undervisningsløp, misoppfatninger, fasit og vurderingskriterier." },
     { label: "Kortprøve", description: "Det lokale kildedokumentet inneholder en kortprøve på 40 poeng med fakta, forståelse, lange linjer og kildeblikk." },
   ],
   sources: [
-    { title: "Utdanningsdirektoratet · Kompetansemål etter vg2 (HIS01-03)", href: "https://www.udir.no/lk20/his01-03/kompetansemaal-og-vurdering/kv84", note: "Gjeldende kompetansemål og føringer for underveisvurdering i historie vg2." },
-    { title: "OpenStax · World History Volume 1: 2.3 The Neolithic Revolution", href: "https://openstax.org/books/world-history-volume-1/pages/2-3-the-neolithic-revolution", note: "Åpen læreboktekst om neolittisk tid og konsekvenser av overgangen." },
-    { title: "UNESCO · Neolithic Site of Çatalhöyük", href: "https://whc.unesco.org/en/list/1405/", note: "Verdensarvstedets beskrivelse av 18 bosetningslag, husklynger og langvarig bosetning." },
-    { title: "UNESCO · Göbekli Tepe", href: "https://whc.unesco.org/en/list/1572/", note: "Verdensarvstedets beskrivelse av monumentale anlegg reist av jeger- og sankersamfunn." },
-    { title: "Scientific Reports (2023) · Bioarchaeological data and the transition to farming", href: "https://www.nature.com/articles/s41598-023-49406-5", note: "Forskning på forholdet mellom vekst, kosthold og demografi gjennom overgangen til jordbruk i det sentrale Middelhavsområdet." },
+    { id: "udir", title: "Utdanningsdirektoratet · Kompetansemål etter vg2 (HIS01-03)", href: "https://www.udir.no/lk20/his01-03/kompetansemaal-og-vurdering/kv84", note: "Gjeldende kompetansemål og føringer for underveisvurdering i historie vg2." },
+    { id: "openstax", title: "OpenStax · World History Volume 1: 2.3 The Neolithic Revolution", href: "https://openstax.org/books/world-history-volume-1/pages/2-3-the-neolithic-revolution", note: "Åpen læreboktekst om neolittisk tid og konsekvenser av overgangen." },
+    { id: "catalhoyuk", title: "UNESCO · Neolithic Site of Çatalhöyük", href: "https://whc.unesco.org/en/list/1405/", note: "Verdensarvstedets beskrivelse av den østre haugens neolittiske lag og husklynger." },
+    { id: "catalhoyuk-guide", title: "Çatalhöyük Research Project · Site Guide Book", href: "https://catalhoyuk.ku.edu.tr/sites/default/files/Catalhoyuk-Guidebook-ENGLISH.pdf", note: "Åpen prosjektguide som dekker lagring, matbehandling, obsidian, husgulvbegravelser og utveksling. Lisens: CC BY-NC 4.0." },
+    { id: "gobekli-unesco", title: "UNESCO · Göbekli Tepe", href: "https://whc.unesco.org/en/list/1572/", note: "Verdensarvstedets beskrivelse av monumentale anlegg og den tradisjonelle jeger- og sankertolkningen." },
+    { id: "dai-gobekli", title: "Deutsches Archäologisches Institut · Göbekli Tepe", href: "https://www.dainst.org/en/research/projects/noslug/5746", note: "Forskningsprosjektets oversikt over pågående dokumentasjon, geofysiske undersøkelser og nytolkninger." },
+    { id: "gobekli-grain", title: "Dietrich m.fl. · Cereal processing at Early Neolithic Göbekli Tepe", href: "https://doi.org/10.1371/journal.pone.0215214", note: "Fagfellevurdert studie av omfattende kornbearbeiding og behovet for en mer integrert tolkning av rituelle og hverdagslige aktiviteter." },
+    { id: "zeder", title: "Zeder (2008) · Domestication and early agriculture in the Mediterranean Basin", href: "https://doi.org/10.1073/pnas.0801317105", note: "Fagfellevurdert oversikt over dyrking, flokkforvaltning og domestisering i Middelhavsområdet." },
+    { id: "denham", title: "Denham m.fl. (2003) · Origins of agriculture at Kuk Swamp", href: "https://doi.org/10.1126/science.1085255", note: "Fagfellevurdert studie av uavhengig jordbruksutvikling på Ny-Guinea; dokumenterer banan og tidlig bruk av taro." },
+    { id: "holocene-ics", title: "International Commission on Stratigraphy · GSSP tables", href: "https://stratigraphy.org/gssps/", note: "Offisiell stratigrafisk datering av Holocens base til 11 700 år før 2000 (b2k)." },
+    { id: "scientific-reports", title: "Scientific Reports (2023) · Bioarchaeological data and the transition to farming", href: "https://www.nature.com/articles/s41598-023-49406-5", note: "Forskning på forholdet mellom vekst, kosthold og demografi gjennom overgangen til jordbruk i det sentrale Middelhavsområdet." },
   ],
-  lastChecked: "17. august 2026",
+  lastChecked: "20. august 2026",
 };
 
 export const chapters = [jordbruksrevolusjonen];
@@ -729,8 +746,22 @@ export function getContentModelIssues() {
     for (const id of chapter.longLineIds) {
       if (!longLineIds.has(id)) issues.push(`Ukjent lang linje i ${chapter.id}: ${id}`);
     }
+    const sourceIds = new Set<string>();
     for (const source of chapter.sources) {
+      if (sourceIds.has(source.id)) issues.push(`Duplisert kilde-ID i ${chapter.id}: ${source.id}`);
       if (!source.href.startsWith("https://")) issues.push(`Kilden «${source.title}» må bruke HTTPS`);
+      sourceIds.add(source.id);
+    }
+    for (const claim of chapter.facts) {
+      if (!claim.text.trim() || claim.sourceIds.length === 0) issues.push(`Faktapunkt i ${chapter.id} mangler tekst eller kildekobling`);
+      for (const sourceId of claim.sourceIds) if (!sourceIds.has(sourceId)) issues.push(`Ukjent kilde-ID i faktapunkt for ${chapter.id}: ${sourceId}`);
+    }
+    for (const point of chapter.timeline) {
+      if (point.sourceIds.length === 0) issues.push(`Tidslinjepunktet «${point.title}» i ${chapter.id} mangler kildekobling`);
+      for (const sourceId of point.sourceIds) if (!sourceIds.has(sourceId)) issues.push(`Ukjent kilde-ID i tidslinjen for ${chapter.id}: ${sourceId}`);
+    }
+    for (const sourceLook of chapter.sourceLooks) {
+      for (const sourceId of sourceLook.sourceIds) if (!sourceIds.has(sourceId)) issues.push(`Ukjent kilde-ID i kildeblikket for ${chapter.id}: ${sourceId}`);
     }
     if (chapter.summaryPdf && !chapter.summaryPdf.href.startsWith("/")) issues.push(`PDF-stien for ${chapter.id} må være rot-relativ`);
   }
