@@ -250,3 +250,56 @@ describe("oppgavemotoren", () => {
     expect(await screen.findByText(/Riktig svar/)).toBeInTheDocument();
   });
 });
+
+describe("migrering av lagret svar fra indeks til stabil verdi", () => {
+  test("tolker gammel indeksbasert lagring som riktig svar etter stokking", async () => {
+    const task = choiceTask();
+    window.localStorage.setItem(
+      taskStorageKey(),
+      JSON.stringify({
+        version: progressVersion,
+        states: {
+          F1: { answer: "1", attempts: 1, completed: true, feedback: "correct", lastCompletedAt: "2026-08-20T10:00:00.000Z" },
+        },
+      }),
+    );
+
+    render(<InteractiveTasks tasks={[task]} chapterId="test-kapittel" progressVersion={progressVersion} />);
+
+    const expected = task.options![task.correct!];
+    await waitFor(() => {
+      const checked = screen.getAllByRole("radio").find((radio) => (radio as HTMLInputElement).checked);
+      expect((checked as HTMLInputElement | undefined)?.value).toBe(expected);
+    });
+
+    await waitFor(() => {
+      const stored = JSON.parse(window.localStorage.getItem(taskStorageKey())!);
+      expect(stored.states.F1.answer).toBe(expected);
+    });
+  });
+
+  test("forkaster en lagret indeks som ikke finnes blant alternativene", async () => {
+    const task = choiceTask();
+    window.localStorage.setItem(
+      taskStorageKey(),
+      JSON.stringify({
+        version: progressVersion,
+        states: { F1: { answer: "99", attempts: 1, completed: false, feedback: "idle" } },
+      }),
+    );
+
+    render(<InteractiveTasks tasks={[task]} chapterId="test-kapittel" progressVersion={progressVersion} />);
+
+    await waitFor(() => expect(screen.getAllByRole("radio")).toHaveLength(task.options!.length));
+    for (const radio of screen.getAllByRole("radio")) expect(radio).not.toBeChecked();
+  });
+
+  test("viser alternativene i stokket, men fullstendig rekkefølge", async () => {
+    const task = choiceTask();
+    render(<InteractiveTasks tasks={[task]} chapterId="test-kapittel" progressVersion={progressVersion} />);
+
+    await waitFor(() => expect(screen.getAllByRole("radio")).toHaveLength(task.options!.length));
+    const shown = screen.getAllByRole("radio").map((radio) => (radio as HTMLInputElement).value);
+    expect([...shown].sort()).toEqual([...task.options!].sort());
+  });
+});

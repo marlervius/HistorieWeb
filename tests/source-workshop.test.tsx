@@ -148,3 +148,63 @@ describe("kildeverkstedets elevflyt", () => {
     expect(isMeaningfulSourceWorkshopResponse("Dette svaret beskriver minst to konkrete spor, en mulig tolkning, et forbehold og hva materialet ikke kan bevise alene.")).toBe(true);
   });
 });
+
+describe("fokus og rulling ved trinnbytte", () => {
+  test("flytter fokus til det nye trinnets overskrift og ruller verkstedet i syne", async () => {
+    const scrollIntoView = vi.fn();
+    const originalScroll = Element.prototype.scrollIntoView;
+    Element.prototype.scrollIntoView = scrollIntoView;
+
+    try {
+      const user = await renderWorkshop();
+      // Fokus skal ikke stjeles ved montering; kravet gjelder etter trinnbytte.
+
+      const observations = screen.getByRole("textbox", { name: "Dine observasjoner" });
+      await user.type(observations, "Det finnes lag, tett plasserte hus og spor etter lagring. Redskapene har bruksspor som passer med kornbearbeiding.");
+      await user.click(screen.getByRole("button", { name: /Sett kilden i sammenheng/ }));
+
+      const heading = await screen.findByRole("heading", { name: "Hva vet vi om materialet?" });
+      await waitFor(() => expect(document.activeElement).toBe(heading));
+      expect(document.activeElement).not.toBe(document.body);
+
+      // Fokus skal ligge på en semantisk overskrift, ikke på body.
+      expect(document.activeElement?.tagName).toBe("H4");
+      expect(heading).toHaveAttribute("tabindex", "-1");
+      expect(scrollIntoView).toHaveBeenCalled();
+
+      // Neste trinn skal flytte fokus videre til sin egen overskrift.
+      await user.click(screen.getByRole("button", { name: /Fra spor til slutning/ }));
+      const claimsHeading = await screen.findByRole("heading", { name: "Hvor langt kan påstanden gå?" });
+      await waitFor(() => expect(document.activeElement).toBe(claimsHeading));
+    } finally {
+      Element.prototype.scrollIntoView = originalScroll;
+    }
+  }, 20000);
+
+  test("respekterer prefers-reduced-motion ved trinnbytte", async () => {
+    const scrollIntoView = vi.fn();
+    const originalScroll = Element.prototype.scrollIntoView;
+    Element.prototype.scrollIntoView = scrollIntoView;
+    const matchMedia = vi.fn().mockReturnValue({ matches: true, media: "(prefers-reduced-motion: reduce)" });
+    const originalMatchMedia = window.matchMedia;
+    window.matchMedia = matchMedia as unknown as typeof window.matchMedia;
+
+    try {
+      const user = await renderWorkshop();
+      await user.type(
+        screen.getByRole("textbox", { name: "Dine observasjoner" }),
+        "Det finnes lag, tett plasserte hus og spor etter lagring. Redskapene har bruksspor som passer med kornbearbeiding.",
+      );
+      await user.click(screen.getByRole("button", { name: /Sett kilden i sammenheng/ }));
+      await waitFor(() => expect(scrollIntoView).toHaveBeenCalled());
+
+      // Rullingen er momentan, også for brukere som har bedt om redusert bevegelse.
+      for (const call of scrollIntoView.mock.calls) {
+        expect(call[0]).toHaveProperty("behavior", "instant");
+      }
+    } finally {
+      Element.prototype.scrollIntoView = originalScroll;
+      window.matchMedia = originalMatchMedia;
+    }
+  }, 20000);
+});

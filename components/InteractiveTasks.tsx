@@ -2,6 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { LearningTask, Phase } from "../content/chapters";
+import { seededOrder } from "./seededOrder";
+
+export { seededOrder } from "./seededOrder";
 
 type TaskState = {
   answer: string | string[] | Record<string, string>;
@@ -14,11 +17,11 @@ type TaskState = {
 
 type StorageStatus = "loading" | "ready" | "unavailable";
 
-const phaseLabels: { phase: Phase; number: string; id: string }[] = [
-  { phase: "Fakta", number: "01", id: "fakta" },
-  { phase: "Forståelse", number: "02", id: "forstaelse" },
-  { phase: "Lange linjer", number: "03", id: "lange-linjer" },
-  { phase: "Kildeblikk", number: "04", id: "kildeblikk" },
+const phaseLabels: { phase: Phase; id: string }[] = [
+  { phase: "Fakta", id: "fakta" },
+  { phase: "Forståelse", id: "forstaelse" },
+  { phase: "Lange linjer", id: "lange-linjer" },
+  { phase: "Kildeblikk", id: "kildeblikk" },
 ];
 
 function blankAnswer(task: LearningTask): TaskState["answer"] {
@@ -75,7 +78,9 @@ function readStoredStates(storageKey: string, tasks: LearningTask[], progressVer
     if (typeof rawStates !== "object" || rawStates === null || Array.isArray(rawStates)) throw new Error("Ugyldig lagringsformat");
     const taskIds = new Set(tasks.map((task) => task.id));
     const states = Object.fromEntries(
-      Object.entries(rawStates).filter(([id, value]) => taskIds.has(id) && isTaskState(value)),
+      Object.entries(rawStates)
+        .filter(([id, value]) => taskIds.has(id) && isTaskState(value))
+        .map(([id, value]) => [id, normalizeStoredState(tasks.find((task) => task.id === id)!, value as TaskState)]),
     ) as Record<string, TaskState>;
     return { states, status: "ready" as const };
   } catch {
@@ -88,8 +93,14 @@ function readStoredStates(storageKey: string, tasks: LearningTask[], progressVer
   }
 }
 
+function normalizeStoredState(task: LearningTask, state: TaskState) {
+  if (task.kind !== "choice" || typeof state.answer !== "string" || !/^\d+$/.test(state.answer)) return state;
+  const option = task.options?.[Number(state.answer)];
+  return option === undefined ? state : { ...state, answer: option };
+}
+
 function isCorrect(task: LearningTask, state: TaskState) {
-  if (task.kind === "choice") return state.answer === task.correct?.toString();
+  if (task.kind === "choice") return state.answer === task.options?.[task.correct ?? -1];
   if (task.kind === "order") {
     return Array.isArray(state.answer)
       && state.answer.length === task.expected?.length
@@ -133,6 +144,7 @@ export function InteractiveTasks({
     [chapterId, progressVersion],
   );
   const [states, setStates] = useState<Record<string, TaskState>>({});
+  const [resetCounts, setResetCounts] = useState<Record<string, number>>({});
   const [storageStatus, setStorageStatus] = useState<StorageStatus>("loading");
   const [announcement, setAnnouncement] = useState("");
 
@@ -234,6 +246,13 @@ export function InteractiveTasks({
       });
       return next;
     });
+    setResetCounts((current) => {
+      const next = { ...current };
+      tasks.filter((task) => task.phase === phase).forEach((task) => {
+        next[task.id] = (next[task.id] ?? 0) + 1;
+      });
+      return next;
+    });
   }
 
   const progress = tasks.length > 0 ? (completed / tasks.length) * 100 : 0;
@@ -249,10 +268,10 @@ export function InteractiveTasks({
       </div>
       <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">{completed} av {tasks.length} oppgaver gjennomført.</p>
       <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">{announcement}</p>
-      {phases.map(({ phase, number, id, tasks: phaseTasks }) => (
+      {phases.map(({ phase, id, tasks: phaseTasks }) => (
         <section className="task-phase" key={phase} aria-labelledby={`phase-${id}`}>
           <div className="section-heading compact">
-            <span className="eyebrow">{number}</span>
+            <span className="eyebrow">Oppgavesett</span>
             <h3 id={`phase-${id}`}>{phase}</h3>
             <div className="phase-actions">
               {phaseTasks.some((task) => states[task.id]?.lastCompletedAt) && (
@@ -264,7 +283,9 @@ export function InteractiveTasks({
           <div className="task-grid">
             {phaseTasks.map((task) => {
               const state = getState(task);
-              return <TaskCard key={task.id} task={task} state={state} updateAnswer={updateAnswer} submit={submit} />;
+              const resetCount = resetCounts[task.id] ?? 0;
+              const displaySeed = resetCount === 0 ? task.id : `${task.id}:retry:${resetCount}`;
+              return <TaskCard key={task.id} task={task} state={state} displaySeed={displaySeed} updateAnswer={updateAnswer} submit={submit} />;
             })}
           </div>
         </section>
@@ -281,11 +302,13 @@ export function InteractiveTasks({
 function TaskCard({
   task,
   state,
+  displaySeed,
   updateAnswer,
   submit,
 }: {
   task: LearningTask;
   state: TaskState;
+  displaySeed: string;
   updateAnswer: (task: LearningTask, answer: TaskState["answer"]) => void;
   submit: (task: LearningTask) => void;
 }) {
@@ -294,6 +317,9 @@ function TaskCard({
   const issue = answerIssue(task, answer);
   const selectedOrderAnswers = Array.isArray(answer) ? answer : [];
   const feedbackId = `tilbakemelding-${task.id.toLowerCase()}`;
+  const optionOrder = task.options ? seededOrder(displaySeed, task.options.length) : [];
+  const orderChoiceOrder = task.items ? seededOrder(`${displaySeed}:order`, task.items.length) : [];
+  const matchChoiceOrder = task.choices ? seededOrder(`${displaySeed}:choices`, task.choices.length) : [];
 
   return (
     <article className={`task-card ${state.completed ? "is-complete" : ""}`} id={`oppgave-${task.id.toLowerCase()}`}>
@@ -303,12 +329,13 @@ function TaskCard({
       {task.kind === "choice" && (
         <fieldset className="choice-list">
           <legend className="sr-only">Svaralternativer til {task.id}: {task.title}</legend>
-          {task.options?.map((option, index) => (
-            <label key={option} className="choice-option">
-              <input type="radio" name={task.id} value={index} checked={answer === index.toString()} onChange={(event) => updateAnswer(task, event.target.value)} />
+          {optionOrder.map((originalIndex, index) => {
+            const option = task.options![originalIndex];
+            return <label key={option} className="choice-option">
+              <input type="radio" name={task.id} value={option} checked={answer === option} onChange={(event) => updateAnswer(task, event.target.value)} />
               <span>{String.fromCharCode(65 + index)}</span>{option}
-            </label>
-          ))}
+            </label>;
+          })}
         </fieldset>
       )}
       {task.kind === "order" && (
@@ -322,9 +349,10 @@ function TaskCard({
                 updateAnswer(task, next);
               }}>
                 <option value="">Velg ledd</option>
-                {(task.items ?? []).map((choice) => (
-                  <option key={choice} value={choice} disabled={selectedOrderAnswers.includes(choice) && selectedOrderAnswers[index] !== choice}>{choice}</option>
-                ))}
+                {orderChoiceOrder.map((originalIndex) => {
+                  const choice = task.items![originalIndex];
+                  return <option key={choice} value={choice} disabled={selectedOrderAnswers.includes(choice) && selectedOrderAnswers[index] !== choice}>{choice}</option>;
+                })}
               </select>
             </label>
           ))}
@@ -340,7 +368,10 @@ function TaskCard({
                 updateAnswer(task, next);
               }}>
                 <option value="">Velg</option>
-                {(task.choices ?? []).map((choice) => <option key={choice} value={choice}>{choice}</option>)}
+                {matchChoiceOrder.map((originalIndex) => {
+                  const choice = task.choices![originalIndex];
+                  return <option key={choice} value={choice}>{choice}</option>;
+                })}
               </select>
             </label>
           ))}

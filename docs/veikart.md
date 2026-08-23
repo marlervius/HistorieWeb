@@ -4,11 +4,11 @@ Sist revidert: 23. august 2026.
 
 ## Målbar status etter faglig revisjon og testmilepæl
 
-- Omfang: 1 publisert kapittel, 19 oppgaver, 10 begreper, 6 tidslinjepunkter, 7 lange linjer og 8 server-renderte offentlige ruter.
-- Kilder: 3 lokale Word-ressurser og 10 navngitte eksterne fagkilder i innholdsmodellen. Word-filene kunne tekstkontrolleres, men ikke gjengis visuelt fordi dokumentgjengivelse ikke er tilgjengelig i miljøet.
-- Testdekning: 4 server-renderingstester og 20 komponenttester som dekker oppgaveforsøk, kildeverksted, åpne svar, fasesletting, egenvurdering, versjonert lagring, personvern og tastatur/status.
-- Tilgjengelighet: hopp-lenke, synlig fokusmarkering, redusert bevegelse, permanente statusregioner og tastaturflyt er kontrollert i oppgavekomponenten.
-- Mobilbaseline fra før revisjonen: forsiden målte 485 piksler og kapittelsiden 460 piksler ved 375 pikslers visningsflate; overskrifts-overflyten er nå rettet, men full mobilkontroll gjenstår som visuell kontroll.
+- Omfang: 1 publisert kapittel, 19 oppgaver, 10 begreper, 7 tidslinjepunkter, 7 lange linjer og 8 server-renderte offentlige ruter.
+- Kilder: 3 lokale Word-ressurser og 11 navngitte eksterne fagkilder i innholdsmodellen. Alle 11 er rettighetskontrollert mot utgiver eller Crossref 23. august 2026; én (Çatalhöyük-guiden) er dokumentert som lisensmessig uavklart. Word-filene kunne tekstkontrolleres, men ikke gjengis visuelt fordi dokumentgjengivelse ikke er tilgjengelig i miljøet.
+- Testdekning: 5 server-renderingstester og 48 enhetstester som dekker oppgaveforsøk, seedet stokking over flere seeds, svarlekkasje-diagnostikk, kildeverkstedets påstandssett, fokus ved trinnbytte, kronologi, rail/DOM-synkronisering, åpne svar, fasesletting, egenvurdering, versjonert lagring med migrering, personvern og tastatur/status.
+- Tilgjengelighet: hopp-lenke, synlig fokusmarkering, redusert bevegelse, permanente statusregioner, tastaturflyt og fokus ved kildeverkstedets trinnbytte er kontrollert.
+- Nettleserkontroll 23. august 2026 ved 320, 375 og 1280 piksler: null horisontal overflyt på alle tre bredder, ingen døde interne ankere, ingen dupliserte DOM-ID-er, ingen overskriftshopp og ingen applikasjonsfeil i konsollen. Fokus ved trinnbytte i kildeverkstedet lander på trinnets overskrift 60 piksler fra toppen av visningsflaten.
 - Personvern: ingen nettverkskode, analyse, database eller autentisering. Framdrift og egenvurdering ligger i kapittelspesifikke, versjonerte `localStorage`-envelopes; korrupte og ukjente versjoner forkastes trygt.
 - Publisering: ingen offentlig PDF og ingen brutt PDF-lenke. Endringene holdes lokale; det blir ikke pushet eller publisert.
 
@@ -27,6 +27,10 @@ Sist revidert: 23. august 2026.
 - [x] Knytt kildeverkstedet til en offentlig lærerveiledning med faglige skiller, misforståelser, samtalespørsmål, vurderingskriterier og rettighetsstatus.
 - [x] Registrer kildeopphav, begrensninger og rettigheter for verkstedmaterialet; ingen nye mediefiler er tatt inn i public/.
 
+- [x] Hardne kapittel 2.2: lisensstatus, kronologisk tidslinje, seedet oppgavestokking, alternativbalanse, fokus ved kildeverkstedbytte og rail/DOM-synkronisering.
+- [x] Kontroller alle 11 kildeoppføringer mot utgiver eller Crossref, rett OpenStax-lisensen til CC BY-NC-SA 4.0, rett den oppdiktede Scientific Reports-tittelen og merk Çatalhöyük-guiden som lisensmessig uavklart.
+- [x] Utvid kildeverkstedet til 8 påstander med to i hver kategori og nøytralt språkregister.
+- [x] Legg inn innholdsregresjonstester for posisjonell fasit, alternativlengde i begge retninger, hedging, tidslinje, railrekkefølge, publiserte kildetitler, seed-variasjon og lagringsmigrering.
 ## Neste prioriterte leveranser
 
 1. **Repetisjonsinngang på tvers av kapitler.** Bruk bare lokal, anonym tilstand og bland tidligere fakta-, begreps- og kildeoppgaver uten å introdusere konto eller ekstern lagring.

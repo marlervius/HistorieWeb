@@ -13,6 +13,75 @@
 
 ## Kildegrunnlag
 
+## Oppfølging: kvalitetsherding av kapittel 2.2
+
+**Kontrollert:** 23. august 2026. Utgangspunkt: `1c6cec4` med en ukommittert arbeidskopi fra en tidligere økt. Arbeidskopien ble beholdt i sin helhet, men hver påstand i den ble kontrollert på nytt mot kode, innhold og primærkilder før den ble godtatt.
+
+### Rettighetskontroll mot utgiver
+
+Alle elleve kildeoppføringer ble kontrollert mot utgiverens egne sider eller mot Crossref.
+
+| Kilde | Lisensstatus | Grunnlag |
+|---|---|---|
+| OpenStax, World History Volume 1 | **CC BY-NC-SA 4.0** (rettet fra CC BY 4.0) | Lisensangivelsen på [kapittelsiden](https://openstax.org/books/world-history-volume-1/pages/2-3-the-neolithic-revolution) |
+| UNESCO, Çatalhöyük | CC-BY-SA IGO 3.0 | Angitt på [whc.unesco.org/en/list/1405](https://whc.unesco.org/en/list/1405/) |
+| UNESCO, Göbekli Tepe | CC-BY-SA IGO 3.0 | Angitt på [whc.unesco.org/en/list/1572](https://whc.unesco.org/en/list/1572/) |
+| Dietrich m.fl. (2019), PLOS ONE | CC BY 4.0 | Crossref-lisensfelt for [10.1371/journal.pone.0215214](https://doi.org/10.1371/journal.pone.0215214) |
+| Parkinson m.fl. (2023), Scientific Reports | CC BY 4.0 | Crossref-lisensfelt for [10.1038/s41598-023-49406-5](https://doi.org/10.1038/s41598-023-49406-5) |
+| Çatalhöyük Research Project, Site Guide Book | **Udokumentert** | Hele PDF-en (6 521 104 byte) ble lastet ned og gjennomsøkt. Ingen forekomst av «Creative Commons», «CC BY», «NonCommercial», «Attribution» eller «licen». De sju «copyright»-treffene er innebygd fontmetadata fra Adobe, ITC og HP, ikke dokumentets egen rettighetsangivelse. |
+| Zeder (2008), PNAS | Ingen åpen lisens oppgitt | Crossref oppgir ingen lisens; brukt som referanse, ikke gjenbrukt |
+| Denham m.fl. (2003), Science | Ingen åpen lisens oppgitt | Crossref oppgir ingen lisens; brukt som referanse, ikke gjenbrukt |
+| Udir, ICS, DAI | Institusjonelle kilder | Lenkene svarer 200; kun referanse og egen formulering |
+
+Tre rettelser som verken revisjonsrapporten eller arbeidskopien hadde gjort:
+
+- **Oppdiktet kildetittel.** Kildelisten oppga «Scientific Reports (2023) · Bioarchaeological data and the transition to farming». Det er ikke artikkelens tittel. Crossref gir den publiserte tittelen «Multiproxy bioarchaeological data reveals interplay between growth, diet and population dynamics across the transition to farming in the central Mediterranean». Tittelen er rettet ordrett, og regresjonstesten som låste den feilaktige tittelen som «verifisert» er oppdatert.
+- **Overstrukket kildebruk.** Faktapunktet om befolkningsvekst tilskrev «større smittepress» til en artikkel som ikke behandler smitte, og uten geografisk forbehold. Punktet er delt: kosthold og arbeidsbelastning er nå eksplisitt knyttet til vekst-, kroppsmasse- og isotopdata fra det sentrale Middelhavsområdet, mens smittepress er nedgradert til «kan i tillegg ha».
+- **Uverifisert lisens i materialfeltet.** `materials[0].rights.licenseStatus` påsto fortsatt «CC BY-NC 4.0» for prosjektguiden etter at `sourceRights` var rettet. Feltet sier nå at guiden ikke oppgir noen lisens.
+
+Ingen nye bilder, kart eller mediefiler er tatt inn. `lastChecked` for kapitlet er ikke flyttet: rettigheter, struktur og grensesnitt er kontrollert, men hele fagteksten er ikke gjennomgått på nytt.
+
+### Svarlekkasje: målt før og etter
+
+Målt med et uavhengig skript mot `content/chapters.ts` ved `1c6cec4` og etter leveransen.
+
+| Mål | Før (`1c6cec4`) | Etter | Krav |
+|---|---|---|---|
+| Fasit er lengste alternativ | 12/13 = **92 %** | 2/13 = **15 %** | ≤ 30 % |
+| Fasit er korteste alternativ | 0/13 | 0/13 | ingen omvendt signal |
+| Fasit eneste alternativ med forbehold | 5 | **0** | 0 |
+| Største lengdespredning i én oppgave | **119 %** | **24 %** | ≤ 25 % |
+| `order`-oppgaver med `expected` lik `items` | 2 (F4, L1) | **0** | 0 |
+
+Mellomresultat verdt å merke: arbeidskopien hadde presset «fasit er lengst» til 0/13, men samtidig gjort fasiten til **korteste** alternativ i 6 av 13 (46 %). Det er et omvendt signal av samme type. Balansen var dessuten delvis oppnådd ved å fylle distraktorer med innholdstomme fraser («over tid i regionen», «i alle detaljer og perioder»), noe som er uttrykkelig uønsket. Elleve alternativer er derfor skrevet om for naturlig norsk, og lengderangeringen av fasiten fordeler seg nå på 7/5/1 over rangposisjon 1, 2 og 3 uten noen degenerert posisjon.
+
+### Presentasjonsrekkefølge, stabile verdier og lagring
+
+- `components/seededOrder.ts` gir en deterministisk FNV-1a-seedet Fisher–Yates-permutasjon. Samme seed gir samme rekkefølge; ny seed gir ny rekkefølge.
+- Flervalgsalternativer, valgpuljer i koblingsoppgaver, elementer som skal sorteres, samt verkstedets påstander og kategorietiketter stokkes hver for seg.
+- Fasit er ikke lenger knyttet til visningsindeks. Svar lagres som den stabile semantiske strengverdien, ikke som `"0"`/`"1"`. Gammel indeksbasert lagring migreres i `normalizeStoredState`; ugyldige og ukjente versjoner forkastes som før.
+- «Øv på nytt» øker en teller per oppgave som inngår i seeden, slik at rekkefølgen endres uten at fasiten endres.
+
+### Kildeverkstedets påstander
+
+Påstandssettet er utvidet fra 4 til **8**, med to påstander i hver av de fire kategoriene, slik at fordelingen ikke lenger er kjent på forhånd og kategoriene ikke danner et én-til-én-mønster. Det leksikalske signalet er fjernet: påstandene er nå flate utsagn om materialet, ikke gjenkjennelige modalformler («Det er mulig at …», «Funnene beviser at alle …», «Materialet alene avgjør nøyaktig …»). Alle åtte er forankret i de to allerede dokumenterte materialene; ingen nye udokumenterte påstander er innført.
+
+### Kronologi
+
+`TimelinePoint` har et obligatorisk heltallig `sortKey` (negativt for år før vår tidsregning). Modellen validerer at verdien finnes og at punktene står ikke-synkende, og tidslinjen eksporteres sortert uavhengig av rekkefølgen i kildefilen. Visningsteksten er beholdt, med ett unntak: punktet «Flere regionale jordbrukssystemer» var merket «senere årtusener», men fikk `sortKey −8000` og havnet dermed foran Çatalhöyük. Visningen sa «senere», plasseringen sa tidligere. Datoteksten er rettet til «ca. 8000–3000 f.Kr.», som er det de to siterte kildene faktisk dekker: OpenStax daterer Kina til omtrent ti tusen år siden og Andes til omtrent fem tusen år siden.
+
+### Fokus, overskrifter og navigasjon
+
+- **Fokusfeilen var ikke rettet i arbeidskopien, bare tilsynelatende rettet.** `workshopTopRef` pekte på en tom, selvlukkende `<div>`, slik at `querySelector(".source-workshop-step h4")` alltid ga `null` og effekten falt ut før både fokusflytting og rulling. Referansen er flyttet til verkstedets faktiske rotelement. Rettelsen er mutasjonstestet: begge fokustestene feiler på den gamle koden og består på den nye.
+- Trinnbytte flytter nå fokus til trinnets `<h4>` med `tabIndex={-1}`, ruller verkstedet i syne og bruker `behavior: "smooth"` bare når brukeren ikke har bedt om redusert bevegelse. Fokus flyttes aldri til `body`, og statusregionen for skjermleser er beholdt.
+- Kildeverkstedseksjonen mistet sin `<h2>` i arbeidskopien og hoppet dermed fra seksjon til `<h3>`. Den har fått tilbake en egen `<h2>` «Kildeverksted», som ikke gjentar verkstedets egen tittel.
+- Oppgavefasenes «eyebrow» gjentok fasenavnet ordrett rett over samme tekst som `<h3>`. Den viser nå «Oppgavesett».
+- Innholdsfortegnelsen utledes av `chapterRenderedSectionOrder` og `chapterNavigationSections`, så meny, nummerering og DOM-rekkefølge følger én datadefinisjon. «Fagtekst» er med.
+
+### Tester og kontroller
+
+`tests/content-quality.test.ts` er utvidet til 18 tester og dekker nå også: seed-stabilitet og seed-variasjon over flere seeds, at fasiten overlever stokking som semantisk verdi, at `seededOrder` er en tapsfri permutasjon for alle lengder, at fasiten verken er systematisk lengste eller systematisk korteste alternativ, at ingen oppgave har fasiten som eneste nyanserte alternativ, at verkstedet har 6–8 påstander med minst to i samme kategori, at påstandene ikke danner et trivielt diagonalt mønster, at forklaringene er unike og kilde-ID-ene gyldige, og at tidslinjen har gyldige, kronologisk sorterte `sortKey`-verdier. `tests/source-workshop.test.tsx` har fått to fokustester.
+
 ## Oppfølging: kildeverksted for 2.2
 
 **Kontrollert:** 22.–23. august 2026.

@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type {
   SourceMaterial,
   SourceWorkshop,
   SourceWorkshopClaim,
   WorkshopClaimClassification,
 } from "../content/chapters";
+import { seededOrder } from "./seededOrder";
 
 type WorkshopFeedback = "idle" | "hint" | "model" | "success";
 type StorageStatus = "loading" | "ready" | "unavailable";
@@ -25,12 +26,25 @@ export type SourceWorkshopState = {
   lastSubmittedConclusion?: string;
 };
 
-const classificationLabels: Record<WorkshopClaimClassification, string> = {
+export const classificationLabels: Record<WorkshopClaimClassification, string> = {
   direct: "Direkte støttet",
   possible: "Mulig tolkning",
   "too-strong": "For sterk konklusjon",
   "cannot-determine": "Ikke mulig å avgjøre",
 };
+
+export function getWorkshopClaimOrder(workshopId: string, length: number) {
+  return seededOrder(`${workshopId}:claims`, length);
+}
+
+export function getWorkshopClassificationOrder(workshopId: string, length: number) {
+  return seededOrder(`${workshopId}:labels`, length);
+}
+
+export function getShuffledClassificationEntries(workshopId: string) {
+  const entries = Object.entries(classificationLabels) as [WorkshopClaimClassification, string][];
+  return getWorkshopClassificationOrder(workshopId, entries.length).map((index) => entries[index]);
+}
 
 const stepLabels = [
   "Observer",
@@ -161,8 +175,15 @@ export function SourceWorkshop({
     [chapterId, workshop.id, workshop.progressVersion],
   );
   const evidenceItems = useMemo(() => getEvidenceItems(workshop.materials), [workshop.materials]);
+  const displayClaims = useMemo(
+    () => getWorkshopClaimOrder(workshop.id, workshop.claims.length).map((index) => workshop.claims[index]),
+    [workshop.claims, workshop.id],
+  );
+  const displayClassificationEntries = useMemo(() => getShuffledClassificationEntries(workshop.id), [workshop.id]);
   const [state, setState] = useState<SourceWorkshopState>(blankState);
   const [step, setStep] = useState(0);
+  const workshopTopRef = useRef<HTMLDivElement>(null);
+  const previousStepRef = useRef<number | null>(null);
   const [storageStatus, setStorageStatus] = useState<StorageStatus>("loading");
   const [announcement, setAnnouncement] = useState("");
   const [validationMessage, setValidationMessage] = useState("");
@@ -176,6 +197,27 @@ export function SourceWorkshop({
     }, 0);
     return () => window.clearTimeout(timer);
   }, [storageKey, workshop.progressVersion]);
+
+  useEffect(() => {
+    if (previousStepRef.current === null) {
+      previousStepRef.current = step;
+      return;
+    }
+    if (previousStepRef.current === step) return;
+    previousStepRef.current = step;
+    const timer = window.setTimeout(() => {
+      const section = workshopTopRef.current?.querySelector<HTMLElement>(".source-workshop-step");
+      const heading = section?.querySelector<HTMLHeadingElement>("h4");
+      if (!section || !heading) return;
+      heading.focus({ preventScroll: true });
+      // Trinnseksjonen rulles inn, ikke verkstedroten, slik at overskriften havner
+      // i toppen av visningsflaten uansett hvor høy skjermen er. Rullingen er alltid
+      // momentan: myk rulling over kapittelets lengde lander ikke pålitelig, og en
+      // elev ville da sitte med fokus på en overskrift utenfor skjermen.
+      section.scrollIntoView?.({ block: "start", behavior: "instant" });
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [step]);
 
   useEffect(() => {
     if (storageStatus !== "ready") return;
@@ -282,7 +324,7 @@ export function SourceWorkshop({
   const storageLoading = storageStatus === "loading";
 
   return (
-    <div className="source-workshop" data-workshop-id={workshop.id}>
+    <div className="source-workshop" data-workshop-id={workshop.id} ref={workshopTopRef}>
       <div className="source-workshop-header">
         <div>
           <span className="eyebrow">Kildeverksted · {workshop.id}</span>
@@ -311,7 +353,7 @@ export function SourceWorkshop({
       {step === 0 && (
         <section className="source-workshop-step" aria-labelledby="workshop-observe-title">
           <span className="eyebrow">01 · Før du får konteksten</span>
-          <h4 id="workshop-observe-title">Observer før du forklarer</h4>
+          <h4 id="workshop-observe-title" tabIndex={-1}>Observer før du forklarer</h4>
           <p>Les de korte, kildebaserte beskrivelsene. Skriv bare det du kan peke på i beskrivelsen, ikke hva du tror det betyr.</p>
           <div className="source-material-grid">
             {workshop.materials.map((material) => <MaterialPreview key={material.id} material={material} />)}
@@ -341,7 +383,7 @@ export function SourceWorkshop({
       {step === 1 && (
         <section className="source-workshop-step" aria-labelledby="workshop-context-title">
           <span className="eyebrow">02 · Sett kilden i sammenheng</span>
-          <h4 id="workshop-context-title">Hva vet vi om materialet?</h4>
+          <h4 id="workshop-context-title" tabIndex={-1}>Hva vet vi om materialet?</h4>
           <dl className="source-context-grid">
             <ContextItem label="Tid" value={workshop.context.time} />
             <ContextItem label="Sted" value={workshop.context.place} />
@@ -366,16 +408,17 @@ export function SourceWorkshop({
       {step === 2 && (
         <section className="source-workshop-step" aria-labelledby="workshop-claims-title">
           <span className="eyebrow">03 · Fra spor til slutning</span>
-          <h4 id="workshop-claims-title">Hvor langt kan påstanden gå?</h4>
+          <h4 id="workshop-claims-title" tabIndex={-1}>Hvor langt kan påstanden gå?</h4>
           <p>Velg den sterkeste vurderingen materialet tåler. En mulig tolkning er ikke det samme som et direkte funn.</p>
           <div className="source-claim-list">
-            {workshop.claims.map((claim) => (
+            {displayClaims.map((claim) => (
               <ClaimCard
                 key={claim.id}
                 claim={claim}
                 selected={state.claims[claim.id] ?? ""}
                 onChange={(value) => updateState((current) => ({ ...current, claims: { ...current.claims, [claim.id]: value } }))}
                 showExplanation={state.claimsFeedback === "model" || state.claimsFeedback === "success"}
+                classificationOptions={displayClassificationEntries}
               />
             ))}
           </div>
@@ -395,7 +438,7 @@ export function SourceWorkshop({
             {(state.claimsFeedback === "model" || state.claimsFeedback === "success") && (
               <div className="source-claim-key content-box">
                 <strong>Forklaringer og vurderingsnivåer</strong>
-                <ul className="plain-list">{workshop.claims.map((claim) => <li key={claim.id}><strong>{classificationLabels[claim.classification]}:</strong> {claim.explanation}</li>)}</ul>
+                <ul className="plain-list">{displayClaims.map((claim) => <li key={claim.id}><strong>{classificationLabels[claim.classification]}:</strong> {claim.explanation}</li>)}</ul>
               </div>
             )}
             <button className="button button-secondary" type="button" onClick={continueFromClaims} disabled={state.claimsFeedback === "idle" || state.claimsFeedback === "hint"}>Sammenstill spor →</button>
@@ -406,7 +449,7 @@ export function SourceWorkshop({
       {step === 3 && (
         <section className="source-workshop-step" aria-labelledby="workshop-synthesis-title">
           <span className="eyebrow">04 · Sammenstill kilder</span>
-          <h4 id="workshop-synthesis-title">Bruk minst to forskjellige spor</h4>
+          <h4 id="workshop-synthesis-title" tabIndex={-1}>Bruk minst to forskjellige spor</h4>
           <p>{workshop.synthesisPrompt}</p>
           <fieldset className="source-evidence-list">
             <legend>Velg spor du bruker i svaret</legend>
@@ -443,7 +486,7 @@ export function SourceWorkshop({
       {step === 4 && (
         <section className="source-workshop-step" aria-labelledby="workshop-conclusion-title">
           <span className="eyebrow">05 · Skriv en begrunnet konklusjon</span>
-          <h4 id="workshop-conclusion-title">Fra konkrete spor til en avgrenset påstand</h4>
+          <h4 id="workshop-conclusion-title" tabIndex={-1}>Fra konkrete spor til en avgrenset påstand</h4>
           <p>{workshop.conclusionPrompt}</p>
           <ul className="source-rubric-list">{workshop.rubric.map((item) => <li key={item}>{item}</li>)}</ul>
           <label htmlFor="source-workshop-conclusion"><strong>Din konklusjon</strong></label>
@@ -459,7 +502,7 @@ export function SourceWorkshop({
       {step === 5 && (
         <section className="source-workshop-step" aria-labelledby="workshop-model-title">
           <span className="eyebrow">06 · Modellrespons og revisjon</span>
-          <h4 id="workshop-model-title">Sammenlign, behold din stemme og revider</h4>
+          <h4 id="workshop-model-title" tabIndex={-1}>Sammenlign, behold din stemme og revider</h4>
           <p>Modellresponsen er ett mulig eksempel. Bruk den til å finne konkrete spor, tolkning og forbehold du eventuelt vil gjøre tydeligere i ditt eget svar.</p>
           <div className="source-model-grid">
             <ModelPart label="Observasjoner" value={workshop.modelResponse.observations} />
@@ -501,16 +544,18 @@ function ClaimCard({
   selected,
   onChange,
   showExplanation,
+  classificationOptions,
 }: {
   claim: SourceWorkshopClaim;
   selected: WorkshopClaimClassification | "";
   onChange: (value: WorkshopClaimClassification) => void;
   showExplanation: boolean;
+  classificationOptions: [WorkshopClaimClassification, string][];
 }) {
   const fieldsetId = "workshop-claim-" + claim.id;
   return <fieldset className="source-claim-card" aria-describedby={showExplanation ? fieldsetId + "-explanation" : undefined}>
     <legend>{claim.text}</legend>
-    {Object.entries(classificationLabels).map(([value, label]) => (
+    {classificationOptions.map(([value, label]) => (
       <label key={value}><input type="radio" name={fieldsetId} value={value} checked={selected === value} onChange={() => onChange(value as WorkshopClaimClassification)} /><span>{label}</span></label>
     ))}
     {showExplanation && <p className="field-note" id={fieldsetId + "-explanation"}><strong>Forklaring:</strong> {claim.explanation}</p>}
