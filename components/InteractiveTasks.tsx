@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import type { LearningTask, Phase } from "../content/chapters";
 import { seededOrder } from "./seededOrder";
@@ -295,6 +296,7 @@ export function InteractiveTasks({
           ? "Oppgavene virker, men framdriften kan ikke lagres i denne nettleseren."
           : "Framdriften lagres bare lokalt i denne nettleseren. Det opprettes ingen konto, og svarene sendes ikke noe sted."}
       </p>
+      <p className="local-note"><Link href="/repetisjon">Åpne den korte repetisjonsinngangen →</Link></p>
     </div>
   );
 }

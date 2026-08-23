@@ -4,6 +4,7 @@ import { chapters, getChapterPath } from "../content/chapters";
 
 const navItems = [
   ["Læreverket", "/laereverk"],
+  ["Repetisjon", "/repetisjon"],
   ["Lange linjer", "/lange-linjer"],
   ["Begrepsbank", "/begreper"],
   ["Tidslinje", "/tidslinje"],
