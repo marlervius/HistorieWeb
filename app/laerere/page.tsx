@@ -8,7 +8,7 @@ type TeacherChapter = Chapter & { teacherGuide: TeacherGuide };
 const sectionLabels: Record<ChapterSectionId, string> = {
   forkunnskap: "Forkunnskap", mal: "Mål og hovedspørsmål", "tid-og-sted": "Tid og sted", tidslinje: "Tidslinje",
   fakta: "Fakta og begreper", forstaelse: "Årsaker og virkninger", fagtekst: "Kjernefortelling",
-  kildeblikk: "Kildeblikk", "lange-linjer": "Lange linjer", oppgaver: "Oppgaver", oppsummering: "Oppsummering",
+  kildeblikk: "Kildeblikk", kildeverksted: "Kildeverksted", "lange-linjer": "Lange linjer", oppgaver: "Oppgaver", oppsummering: "Oppsummering",
   repetisjon: "Repetisjon", kilder: "Kilder", pdf: "Kort repetisjon",
 };
 
@@ -68,6 +68,14 @@ function TeacherChapter({ chapter }: { chapter: TeacherChapter }) {
       <div className="section-heading"><span className="eyebrow">Oppgavene</span><h3 id={"teacher-tasks-" + chapter.id}>Gjenhenting og nytt forsøk</h3></div>
       <div className="content-box"><p><strong>Rekkefølge:</strong> {guide.taskUse.sequence}</p><p><strong>Første forsøk:</strong> {guide.taskUse.firstAttempt}</p><p><strong>Nytt forsøk:</strong> {guide.taskUse.retry}</p><p><strong>Åpne svar:</strong> {guide.taskUse.openResponses}</p></div>
       <ChapterLinks chapter={chapter} sectionIds={guide.taskUse.sectionIds} />
+    </section>
+    <section className="teacher-section" aria-labelledby={"teacher-workshop-" + chapter.id}>
+      <div className="section-heading"><span className="eyebrow">Kildeverksted</span><h3 id={"teacher-workshop-" + chapter.id}>Fra observasjon til begrunnet slutning</h3></div>
+      <div className="columns-2"><div className="content-box"><h4>Hensikt</h4><p>{guide.sourceWorkshop.purpose}</p><h4>Anbefalt plass</h4><p>{guide.sourceWorkshop.recommendedPlacement}</p></div><div className="content-box ochre"><h4>Sentrale faglige skiller</h4><ul className="plain-list">{guide.sourceWorkshop.distinctions.map((item) => <li key={item}>{item}</li>)}</ul></div></div>
+      <div className="columns-2 teacher-phase-actions"><div><h4>Vanlige feiltolkninger</h4><ul className="plain-list">{guide.sourceWorkshop.commonMisreadings.map((item) => <li key={item}>{item}</li>)}</ul></div><div><h4>Spørsmål i samtalen</h4><ul className="plain-list">{guide.sourceWorkshop.discussionQuestions.map((item) => <li key={item}>{item}</li>)}</ul></div></div>
+      <div className="content-box"><h4>Vurderingskriterier</h4><ul className="plain-list">{guide.sourceWorkshop.assessmentCriteria.map((item) => <li key={item}>{item}</li>)}</ul></div>
+      <p className="intro-copy">Kildegrunnlag og rettighetsstatus:</p><ul className="source-list">{guide.sourceWorkshop.sourceIds.map((sourceId) => { const source = chapter.sources.find((candidate) => candidate.id === sourceId); return source ? <li key={source.id}><a href={source.href} target="_blank" rel="noreferrer"><strong>{source.title}</strong></a><span>{source.rights}</span></li> : null; })}</ul>
+      <ChapterLinks chapter={chapter} sectionIds={["kildeverksted"]} />
     </section>
     <section className="teacher-section" aria-labelledby={"teacher-review-" + chapter.id}>
       <div className="section-heading"><span className="eyebrow">Etter arbeidet</span><h3 id={"teacher-review-" + chapter.id}>Egenvurdering og repetisjon</h3></div>

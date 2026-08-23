@@ -9,6 +9,7 @@ export const chapterSectionIds = [
   "forstaelse",
   "fagtekst",
   "kildeblikk",
+  "kildeverksted",
   "lange-linjer",
   "oppgaver",
   "oppsummering",
@@ -50,6 +51,95 @@ export type TeacherResource = {
   sectionId?: ChapterSectionId;
 };
 
+export type SourceRights = {
+  rightsHolder: string;
+  originalUrl: string;
+  licenseStatus: string;
+  credit: string;
+  adaptation: string;
+  checked: string;
+};
+
+export type SourceMaterial = {
+  id: string;
+  label: string;
+  materialType: "bosetningsspor" | "arkitektoniske spor" | "redskaps- og plantespor";
+  date: string;
+  place: string;
+  findContext: string;
+  preservation: string;
+  documentedBy: string;
+  documentedDescription: string;
+  possibleObservations: string[];
+  supportedInterpretations: string[];
+  alternativeInterpretations: string[];
+  cannotProve: string;
+  sourceIds: string[];
+  rights: SourceRights;
+  media?: {
+    path: string;
+    altText: string;
+    rights: SourceRights;
+  };
+};
+
+export type WorkshopClaimClassification = "direct" | "possible" | "too-strong" | "cannot-determine";
+
+export type SourceWorkshopClaim = {
+  id: string;
+  text: string;
+  classification: WorkshopClaimClassification;
+  explanation: string;
+  sourceIds: string[];
+};
+
+export type SourceWorkshopContext = {
+  time: string;
+  place: string;
+  findContext: string;
+  preservation: string;
+  documentedBy: string;
+  limitations: string[];
+};
+
+export type SourceWorkshopModelResponse = {
+  observations: string;
+  interpretation: string;
+  reservation: string;
+  limitation: string;
+};
+
+export type SourceWorkshop = {
+  id: string;
+  chapterId: string;
+  sectionId: "kildeverksted";
+  title: string;
+  guidingQuestion: string;
+  learningGoals: string[];
+  context: SourceWorkshopContext;
+  materials: SourceMaterial[];
+  claims: SourceWorkshopClaim[];
+  synthesisPrompt: string;
+  synthesisCriteria: string[];
+  conclusionPrompt: string;
+  modelResponse: SourceWorkshopModelResponse;
+  rubric: string[];
+  sourceIds: string[];
+  progressVersion: number;
+  lastChecked: string;
+};
+
+export type TeacherSourceWorkshopGuide = {
+  workshopId: string;
+  purpose: string;
+  recommendedPlacement: string;
+  distinctions: string[];
+  commonMisreadings: string[];
+  discussionQuestions: string[];
+  assessmentCriteria: string[];
+  sourceIds: string[];
+};
+
 export type TeacherGuide = {
   overview: string;
   teachingPhases: TeachingPhase[];
@@ -76,6 +166,7 @@ export type TeacherGuide = {
   };
   misconceptions: TeacherMisconception[];
   assessmentCriteria: TeacherAssessmentCriterion[];
+  sourceWorkshop: TeacherSourceWorkshopGuide;
   resources: TeacherResource[];
 };
 
@@ -121,6 +212,14 @@ export type SourceLook = {
   cannotProve: string;
 };
 
+export type ChapterSource = {
+  id: string;
+  title: string;
+  href: string;
+  note: string;
+  rights: string;
+};
+
 export type Chapter = {
   id: string;
   number: string;
@@ -147,6 +246,7 @@ export type Chapter = {
   breaks: string[];
   causeChain: string[];
   sourceLooks: SourceLook[];
+  sourceWorkshops: SourceWorkshop[];
   longLineIds: string[];
   summary: string[];
   timeline: TimelinePoint[];
@@ -154,7 +254,7 @@ export type Chapter = {
   progressVersion: number;
   summaryPdf?: { label: string; href: string };
   teacherGuide?: TeacherGuide;
-  sources: { id: string; title: string; href: string; note: string }[];
+  sources: ChapterSource[];
   lastChecked: string;
 };
 
@@ -774,6 +874,33 @@ const teacherGuide2_2: TeacherGuide = {
       extendedAnswer: "Veier ulike perspektiver mot hverandre, viser regional eller sosial variasjon og markerer hvor tolkningen er usikker.",
     },
   ],
+  sourceWorkshop: {
+    workshopId: "2-2-jordbruk-kildeverksted",
+    purpose: "Et strukturert kildearbeid der eleven går fra beskrivelse av materielle spor til en avgrenset og begrunnet slutning.",
+    recommendedPlacement: "Etter fagteksten og det korte kildeblikket, før lange linjer og den avsluttende oppsummeringen.",
+    distinctions: [
+      "observasjon: det som kan beskrives konkret i materialet",
+      "tolkning: en mulig forklaring som må støttes av flere spor",
+      "kildebegrensning: det materialet ikke kan avgjøre alene",
+    ],
+    commonMisreadings: [
+      "å lese en tolkning som om den var et direkte funn",
+      "å gjøre fravær av ett funn til sikkert bevis på fravær",
+      "å anta at monumenter eller lagring automatisk viser én bestemt maktform",
+    ],
+    discussionQuestions: [
+      "Hvilke ord i elevens svar beskriver et spor, og hvilke ord forklarer sporet?",
+      "Hva ville vi trengt å finne for å kunne si mer om makt eller sosial likhet?",
+      "Kan den samme observasjonen passe med mer enn én forklaring?",
+    ],
+    assessmentCriteria: [
+      "minst to konkrete observasjoner før tolkningen",
+      "en tolkning som viser hvordan sporene brukes som begrunnelse",
+      "et forbehold eller en alternativ forklaring",
+      "en eksplisitt setning om hva materialet ikke kan bevise",
+    ],
+    sourceIds: ["catalhoyuk", "catalhoyuk-guide", "gobekli-unesco", "dai-gobekli", "gobekli-grain"],
+  },
   resources: [
     { label: "Start i elevkapitlet", description: "Åpne hovedspørsmål og læringsmål før undervisningen begynner.", visibility: "public", sectionId: "mal" },
     { label: "Bruk tidslinjen", description: "Orienter klassen i tid, sted og regionale forskjeller.", visibility: "public", sectionId: "tid-og-sted" },
@@ -783,6 +910,195 @@ const teacherGuide2_2: TeacherGuide = {
     { label: "Lokalt undervisningsmateriale", description: "Et mer detaljert internt arbeidsmateriale finnes i prosjektmappen. Det er ikke offentlig publisert, og siden viser ingen nedlastingslenke.", visibility: "local" },
     { label: "Lokalt arbeidsark", description: "Et lokalt arbeidsark finnes som redaksjonelt arbeidsmateriale. Det er ikke offentlig publisert, og innholdet legges ikke i nettleseren.", visibility: "local" },
   ],
+};
+
+const sourceWorkshop2_2: SourceWorkshop = {
+  id: "2-2-jordbruk-kildeverksted",
+  chapterId: "2.2",
+  sectionId: "kildeverksted",
+  title: "Fra materielle spor til begrunnede slutninger",
+  guidingQuestion:
+    "Hva kan to arkeologiske spor fortelle om mat, samarbeid og bosetning – og hva må vi fortsatt holde åpent?",
+  learningGoals: [
+    "skrive konkrete observasjoner uten å blande inn forklaringer",
+    "bruke tid, sted, funnkontekst og dokumentasjon når et spor skal tolkes",
+    "vurdere påstander som direkte støttet, mulige, for sterke eller ikke avgjørbare",
+    "sammenstille spor fra Çatalhöyük og Göbekli Tepe med tydelige forbehold",
+    "forklare hva materialet ikke kan bevise alene",
+  ],
+  context: {
+    time: "Çatalhöyük: ca. 7400–6200 f.Kr. for den østre haugen. Göbekli Tepe: ca. 9600–8200 f.Kr.",
+    place: "Den østre haugen ved Çatalhöyük på den anatoliske høysletta og Göbekli Tepe i sørøstlige Anatolia.",
+    findContext:
+      "Çatalhöyük-sporene kommer fra lagdelte hus og husholdningsområder. Göbekli-sporene kommer fra monumentale og rektangulære bygg, arbeidsområder, slipesteiner og sedimentprøver.",
+    preservation:
+      "Çatalhöyük har bevarte stratigrafiske lag og husrester, men tidligere beboere fylte og bygde over hus. Ved Göbekli Tepe er forkullede planterester svakt bevart, så analyser av bruksspor og fytolitter er viktige.",
+    documentedBy:
+      "Çatalhöyük Research Project, UNESCO World Heritage Centre, Deutsches Archäologisches Institut og Dietrich m.fl. i PLOS ONE.",
+    limitations: [
+      "Arkeologer dokumenterer spor og kontekst, men ingen av kildene gir oss direkte utsagn fra menneskene som laget sporene.",
+      "En bygning eller et redskap kan ha hatt flere funksjoner, og fravær av et funn er ikke automatisk bevis på fravær av en praksis.",
+      "Tolkninger av makt, ritualer, tanker og sosial likhet må derfor formuleres som mulige eller uavklarte.",
+    ],
+  },
+  materials: [
+    {
+      id: "catalhoyuk-huslag",
+      label: "Materiale A · huslag og husholdningsspor",
+      materialType: "bosetningsspor",
+      date: "ca. 7400–6200 f.Kr.",
+      place: "Çatalhöyük, den østre haugen, sentrale Anatolia",
+      findContext:
+        "Utgravninger av den østre haugen har dokumentert 18 neolittiske bosetningsnivåer. Husene ligger tett, med vegger mot hverandre og adgang via tak.",
+      preservation:
+        "Tidligere beboere fylte hus som ble forlatt og bygde nye hus over dem. Det har bevart lag, men betyr også at de øvre delene av mange hus ble fjernet eller omformet.",
+      documentedBy: "Çatalhöyük Research Project sin Site Guide Book og UNESCOs verdensarvbeskrivelse.",
+      documentedDescription:
+        "Beskrivelsen gjelder et lagdelt bosetningsmateriale: husrester med takadkomst, rom for lagring og matbehandling, dyrebein og kornrester, samt begravelser under husgulv.",
+      possibleObservations: [
+        "Det finnes mange bosetningslag på samme sted.",
+        "Husene ligger tett og har ikke vanlige gater mellom seg.",
+        "Kildene beskriver siderom for lagring og matbehandling.",
+        "Noen døde ble gravlagt under gulv inne i hus.",
+      ],
+      supportedInterpretations: [
+        "Sporene støtter at mennesker bodde lenge på samme sted og organiserte hverdagsarbeid i hus.",
+        "Lagring og matbehandling var deler av husholdningenes aktiviteter.",
+      ],
+      alternativeInterpretations: [
+        "Tett bygging kan ha vært knyttet til praktiske forhold, tradisjoner eller sosial organisering; materialet avgjør ikke én forklaring.",
+        "Begravelser under gulv kan ha hatt flere betydninger, ikke bare én felles «religion».",
+      ],
+      cannotProve:
+        "Sporene avgjør ikke alene hvem som bestemte, hvordan alle husholdninger var organisert eller hva alle beboerne mente.",
+      sourceIds: ["catalhoyuk", "catalhoyuk-guide"],
+      rights: {
+        rightsHolder: "Çatalhöyük Research Project og UNESCO World Heritage Centre",
+        originalUrl: "https://catalhoyuk.ku.edu.tr/sites/default/files/Catalhoyuk-Guidebook-ENGLISH.pdf",
+        licenseStatus:
+          "Ingen mediefil er kopiert. Teksten er en egen norsk parafrase; UNESCOs stedbeskrivelse er merket CC-BY-SA IGO 3.0, og prosjektguiden er dokumentert som CC BY-NC 4.0.",
+        credit: "Çatalhöyük Research Project og UNESCO World Heritage Centre, se kildelisten.",
+        adaptation: "Kun pedagogisk parafrase brukes; ingen bilder, kart eller faksimiler er bearbeidet.",
+        checked: "22. august 2026",
+      },
+    },
+    {
+      id: "gobekli-kornspor",
+      label: "Materiale B · slipesteiner og plantespor",
+      materialType: "redskaps- og plantespor",
+      date: "10. og 9. årtusen f.Kr. (ca. 9600–8200 f.Kr.)",
+      place: "Göbekli Tepe, sørøstlige Anatolia",
+      findContext:
+        "Materialet kommer fra monumentale runde/ovale bygg og mindre rektangulære bygg, med redskaper og sedimentprøver fra ulike arbeidsområder.",
+      preservation:
+        "Forkullede planterester er svakt bevart på stedet. Forskerne kombinerte derfor bruksspor på mer enn 7000 gjenstander med analyser av fytolitter og funnkontekst.",
+      documentedBy: "Dietrich m.fl. (2019) i PLOS ONE og Deutsches Archäologisches Institut.",
+      documentedDescription:
+        "Forskerne beskriver mange slipesteiner, skåler, håndsteiner, støtere og mortere. Bruksspor og fytolittanalyser peker mot omfattende bearbeiding av korn, samtidig som ville dyrebein og monumentale søyler inngår i materialet.",
+      possibleObservations: [
+        "Materialet omfatter svært mange redskaper knyttet til maling eller knusing.",
+        "Bruksspor på redskapene passer med bearbeiding av korn.",
+        "Fytolittanalyser viser betydelig tilstedeværelse av korn i prøvene.",
+        "Monumentale bygg og spor etter bearbeiding av mat finnes i samme større område.",
+      ],
+      supportedInterpretations: [
+        "Sporene støtter at plante- og kornbearbeiding var en viktig aktivitet ved stedet.",
+        "Fellesprosjekter og matforsyning må ha blitt organisert på en eller annen måte.",
+      ],
+      alternativeInterpretations: [
+        "Matbearbeiding kan ha vært knyttet til daglig bruk, sesongvise samlinger, arbeidsfester eller flere formål.",
+        "At korn ble bearbeidet, avgjør ikke alene om kornet var vilt eller fullt domestisert.",
+      ],
+      cannotProve:
+        "Materialet avgjør ikke alene om stedet først og fremst var en samlingsplass eller fast bosetning, eller nøyaktig hvordan arbeid og makt var fordelt.",
+      sourceIds: ["gobekli-unesco", "dai-gobekli", "gobekli-grain"],
+      rights: {
+        rightsHolder: "Deutsches Archäologisches Institut og PLOS ONE",
+        originalUrl: "https://journals.plos.org/plosone/article?id=10.1371%2Fjournal.pone.0215214",
+        licenseStatus:
+          "PLOS ONE-artikkelen er åpen tilgang under CC BY 4.0. Ingen figur, fotografi eller annet medieinnhold er kopiert; prosjektet bruker en egen norsk parafrase.",
+        credit: "Dietrich m.fl. (2019), Deutsches Archäologisches Institut og PLOS ONE, se kildelisten.",
+        adaptation: "Kun tekstlig pedagogisk bearbeiding av funn og tolkninger; ingen mediefil er bearbeidet.",
+        checked: "22. august 2026",
+      },
+    },
+  ],
+  claims: [
+    {
+      id: "påstand-1",
+      text: "Sporene støtter at mennesker organiserte matbehandling i mer enn én type sammenheng.",
+      classification: "direct",
+      explanation:
+        "Dette er direkte støttet når huslige matbehandlingsspor ved Çatalhöyük og redskaper/fytolitter ved Göbekli Tepe holdes sammen.",
+      sourceIds: ["catalhoyuk-guide", "gobekli-grain"],
+    },
+    {
+      id: "påstand-2",
+      text: "Det er mulig at mat og felles arbeid bidro til å samle mennesker rundt større prosjekter.",
+      classification: "possible",
+      explanation:
+        "Sammenstillingen gjør dette til en mulig tolkning, men materialet viser ikke én bestemt sosial mekanisme eller motivasjon.",
+      sourceIds: ["gobekli-grain", "dai-gobekli"],
+    },
+    {
+      id: "påstand-3",
+      text: "Funnene beviser at alle mennesker ved begge stedene hadde samme roller og samme tro.",
+      classification: "too-strong",
+      explanation:
+        "Materialet kan vise bestemte spor, men ikke at alle mennesker hadde samme roller eller tanker.",
+      sourceIds: ["catalhoyuk", "gobekli-unesco"],
+    },
+    {
+      id: "påstand-4",
+      text: "Materialet alene avgjør nøyaktig hvem som bestemte over arbeid og ressurser.",
+      classification: "cannot-determine",
+      explanation:
+        "Maktfordeling og beslutninger må undersøkes med flere spor og forblir delvis uavklart i dette materialet.",
+      sourceIds: ["catalhoyuk-guide", "dai-gobekli"],
+    },
+  ],
+  synthesisPrompt:
+    "Velg minst to ulike spor. Forklar hva de samlet styrker, hvordan de kan tolkes forskjellig, og hva som fortsatt er usikkert.",
+  synthesisCriteria: [
+    "viser til minst to konkrete spor fra materialet",
+    "skiller mellom det sporene samlet støtter og en mulig tolkning",
+    "nevner minst én alternativ forklaring eller begrensning",
+  ],
+  conclusionPrompt:
+    "Skriv en kort begrunnet konklusjon. Bruk minst to konkrete observasjoner, en tydelig tolkning, et forbehold eller en alternativ forklaring og én setning om hva materialet ikke kan bevise.",
+  modelResponse: {
+    observations:
+      "Ved Çatalhöyük er husene lagdelt og tett bygde, med rom for lagring og matbehandling. Ved Göbekli Tepe er det funnet mange redskaper med bruksspor som passer med kornbearbeiding, og fytolittanalyser viser korn i prøvene.",
+    interpretation:
+      "Samlet støtter sporene at mennesker kunne organisere mat, arbeid og bosetning på flere måter, og at omfattende samarbeid ikke følger én enkel trapp fra jakt til jordbruk.",
+    reservation:
+      "Det er mulig at matbearbeiding og felles arbeid bidro til samlinger eller større prosjekter, men den samme kombinasjonen kan ha hatt ulike funksjoner og ha endret seg over tid.",
+    limitation:
+      "Materialet kan ikke alene bevise hvem som bestemte, hva alle menneskene tenkte eller om kornet ved Göbekli Tepe var fullt domestisert.",
+  },
+  rubric: [
+    "Observasjon: minst to konkrete spor er beskrevet uten å forklare dem i samme setning.",
+    "Tolkning: svaret knytter sporene til en avgrenset historisk påstand.",
+    "Forbehold: svaret bruker «kan», «mulig» eller viser til en alternativ forklaring.",
+    "Begrensning: svaret sier tydelig hva materialet ikke kan avgjøre alene.",
+  ],
+  sourceIds: ["catalhoyuk", "catalhoyuk-guide", "gobekli-unesco", "dai-gobekli", "gobekli-grain"],
+  progressVersion: 1,
+  lastChecked: "22. august 2026",
+};
+
+const sourceRights: Record<string, string> = {
+  udir: "Institusjonell offentlig kilde; kun referanse og egen pedagogisk formulering, ingen medier kopiert.",
+  openstax: "OpenStax CC BY 4.0; ingen tekst eller medier kopiert, kun kildebasert parafrase og kreditering.",
+  catalhoyuk: "UNESCO-beskrivelsen er merket CC-BY-SA IGO 3.0; ingen medier kopiert, kreditering beholdt.",
+  "catalhoyuk-guide": "Çatalhöyük Research Project, CC BY-NC 4.0; ingen bilder kopiert, norsk parafrase og kreditering.",
+  "gobekli-unesco": "UNESCO-beskrivelsen er merket CC-BY-SA IGO 3.0; ingen medier kopiert, kreditering beholdt.",
+  "dai-gobekli": "DAI-institusjonsside; kun kort, egen parafrase og lenke, ingen medier kopiert.",
+  "gobekli-grain": "PLOS ONE CC BY 4.0; ingen figur eller annet medieinnhold kopiert, egen parafrase og kreditering.",
+  zeder: "Fagfellevurdert artikkel brukt som referanse; ingen tekst eller medier kopiert, egen parafrase og kreditering.",
+  denham: "Fagfellevurdert artikkel brukt som referanse; ingen tekst eller medier kopiert, egen parafrase og kreditering.",
+  "holocene-ics": "Offisiell tabell brukt som referanse; ingen medieinnhold kopiert, datering kontrollert og kilde lenket.",
+  "scientific-reports": "Fagfellevurdert artikkel brukt som referanse; ingen tekst eller medier kopiert, egen parafrase og kreditering.",
 };
 
 export const jordbruksrevolusjonen: Chapter = {
@@ -936,6 +1252,7 @@ export const jordbruksrevolusjonen: Chapter = {
       cannotProve: "Materialet beviser ikke at jordbruk var uviktig, eller at vi kjenner den nøyaktige betydningen av anleggene. Det avgjør heller ikke om stedet først og fremst var en samlingsplass eller en fast bosetning; nyere undersøkelser gjør tolkningen mer sammensatt.",
     },
   ],
+  sourceWorkshops: [sourceWorkshop2_2],
   longLineIds: ["mat-og-naturressurser", "demografi", "handel-og-okonomi", "kommunikasjon-og-kulturmoter", "makt-og-legitimering"],
   summary: [
     "Jordbruket utviklet seg gradvis og på ulike måter i flere deler av verden.",
@@ -956,7 +1273,7 @@ export const jordbruksrevolusjonen: Chapter = {
   tasks,
   progressVersion: 2,
   teacherGuide: teacherGuide2_2,
-  sources: [
+  sources: ([
     { id: "udir", title: "Utdanningsdirektoratet · Kompetansemål etter vg2 (HIS01-03)", href: "https://www.udir.no/lk20/his01-03/kompetansemaal-og-vurdering/kv84", note: "Gjeldende kompetansemål og føringer for underveisvurdering i historie vg2." },
     { id: "openstax", title: "OpenStax · World History Volume 1: 2.3 The Neolithic Revolution", href: "https://openstax.org/books/world-history-volume-1/pages/2-3-the-neolithic-revolution", note: "Åpen læreboktekst om neolittisk tid og konsekvenser av overgangen." },
     { id: "catalhoyuk", title: "UNESCO · Neolithic Site of Çatalhöyük", href: "https://whc.unesco.org/en/list/1405/", note: "Verdensarvstedets beskrivelse av den østre haugens neolittiske lag og husklynger." },
@@ -968,8 +1285,8 @@ export const jordbruksrevolusjonen: Chapter = {
     { id: "denham", title: "Denham m.fl. (2003) · Origins of agriculture at Kuk Swamp", href: "https://doi.org/10.1126/science.1085255", note: "Fagfellevurdert studie av uavhengig jordbruksutvikling på Ny-Guinea; dokumenterer banan og tidlig bruk av taro." },
     { id: "holocene-ics", title: "International Commission on Stratigraphy · GSSP tables", href: "https://stratigraphy.org/gssps/", note: "Offisiell stratigrafisk datering av Holocens base til 11 700 år før 2000 (b2k)." },
     { id: "scientific-reports", title: "Scientific Reports (2023) · Bioarchaeological data and the transition to farming", href: "https://www.nature.com/articles/s41598-023-49406-5", note: "Forskning på forholdet mellom vekst, kosthold og demografi gjennom overgangen til jordbruk i det sentrale Middelhavsområdet." },
-  ],
-  lastChecked: "21. august 2026",
+  ]).map((source) => ({ ...source, rights: sourceRights[source.id] })),
+  lastChecked: "22. august 2026",
 };
 
 export const chapters = [jordbruksrevolusjonen];
@@ -1010,6 +1327,88 @@ function validateStringList(chapterId: string, label: string, values: unknown, i
     issues.push("Lærerelementet " + label + " i " + chapterId + " mangler tekst");
   }
 }
+const workshopClassifications: WorkshopClaimClassification[] = ["direct", "possible", "too-strong", "cannot-determine"];
+function validateSourceRights(label: string, rights: unknown, issues: string[]) {
+  if (typeof rights !== "object" || rights === null || Array.isArray(rights)) {
+    issues.push("Kildematerialet " + label + " mangler rettighetsinformasjon");
+    return;
+  }
+  const candidate = rights as Partial<SourceRights>;
+  for (const [field, value] of [["opphav", candidate.rightsHolder], ["originaladresse", candidate.originalUrl], ["lisensstatus", candidate.licenseStatus], ["kreditering", candidate.credit], ["bearbeiding", candidate.adaptation], ["kontrolldato", candidate.checked]] as const) {
+    if (!hasText(value)) issues.push("Kildematerialet " + label + " mangler " + field);
+  }
+  if (hasText(candidate.originalUrl) && !candidate.originalUrl.startsWith("https://")) issues.push("Kildematerialet " + label + " må bruke HTTPS i originaladressen");
+
+}
+export function getSourceWorkshopIssues(
+  chapterId: string,
+  workshop: SourceWorkshop | undefined,
+  availableSourceIds: Iterable<string>,
+  availablePublicAssets: ReadonlySet<string> = publicAssetPaths,
+) {
+  const issues: string[] = [];
+  if (!workshop) {
+    issues.push("Publisert kapittel " + chapterId + " mangler kildeverksted");
+    return issues;
+  }
+  if (workshop.chapterId !== chapterId) issues.push("Kildeverkstedet " + workshop.id + " er koblet til feil kapittel");
+  if (workshop.sectionId !== "kildeverksted") issues.push("Kildeverkstedet " + workshop.id + " peker til ukjent kapittelseksjon");
+  for (const [label, value] of [["ID", workshop.id], ["tittel", workshop.title], ["hovedspørsmål", workshop.guidingQuestion], ["siste faglige kontroll", workshop.lastChecked]] as const) {
+    if (!hasText(value)) issues.push("Kildeverkstedet for " + chapterId + " mangler " + label);
+  }
+  validateStringList(chapterId, "læringsmål i kildeverkstedet", workshop.learningGoals, issues);
+  validateStringList(chapterId, "begrensninger i kildeverkstedet", workshop.context?.limitations, issues);
+  validateStringList(chapterId, "sammenstillingskriterier", workshop.synthesisCriteria, issues);
+  validateStringList(chapterId, "vurderingskriterier i kildeverkstedet", workshop.rubric, issues);
+  const sourceIds = new Set(availableSourceIds);
+  for (const sourceId of workshop.sourceIds ?? []) {
+    if (!sourceIds.has(sourceId)) issues.push("Ukjent kilde-ID i kildeverkstedet for " + chapterId + ": " + sourceId);
+  }
+  if (!workshop.sourceIds?.length) issues.push("Kildeverkstedet for " + chapterId + " mangler kildekobling");
+  const materialIds = new Set<string>();
+  let hasLimitation = false;
+  for (const material of workshop.materials ?? []) {
+    if (materialIds.has(material.id)) issues.push("Duplisert material-ID i kildeverkstedet for " + chapterId + ": " + material.id);
+    materialIds.add(material.id);
+    for (const [label, value] of [["ID", material.id], ["etikett", material.label], ["type materiell kilde", material.materialType], ["datering", material.date], ["funnsted", material.place], ["funnkontekst", material.findContext], ["bevaring", material.preservation], ["dokumentasjon", material.documentedDescription], ["dokumentert av", material.documentedBy], ["kildebegrensning", material.cannotProve]] as const) {
+      if (!hasText(value)) issues.push("Materialet " + (material.id || "ukjent") + " i " + chapterId + " mangler " + label);
+    }
+    if (!material.possibleObservations?.length) issues.push("Materialet " + material.id + " mangler mulige observasjoner");
+    if (!material.supportedInterpretations?.length) issues.push("Materialet " + material.id + " mangler forsvarlige tolkninger");
+    if (!material.alternativeInterpretations?.length) issues.push("Materialet " + material.id + " mangler alternative tolkninger");
+    if (Object.prototype.hasOwnProperty.call(material, "observation") || Object.prototype.hasOwnProperty.call(material, "interpretation")) issues.push("Materialet " + material.id + " må skille observasjon og tolkning i separate felt");
+    const observations = new Set(material.possibleObservations ?? []);
+    if ((material.supportedInterpretations ?? []).some((interpretation) => observations.has(interpretation))) issues.push("Materialet " + material.id + " blander identisk observasjon og tolkning");
+    if (hasText(material.cannotProve)) hasLimitation = true;
+    for (const sourceId of material.sourceIds ?? []) {
+      if (!sourceIds.has(sourceId)) issues.push("Ukjent kilde-ID i materialet " + material.id + ": " + sourceId);
+    }
+    validateSourceRights(material.label || material.id, material.rights, issues);
+    if (material.media) {
+      if (!availablePublicAssets.has(material.media.path)) issues.push("Mediefilen for " + material.id + " finnes ikke i public: " + material.media.path);
+      if (!hasText(material.media.altText)) issues.push("Mediefilen for " + material.id + " mangler alternativtekst");
+      validateSourceRights(material.id + " medie", material.media.rights, issues);
+    }
+  }
+  if (!workshop.materials?.length) issues.push("Kildeverkstedet for " + chapterId + " mangler kildemateriale");
+  if (!hasLimitation) issues.push("Kildeverkstedet for " + chapterId + " må ha minst én kildebegrensning");
+  const claimIds = new Set<string>();
+  const classifications = new Set<WorkshopClaimClassification>();
+  for (const claim of workshop.claims ?? []) {
+    if (claimIds.has(claim.id)) issues.push("Duplisert påstands-ID i kildeverkstedet for " + chapterId + ": " + claim.id);
+    claimIds.add(claim.id);
+    if (!hasText(claim.text) || !hasText(claim.explanation)) issues.push("Påstand " + (claim.id || "ukjent") + " mangler tekst eller forklaring");
+    if (!workshopClassifications.includes(claim.classification)) issues.push("Påstand " + claim.id + " har ugyldig klassifisering");
+    classifications.add(claim.classification);
+    for (const sourceId of claim.sourceIds ?? []) if (!sourceIds.has(sourceId)) issues.push("Ukjent kilde-ID i påstand " + claim.id + ": " + sourceId);
+  }
+  if (!workshop.claims || workshop.claims.length < 4) issues.push("Kildeverkstedet for " + chapterId + " trenger minst fire faglig ulike påstander");
+  for (const classification of workshopClassifications) if (!classifications.has(classification)) issues.push("Kildeverkstedet mangler en påstand av typen " + classification);
+  const response = workshop.modelResponse;
+  if (!response || !hasText(response.observations) || !hasText(response.interpretation) || !hasText(response.reservation) || !hasText(response.limitation)) issues.push("Kildeverkstedet for " + chapterId + " mangler komplett modellrespons");
+  if (!hasText(workshop.conclusionPrompt)) issues.push("Kildeverkstedet for " + chapterId + " mangler konklusjonsspørsmål");
+  return issues;
+}
 
 export function getTeacherGuideIssues(chapterId: string, teacherGuide: TeacherGuide | undefined) {
   const issues: string[] = [];
@@ -1018,6 +1417,18 @@ export function getTeacherGuideIssues(chapterId: string, teacherGuide: TeacherGu
     return issues;
   }
   if (!hasText(teacherGuide.overview)) issues.push("Læreroversikten for " + chapterId + " mangler kapitteloversikt");
+  if (!teacherGuide.sourceWorkshop) {
+    issues.push("Læreroversikten for " + chapterId + " mangler verkstedveiledning");
+  } else {
+    for (const [label, value] of [["verksted-ID", teacherGuide.sourceWorkshop.workshopId], ["hensikt", teacherGuide.sourceWorkshop.purpose], ["anbefalt plass", teacherGuide.sourceWorkshop.recommendedPlacement]] as const) {
+      if (!hasText(value)) issues.push("Verkstedveiledningen for " + chapterId + " mangler " + label);
+    }
+    validateStringList(chapterId, "skillet mellom observasjon og tolkning", teacherGuide.sourceWorkshop.distinctions, issues);
+    validateStringList(chapterId, "vanlige verkstedmisforståelser", teacherGuide.sourceWorkshop.commonMisreadings, issues);
+    validateStringList(chapterId, "samtalespørsmål for kildeverkstedet", teacherGuide.sourceWorkshop.discussionQuestions, issues);
+    validateStringList(chapterId, "vurderingskriterier for kildeverkstedet", teacherGuide.sourceWorkshop.assessmentCriteria, issues);
+    validateStringList(chapterId, "kildegrunnlag for kildeverkstedet", teacherGuide.sourceWorkshop.sourceIds, issues);
+  }
   if (!Array.isArray(teacherGuide.teachingPhases) || teacherGuide.teachingPhases.length < 3) {
     issues.push("Læreroversikten for " + chapterId + " mangler undervisningsfaser");
   } else {
@@ -1144,6 +1555,7 @@ export function getContentModelIssues() {
     for (const source of chapter.sources) {
       if (sourceIds.has(source.id)) issues.push(`Duplisert kilde-ID i ${chapter.id}: ${source.id}`);
       if (!source.href.startsWith("https://")) issues.push(`Kilden «${source.title}» må bruke HTTPS`);
+      if (!hasText(source.rights)) issues.push(`Kilden «${source.title}» mangler rettighetsstatus`);
       sourceIds.add(source.id);
     }
     for (const claim of chapter.facts) {
@@ -1157,6 +1569,14 @@ export function getContentModelIssues() {
     for (const sourceLook of chapter.sourceLooks) {
       for (const sourceId of sourceLook.sourceIds) if (!sourceIds.has(sourceId)) issues.push(`Ukjent kilde-ID i kildeblikket for ${chapter.id}: ${sourceId}`);
     }
+    const workshopIds = new Set<string>();
+    for (const workshop of chapter.sourceWorkshops ?? []) {
+      if (workshopIds.has(workshop.id)) issues.push(`Duplisert verksted-ID i ${chapter.id}: ${workshop.id}`);
+      workshopIds.add(workshop.id);
+      issues.push(...getSourceWorkshopIssues(chapter.id, workshop, sourceIds));
+    }
+    if (chapter.status === "published" && workshopIds.size === 0) issues.push(`Publisert kapittel ${chapter.id} mangler kildeverksted`);
+    if (chapter.teacherGuide?.sourceWorkshop && !workshopIds.has(chapter.teacherGuide.sourceWorkshop.workshopId)) issues.push(`Lærerens verkstedlenke i ${chapter.id} peker til ukjent verksted`);
     if (chapter.status === "published" || chapter.teacherGuide) issues.push(...getTeacherGuideIssues(chapter.id, chapter.teacherGuide));
     if (chapter.summaryPdf) {
       const summaryPath = chapter.summaryPdf.href.split("#")[0];

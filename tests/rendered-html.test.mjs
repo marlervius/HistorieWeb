@@ -96,11 +96,13 @@ test("renders the reference chapter and its source-backed sections", async () =>
   assert.match(html, /Çatalhöyük/);
   assert.match(html, /Göbekli Tepe/);
   assert.match(html, /Interaktive oppgaver/);
+  assert.match(html, /Fra materielle spor til begrunnede slutninger/);
+  assert.match(html, /Ingen elevsvar sendes eksternt/);
   assert.match(html, /Aktiver forkunnskapen/);
   assert.match(html, /Plan for repetisjon/);
   assert.match(html, /Egenvurdering/);
   assert.match(html, /Utdanningsdirektoratet/);
-  assert.match(html, /21\. august 2026/);
+  assert.match(html, /22\. august 2026/);
   assert.match(html, /Kildehenvisning/);
   assert.match(html, /Øv på nytt/);
   assert.match(html, /self-assessment-status/);
@@ -121,13 +123,15 @@ test("renders the public teacher overview without local assessment material", as
   assert.match(html, /Gjenhenting og nytt forsøk/);
   assert.match(html, /Avdekk og møt misoppfatninger/);
   assert.match(html, /Observerbare kriterier for elevsvar/);
+  assert.match(html, /Fra observasjon til begrunnet slutning/);
+  assert.match(html, /Kildegrunnlag og rettighetsstatus/);
   assert.match(html, /Lokalt · ikke publisert/);
   assert.match(html, /#mal/);
   assert.match(html, /#fagtekst/);
   assert.match(html, /#kildeblikk/);
   const chapterResponse = await render("/laereverk/02-fra-jegere-til-bysamfunn/2-2-jordbruksrevolusjonen");
   const chapterHtml = await chapterResponse.text();
-  for (const sectionId of ["mal", "tid-og-sted", "tidslinje", "fakta", "forstaelse", "fagtekst", "kildeblikk", "lange-linjer", "oppgaver", "oppsummering", "repetisjon"]) {
+  for (const sectionId of ["mal", "tid-og-sted", "tidslinje", "fakta", "forstaelse", "fagtekst", "kildeblikk", "kildeverksted", "lange-linjer", "oppgaver", "oppsummering", "repetisjon"]) {
     assert.match(chapterHtml, new RegExp(`id="${sectionId}"`), sectionId);
   }
   assert.doesNotMatch(html, /kort-fortalt\.pdf|\.docx|fasit|testoppgave|prøveoppgave/i);

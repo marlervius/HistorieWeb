@@ -13,6 +13,16 @@
 
 ## Kildegrunnlag
 
+## Oppfølging: kildeverksted for 2.2
+
+**Kontrollert:** 22.–23. august 2026.
+
+Kildeverkstedet bruker to tekstlige, materielle kildesett: lagdelte hus- og bosetningsspor fra Çatalhöyük og redskaps-/plantespor knyttet til kornbearbeiding ved Göbekli Tepe. Eleven møter først dokumenterte beskrivelser uten ferdig tolkning, før tid, sted, funnkontekst, bevaring og dokumentasjonsbegrensninger blir synlige. Påstandene er med hensikt fordelt på direkte støtte, mulig tolkning, for sterk konklusjon og «ikke mulig å avgjøre».
+
+Faglig kontroll: Çatalhöyük-materialet bygger på UNESCOs stedbeskrivelse og Çatalhöyük Research Project sin guide; Göbekli Tepe-materialet bygger på UNESCO, Deutsches Archäologisches Instituts oppdaterte prosjektbeskrivelse og Dietrich m.fl. (2019) om redskaper, fytolitter og kornbearbeiding. DAI-kilden er brukt for å unngå en for enkel «rituell plass»-fortelling: nyere funn gjør tolkningen mer sammensatt, med både hverdagslige og rituelle trekk. Verkstedet hevder derfor ikke at materialet alene avgjør sosial makt, identiske roller, felles tro eller én bestemt funksjon.
+
+Rettighetskontroll: ingen bilder eller andre mediefiler ble kopiert inn i prosjektet. Verkstedet bruker korte, egne beskrivelser og viser kilde- og lisensstatus i modellen; eventuelle offentlige mediefiler ville krevd eksisterende fil, alternativtekst, opphav, lisens og kreditering før visning.
+
 Kildene ble åpnet og lest 20. august 2026: [Utdanningsdirektoratets kompetansemål for HIS01-03](https://www.udir.no/lk20/his01-03/kompetansemaal-og-vurdering/kv84), [International Commission on Stratigraphy sin GSSP-tabell](https://stratigraphy.org/gssps/), [Zeder (2008)](https://doi.org/10.1073/pnas.0801317105), [Denham m.fl. (2003)](https://doi.org/10.1126/science.1085255), [Dietrich m.fl. (2019)](https://doi.org/10.1371/journal.pone.0215214), [UNESCO om Çatalhöyük](https://whc.unesco.org/en/list/1405/), [Çatalhöyük Research Project sin site guide](https://catalhoyuk.ku.edu.tr/sites/default/files/Catalhoyuk-Guidebook-ENGLISH.pdf), [UNESCO om Göbekli Tepe](https://whc.unesco.org/en/list/1572/), [DAIs prosjektoversikt](https://www.dainst.org/en/research/projects/noslug/5746) og kapitlets åpne lærebokkilde fra OpenStax.
 
 Udir-målene i innholdsmodellen er fortsatt ordrette. ICS-kilden bruker 11 700 år før 2000 (b2k), ikke kalenderåret 11 700 f.Kr. Çatalhöyük-guiden støtter opplysninger om hus, lagring, matbehandling, begravelser, obsidian og utveksling. Forskningen på Göbekli Tepe støtter en mer sammensatt framstilling enn «mobilt tempel bygget av jegere og sankere» alene.
@@ -52,4 +62,4 @@ De viktigste svakhetene som gjenstår er at oppgavene fortsatt ligger samlet ett
 
 ## Anbefalt neste faglige prioritet
 
-Komponenttestene for første feil, nytt forsøk, åpne svar, fasesletting, kapittelspesifikk lagring og korrupt lagring er nå levert som en egen teknisk milepæl. Neste faglige prioritet er læreroversikten med undervisningsløp, misoppfatninger og vurderingskriterier fra de lokale kildene, mens prøver og fasiter fortsatt holdes utenfor offentlig publisering.
+Komponenttestene for første feil, nytt forsøk, åpne svar, kildeverkstedets seks trinn, kapittelspesifikk lagring og korrupt lagring er nå levert som en egen teknisk milepæl. Læreroversikten har fått en egen kildeverksteddel med undervisningsplassering, faglige skiller, misforståelser, samtalespørsmål og vurderingskriterier. Prøver og fasiter holdes fortsatt utenfor offentlig publisering.
