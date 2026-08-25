@@ -1,6 +1,6 @@
 # Prioritert veikart
 
-Sist revidert: 23. august 2026.
+Sist revidert: 25. august 2026.
 
 ## Målbar status etter faglig revisjon og testmilepæl
 
@@ -33,9 +33,10 @@ Sist revidert: 23. august 2026.
 - [x] Legg inn innholdsregresjonstester for posisjonell fasit, alternativlengde i begge retninger, hedging, tidslinje, railrekkefølge, publiserte kildetitler, seed-variasjon og lagringsmigrering.
 - [x] Lever en datadrevet repetisjonsinngang med aktiv gjenhenting, lokal anonym tilstand, deterministisk plan og automatisk opptak av nye publiserte kapitler.
 - [x] Kontroller repetisjonsinngangen i lokal Chrome ved 320, 375 og 1280 piksler, inkludert første økt, lokal sletting og horisontal overflyt.
+- [x] Gjennomfør forstudie for kapittel 2.3 med kapittelplan, kildematrise, kompetansekobling, komplett oppgavegrunnlag og kontrollert kildeverksted; grunnlaget er klart for implementering innenfor avgrensningen i dokumentene.
 ## Neste prioriterte leveranser
 
-1. **Neste kapittel.** Start først når kildesett, kompetansekobling og komplett oppgave- og kontrollgrunnlag finnes.
+1. **Implementer kapittel 2.3.** Forstudien og kildematrisa er levert og vurdert som klare; behold tre-case-avgrensningen, kildebegrensningene og den komparative oppgaveprogresjonen.
 2. **Oppsummerings-PDF 2.2.** Produser og publiser først etter faglig og visuell kontroll; lærerfasit og prøve forblir lokale til annet er besluttet.
 
 ## Åpne risikoer
