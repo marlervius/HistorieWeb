@@ -109,6 +109,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .meta-row { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-top: 28px; color: var(--ink-soft); font-family: Arial, sans-serif; font-size: 12px; }
 .meta-row strong { color: var(--ink); }
 .chapter-layout { display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 56px; align-items: start; }
+.chapter-pagination { grid-column: 1 / -1; display: flex; justify-content: space-between; gap: 12px; margin-top: 52px; padding-top: 24px; border-top: 1px solid var(--line); }
 .chapter-content { min-width: 0; order: 1; }
 .chapter-rail { position: sticky; top: 20px; padding-top: 54px; order: 2; }
 .rail-box { padding: 20px; border: 1px solid var(--line); background: var(--paper-warm); }
@@ -344,6 +345,7 @@ textarea { resize: vertical; min-height: 120px; padding: 11px; font-size: 15px; 
   .hero { grid-template-columns: 1fr; gap: 30px; }
   .home-grid, .card-grid, .feature-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .chapter-layout { grid-template-columns: 1fr; gap: 0; }
+  .chapter-pagination { grid-column: auto; align-items: stretch; flex-direction: column; margin-top: 32px; }
   .teacher-misconception-grid, .teacher-criteria-grid { grid-template-columns: 1fr; }
   .teacher-phase-heading { grid-template-columns: 1fr; }
   .teacher-phase-heading .eyebrow, .teacher-phase-heading h4, .teacher-phase-heading p { grid-column: 1; }

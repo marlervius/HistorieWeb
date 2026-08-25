@@ -16,6 +16,7 @@ const publicRoutes = [
   "/laerere",
   "/om",
   "/laereverk/02-fra-jegere-til-bysamfunn/2-2-jordbruksrevolusjonen",
+  "/laereverk/02-fra-jegere-til-bysamfunn/2-3-byer-uten-en-oppskrift",
 ];
 
 let baseUrl;
@@ -109,6 +110,25 @@ test("renders the reference chapter and its source-backed sections", async () =>
   assert.match(html, /role="status"/);
   assert.match(html, /Oppsummerings-PDF/);
   assert.doesNotMatch(html, /href="[^"]*kort-fortalt\.pdf"/);
+});
+
+test("renders chapter 2.3 with three cases and chapter navigation", async () => {
+  const response = await render("/laereverk/02-fra-jegere-til-bysamfunn/2-3-byer-uten-en-oppskrift");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /Byer uten én oppskrift/);
+  assert.match(html, /Mesopotamia/);
+  assert.match(html, /Mohenjo-daro/);
+  assert.match(html, /Caral-Supe/);
+  assert.match(html, /Hva holder en by sammen/);
+  assert.match(html, /Forrige:/);
+  assert.match(html, /2-2-jordbruksrevolusjonen/);
+  assert.match(html, /25. august 2026/);
+  assert.match(html, /Kildehenvisning/);
+  assert.match(html, /Ingen elevsvar sendes eksternt/);
+  for (const sectionId of ["mal", "tid-og-sted", "tidslinje", "fakta", "forstaelse", "fagtekst", "kildeblikk", "kildeverksted", "lange-linjer", "oppgaver", "oppsummering", "repetisjon"]) {
+    assert.match(html, new RegExp(`id="${sectionId}"`), sectionId);
+  }
 });
 
 test("renders the public teacher overview without local assessment material", async () => {

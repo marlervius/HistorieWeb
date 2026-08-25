@@ -274,7 +274,7 @@ export type Chapter = {
   competenceGoals: string[];
   facts: CitedClaim[];
   concepts: { term: string; definition: string }[];
-  narrative: { heading: string; paragraphs: string[] }[];
+  narrative: { heading: string; paragraphs: (string | CitedClaim)[] }[];
   causes: string[];
   effects: string[];
   continuities: string[];
@@ -283,6 +283,7 @@ export type Chapter = {
   sourceLooks: SourceLook[];
   sourceWorkshops: SourceWorkshop[];
   longLineIds: string[];
+  reviewPlan: { label: string; text: string }[];
   summary: string[];
   timeline: TimelinePoint[];
   tasks: LearningTask[];
@@ -377,7 +378,7 @@ const curriculumSectionDefinitions = [
   },
 ];
 
-const tasks: LearningTask[] = [
+const tasks2_2: LearningTask[] = [
   {
     id: "F1",
     phase: "Fakta",
@@ -947,6 +948,327 @@ const teacherGuide2_2: TeacherGuide = {
   ],
 };
 
+
+const tasks2_3: LearningTask[] = [
+  {
+    id: "F1",
+    phase: "Fakta",
+    kind: "choice",
+    title: "Hva mener vi med by?",
+    prompt: "Hvilken arbeidsdefinisjon passer best med kapitlets bruk av ordet by?",
+    points: 1,
+    options: [
+      "En bosetning med konge, palass og hær, selv om andre politiske ordninger også kunne finnes.",
+      "En bosetning der mennesker, aktiviteter og/eller institusjoner er konsentrert og virker inn på et større omland.",
+      "Et sted med minst et bestemt innbyggertall, selv om terskelen kunne variere mellom regioner.",
+      "En bosetning som bruker skrift og vanligvis ikke flytter, selv om noen steder kunne ha andre uttrykk.",
+    ],
+    correct: 1,
+    hint: "Se etter en definisjon som åpner for flere politiske ordninger og regionale forskjeller.",
+    explanation: "By er et analytisk arbeidsbegrep. Kildene kan vise konsentrasjon av mennesker, aktiviteter eller institusjoner uten å avgjøre én styreform.",
+  },
+  {
+    id: "F2",
+    phase: "Fakta",
+    kind: "match",
+    title: "Tre case, tre steder",
+    prompt: "Koble caseområdet til riktig region.",
+    points: 3,
+    items: ["Mesopotamia", "Mohenjo-daro", "Caral-Supe"],
+    choices: ["Indusdalen", "Supe-dalen på Perus nord-sentrale kyst", "Tigris–Eufrat-området"],
+    answerMap: {
+      Mesopotamia: "Tigris–Eufrat-området",
+      "Mohenjo-daro": "Indusdalen",
+      "Caral-Supe": "Supe-dalen på Perus nord-sentrale kyst",
+    },
+    hint: "Finn elvene og landskapet først; navnet på området er ikke nok.",
+    explanation: "Caseområdene ligger i tre ulike regioner. Geografien er en del av forklaringen fordi mat, vann, råvarer og forbindelser varierer.",
+  },
+  {
+    id: "F3",
+    phase: "Fakta",
+    kind: "order",
+    title: "Perioder uten én global startdato",
+    prompt: "Sorter punktene fra eldst til yngst. Bruk de regionale intervallene, ikke en påstått global startdato.",
+    points: 3,
+    items: [
+      "Uruk-periodens urbane vekst ca. 3500–3100 f.Kr.",
+      "Mohenjo-daro i moden Indus-periode ca. 2600–1900 f.Kr.",
+      "Tidlig urbanisering i nordlige Mesopotamia i fjerde årtusen f.Kr.",
+      "Caral-Supe ca. 3000–1800 f.Kr.",
+    ],
+    expected: [
+      "Tidlig urbanisering i nordlige Mesopotamia i fjerde årtusen f.Kr.",
+      "Uruk-periodens urbane vekst ca. 3500–3100 f.Kr.",
+      "Caral-Supe ca. 3000–1800 f.Kr.",
+      "Mohenjo-daro i moden Indus-periode ca. 2600–1900 f.Kr.",
+    ],
+    hint: "Sorter etter tidligste del av det foreslåtte intervallet, og husk at intervaller kan overlappe.",
+    explanation: "Tidslinjen viser at urbanisering foregikk i ulike regioner med overlappende forløp. En dato for ett sted er ikke startdato for alle.",
+  },
+  {
+    id: "F4",
+    phase: "Fakta",
+    kind: "choice",
+    title: "Hvilke spor er dokumentert?",
+    prompt: "Hvilket utsagn er best støttet som en beskrivelse av Caral-Supe?",
+    points: 1,
+    options: [
+      "Monumentale plattformhauger og nedsenkede sirkulære plasser inngår i et større bosetningslandskap.",
+      "Et palass viser at én konge måtte fordele alt arbeid, selv om makten kunne være lokal.",
+      "En skriftlig lovsamling forklarer hvordan stedet kunne styres i hele perioden.",
+      "Innbyggerne levde bare av korn fra irrigert jordbruk, selv om marine ressurser også kunne brukes.",
+    ],
+    correct: 0,
+    hint: "Velg den formuleringen som beskriver synlige eller dokumenterte trekk uten å legge til en bestemt hersker.",
+    explanation: "Kildene dokumenterer monumental arkitektur og et større bosetningslandskap. De avgjør ikke alene hvem som bestemte eller at én matvare dominerte.",
+  },
+  {
+    id: "F5",
+    phase: "Fakta",
+    kind: "choice",
+    title: "Mohenjo-daro og infrastruktur",
+    prompt: "Hva beskriver et dokumentert trekk ved Mohenjo-daro best?",
+    points: 1,
+    options: [
+      "Kvartaler, gater, brønner og drenering inngår i et planlagt bylandskap.",
+      "Alle husene var like, så ulikhet kunne ikke finnes, selv om enkelte hjem kunne være større.",
+      "En prestekonge ble funnet i et palass og kunne derfor styre dreneringen.",
+      "Dreneringen viser at sykdom ikke forekom, selv om helseeffekten kunne variere.",
+    ],
+    correct: 0,
+    hint: "Skill mellom det en arkeolog kan beskrive i et anlegg og det som krever en tolkning av samfunnet.",
+    explanation: "Gater, hus, brønner og dreneringsspor er dokumentert. De sier ikke alene hvem som styrte eller hvor effektivt systemet var.",
+  },
+  {
+    id: "F6",
+    phase: "Fakta",
+    kind: "choice",
+    title: "Mesopotamia er ikke én modell",
+    prompt: "Hva er mest presist om tidlig urbanisering i Mesopotamia?",
+    points: 1,
+    options: [
+      "Uruk var det eneste sentrumet, selv om nordlige steder kunne vokse med lokal organisering.",
+      "Sørlige og nordlige områder utviklet urbane trekk med både kontakt og lokale forskjeller.",
+      "Alle mesopotamiske bosetninger ble byer samtidig, selv om dateringer kunne overlappe.",
+      "Nordlige samfunn hadde bare landsbyer fram til etter 2000 f.Kr., selv om lokale sentre kunne ha andre trekk.",
+    ],
+    correct: 1,
+    hint: "Se etter alternativet som rommer både forbindelser og selvstendige regionale forløp.",
+    explanation: "Forskningen beskriver tidlige urbane prosesser i nord som samtidige med utviklingen i sør. Det gjør ikke kontakt uviktig, men svekker en enkel kjerne–periferi-fortelling.",
+  },
+  {
+    id: "U1",
+    phase: "Forståelse",
+    kind: "choice",
+    title: "Hvorfor kan byer oppstå?",
+    prompt: "Hvilken forklaring på tidlig urbanisering er mest historisk forsvarlig?",
+    points: 1,
+    options: [
+      "Jordbruk gjorde byer nødvendige overalt, selv om lokale ressurser kunne variere.",
+      "Flere forhold, som ressursgrunnlag, forbindelser, institusjoner og lokale valg, kunne virke sammen ulikt.",
+      "Monumenter viser at en konge alltid planla byen fra starten, selv om bygg kunne ha flere funksjoner.",
+      "Befolkningsvekst forklarer alle endringer, selv om omland og arbeid kunne ha betydning.",
+    ],
+    correct: 1,
+    hint: "Finn forklaringen som gjør plass for ulikhet mellom caseområdene.",
+    explanation: "Urbanisering er en prosess med flere mulige drivkrefter. Kildene støtter ikke én automatisk overgang.",
+  },
+  {
+    id: "U2",
+    phase: "Forståelse",
+    kind: "sort",
+    title: "Omland og by",
+    prompt: "Sorter utsagnene som det et omland kan bidra med, eller det en by kan organisere. Velg den mest direkte funksjonen.",
+    points: 2,
+    items: ["mat, vann og råvarer", "arbeidskraft og forbindelser", "gater, drenering eller offentlige rom", "registrering og samordning av aktiviteter"],
+    choices: ["Omlandets bidrag", "Byens organiserte funksjoner"],
+    answerMap: {
+      "mat, vann og råvarer": "Omlandets bidrag",
+      "arbeidskraft og forbindelser": "Omlandets bidrag",
+      "gater, drenering eller offentlige rom": "Byens organiserte funksjoner",
+      "registrering og samordning av aktiviteter": "Byens organiserte funksjoner",
+    },
+    hint: "Spør hvor ressursen kommer fra, og hvor ordningen blir synlig.",
+    explanation: "En by kan samle og organisere, men den er avhengig av mennesker og ressurser fra et større landskap. Grensen er analytisk, ikke en absolutt fysisk vegg.",
+  },
+  {
+    id: "U3",
+    phase: "Forståelse",
+    kind: "match",
+    title: "Kontroll eller kollektiv handling?",
+    prompt: "Koble sporet til den mest forsvarlige tolkningen. Tolkningen skal ikke gå lenger enn sporet.",
+    points: 3,
+    items: ["Mange hushold er koblet til drenering", "store bygg og registreringsspor i Mesopotamia", "monumentale bygg og ressursforbindelser i Caral-Supe"],
+    choices: ["regional organisering og arbeidsinnsats kunne opprettholde store prosjekter", "institusjoner og aktiviteter var samlet, men styreformen er åpen", "flere grupper måtte koordinere vedlikehold eller bruk"],
+    answerMap: {
+      "Mange hushold er koblet til drenering": "flere grupper måtte koordinere vedlikehold eller bruk",
+      "store bygg og registreringsspor i Mesopotamia": "institusjoner og aktiviteter var samlet, men styreformen er åpen",
+      "monumentale bygg og ressursforbindelser i Caral-Supe": "regional organisering og arbeidsinnsats kunne opprettholde store prosjekter",
+    },
+    hint: "Unngå tolkninger som navngir en konge eller en klasse uten et konkret spor for det.",
+    explanation: "Kollektiv handling kan oppstå gjennom flere ordninger. Sporene kan støtte koordinering, men de avgjør ikke om den var sentralisert, lokal eller blandet.",
+  },
+  {
+    id: "U4",
+    phase: "Forståelse",
+    kind: "choice",
+    title: "Hva betyr «kompleks»?",
+    prompt: "Hvorfor bør ordet «kompleks» brukes forsiktig om tidlige bysamfunn?",
+    points: 1,
+    options: [
+      "Fordi komplekse samfunn alltid er bedre enn små samfunn, selv om vurderingen kunne skjule andre mål.",
+      "Fordi ordet kan skjule hvilke trekk som faktisk beskrives, og få ulikhet eller stat til å se nødvendig ut.",
+      "Fordi bare samfunn med skrift kunne være komplekse, selv om andre institusjoner kunne finnes.",
+      "Fordi arkeologer ikke kunne beskrive bygninger eller bosetninger, selv om funn kunne gi kunnskap.",
+    ],
+    correct: 1,
+    hint: "Spør hvilke konkrete egenskaper ordet erstatter.",
+    explanation: "Bruk heller spesifikke ord som konsentrasjon, arbeidsdeling, infrastruktur eller institusjoner. «Kompleks» skal ikke bety bedre eller høyere på en trapp.",
+  },
+  {
+    id: "U5",
+    phase: "Forståelse",
+    kind: "choice",
+    title: "Gevinst og kostnad",
+    prompt: "Hvilken formulering veier best mulige fordeler og kostnader ved større bosetninger?",
+    points: 1,
+    options: [
+      "Større bosetninger ga bare trygghet og bedre liv for alle, selv om noen kunne arbeide hardere.",
+      "Større bosetninger kunne samle utveksling og samarbeid, men også kreve vedlikehold, arbeid og håndtering av tetthet og ulik fordeling.",
+      "Byer var alltid mer sårbare enn landsbyer, selv om enkelte kunne vare lenge.",
+      "Infrastruktur løste alle problemer fordi tekniske systemer kunne virke likt i alle perioder.",
+    ],
+    correct: 1,
+    hint: "Velg en formulering som sier «kunne» og som nevner både ordning og belastning.",
+    explanation: "Tidlige byer var sosiale eksperimenter. Kildene åpner for både fordeler og problemer, men virkningen kan ha vært ulik mellom grupper og steder.",
+  },
+  {
+    id: "L1",
+    phase: "Lange linjer",
+    kind: "order",
+    title: "En mulig, ikke nødvendig, kjede",
+    prompt: "Sett en mulig kjede fra ressurser til urban organisering.",
+    points: 2,
+    items: ["infrastruktur og institusjoner må vedlikeholdes", "mulige forskjeller i arbeid, ressurser og makt", "ressursgrunnlag og forbindelser", "ulike former for koordinering og kontroll", "mennesker og aktiviteter samles"],
+    expected: [
+      "ressursgrunnlag og forbindelser",
+      "mennesker og aktiviteter samles",
+      "infrastruktur og institusjoner må vedlikeholdes",
+      "ulike former for koordinering og kontroll",
+      "mulige forskjeller i arbeid, ressurser og makt",
+    ],
+    hint: "Et senere ledd må forklares som en mulighet, ikke som en sikker følge.",
+    explanation: "Kjeden er en syntese. Den viser hva som må kunne henge sammen, men caseområdene viser at samme problem kan løses på ulike måter.",
+  },
+  {
+    id: "L2",
+    phase: "Lange linjer",
+    kind: "reflection",
+    title: "Sammenligne uten å rangere",
+    prompt: "Sammenlign Mohenjo-daro med Caral-Supe. Bruk ett likhetstrekk, to forskjeller og én begrensning ved sammenligningen.",
+    points: 2,
+    hint: "Sammenlign trekk, ikke rang. Skriv først observasjonene før du forklarer dem.",
+    explanation: "Et godt svar bruker konkrete spor, viser både likhet og forskjell, og forklarer hvorfor ulike perioder og kildetyper begrenser sammenligningen.",
+    modelResponse: "Begge steder viser at store prosjekter og konsentrerte bosetninger krevde organisering. Mohenjo-daro har et tydelig dokumentert gatenett og drenering, mens Caral-Supe har plattformhauger, sirkulære plasser og et regionalt ressursgrunnlag med fiske og irrigasjon. Materialet er ikke likt, og vi kan derfor ikke konkludere med samme styreform eller samme religion.",
+  },
+  {
+    id: "L3",
+    phase: "Lange linjer",
+    kind: "choice",
+    title: "Ressurser og bærekraft",
+    prompt: "Hvilken vurdering kobler tidlig urbanisering til bærekraft uten å bruke dagens begrep som en direkte dom?",
+    points: 1,
+    options: [
+      "Byer var bærekraftige når de hadde store monumenter, selv om ressursbruken kunne variere.",
+      "Byer var aldri bærekraftige fordi urbane samfunn kunne bryte ned naturen.",
+      "Vi kan undersøke hvordan ressurser, vedlikehold, sårbarhet og fordeling ble håndtert, men må bruke regionale spor og unngå en enkel ja/nei-dom.",
+      "Bærekraft kunne først vurderes etter industrialiseringen, selv om historiske ressursvalg kunne undersøkes.",
+    ],
+    correct: 2,
+    hint: "Bærekraftsspørsmålet må knyttes til konkrete ressurser og til hvem som bar kostnadene.",
+    explanation: "Historiske perspektiver kan undersøke ressursbruk og sårbarhet uten å late som om dagens målekriterier kan leses direkte ut av fortiden.",
+  },
+  {
+    id: "L4",
+    phase: "Lange linjer",
+    kind: "reflection",
+    title: "Var urbanisering et framskritt?",
+    prompt: "Skriv en begrunnet vurdering av om urbanisering bør beskrives som et framskritt.",
+    points: 3,
+    hint: "Vei mulige gevinster mot kostnader, og bruk minst to case.",
+    explanation: "Et historisk svar kan vurdere urbanisering som en endring med både muligheter og belastninger, ulikt fordelt mellom mennesker og steder.",
+    modelResponse: "Urbanisering kunne samle mennesker, ressurser og samarbeid, men den kunne også kreve mer arbeid, vedlikehold og håndtering av ulikhet og sårbarhet. Derfor bør den ikke beskrives som et entydig framskritt. Mesopotamia, Mohenjo-daro og Caral-Supe viser dessuten ulike kombinasjoner av ressurser, infrastruktur og organisering.",
+  },
+  {
+    id: "K1",
+    phase: "Kildeblikk",
+    kind: "choice",
+    title: "Funn eller tolkning?",
+    prompt: "Hvilket utsagn skiller best mellom observasjon og tolkning?",
+    points: 1,
+    options: [
+      "Drenering viser at alle innbyggerne hadde god helse, selv om virkningen kunne variere.",
+      "Dreneringsspor kan beskrives konkret; de kan støtte en tolkning om koordinering, men avgjør ikke alene hvem som bestemte.",
+      "Plattformhauger betyr at Caral-Supe hadde en konge, selv om styret kunne være lokalt.",
+      "Registrering beviser at alle aktiviteter var tvunget, selv om noen kunne delta frivillig.",
+    ],
+    correct: 1,
+    hint: "Finn alternativet som først beskriver sporet og deretter avgrenser tolkningen.",
+    explanation: "Kildekritikk betyr å skille det som er dokumentert fra en mulig forklaring og fra det materialet ikke avgjør alene.",
+  },
+  {
+    id: "K2",
+    phase: "Kildeblikk",
+    kind: "sort",
+    title: "Styrken i en påstand",
+    prompt: "Sorter formuleringene etter om de er direkte dokumentert, mulig tolkning eller for sterk påstand.",
+    points: 3,
+    items: [
+      "Det finnes gater, brønner og drenering ved Mohenjo-daro.",
+      "Flere grupper kan ha koordinert vedlikehold.",
+      "En prestekonge styrte hele byen.",
+      "Monumentene viser at alle innbyggere var enige.",
+    ],
+    choices: ["Direkte dokumentert", "Mulig tolkning", "For sterk påstand"],
+    answerMap: {
+      "Det finnes gater, brønner og drenering ved Mohenjo-daro.": "Direkte dokumentert",
+      "Flere grupper kan ha koordinert vedlikehold.": "Mulig tolkning",
+      "En prestekonge styrte hele byen.": "For sterk påstand",
+      "Monumentene viser at alle innbyggere var enige.": "For sterk påstand",
+    },
+    hint: "Se etter «kan» og spør om påstanden navngir personer eller erfaringer som ikke er dokumentert.",
+    explanation: "Et konkret anlegg kan være direkte dokumentert. Forklaringen kan være mulig, mens sikre utsagn om herskere eller enighet går lenger enn materialet.",
+  },
+  {
+    id: "K3",
+    phase: "Kildeblikk",
+    kind: "choice",
+    title: "Bildet av prestekongen",
+    prompt: "Hvordan bør vi bruke et uttrykk som «prestekonge» i arbeidet med Mohenjo-daro?",
+    points: 1,
+    options: [
+      "Som et sikkert navn på herskeren fordi en skulptur alltid viser personen som styrte.",
+      "Som en mulig eller eldre tolkning som må skilles fra det skulpturen faktisk dokumenterer.",
+      "Som bevis på at alle indusbyer hadde samme politiske system, selv om lokale forskjeller kunne finnes.",
+      "Som et ord som gjør gater og drenering unødvendige i forklaringen, selv om infrastruktur kunne være viktig.",
+    ],
+    correct: 1,
+    hint: "Spør hva et bilde kan vise, og hva det ikke kan bevise om personen eller styret.",
+    explanation: "Et visuelt funn kan dokumentere en framstilling, men identitet, rolle og politisk makt er tolkninger som må holdes åpne.",
+  },
+  {
+    id: "K4",
+    phase: "Kildeblikk",
+    kind: "reflection",
+    title: "Skriv fra spor til syntese",
+    prompt: "Skriv en kort konklusjon som sammenstiller minst to case. Skill mellom observasjon, tolkning og begrensning.",
+    points: 3,
+    hint: "Bruk én setning for konkrete spor, én for en mulig sammenheng og én for det materialet ikke kan avgjøre.",
+    explanation: "En god syntese sammenligner uten å rangere og viser tydelig hvor sikker eller åpen forklaringen er.",
+    modelResponse: "Mohenjo-daros gater og drenering og Caral-Supes plattformhauger viser ulike former for organisering av større bosetninger. Sporene kan støtte at mennesker måtte koordinere arbeid og ressurser, men de avgjør ikke om ordningen var styrt av en konge, lokale grupper eller en kombinasjon. Derfor bør sammenligningen beskrive både fellestrekk og regionale forskjeller.",
+  },
+];
 const sourceWorkshop2_2: SourceWorkshop = {
   id: "2-2-jordbruk-kildeverksted",
   chapterId: "2.2",
@@ -1154,6 +1476,176 @@ const sourceWorkshop2_2: SourceWorkshop = {
   lastChecked: "22. august 2026",
 };
 
+const teacherGuide2_3: TeacherGuide = {
+  overview: "Kapitlet følger progresjonen forkunnskaper → fakta → forståelse → kildearbeid → lange linjer → egenvurdering → repetisjon. Elevene sammenligner tre tidlige urbane prosesser og skiller mellom spor, tolkninger og begrensninger.",
+  teachingPhases: [
+    { id: "aktiver-2-2", title: "Aktiver 2.2", duration: "0–10 min", purpose: "Hent fram lagring, arbeidsdeling, omland og forskjellen mellom funn og tolkning.", teacherActions: ["Skriv «by» og «omland» på tavlen.", "Be elevene hente fram ett forbehold fra 2.2."], studentActions: ["Skriv en mulig kobling til større bosetninger.", "Formuler ett spørsmål du fortsatt ikke kan svare på."], sectionIds: ["forkunnskap", "mal"] },
+    { id: "kart-og-tidslinje-2-3", title: "Bygg kart og tidslinje", duration: "10–25 min", purpose: "Vis tre regioner og overlappende intervaller uten én global startdato.", teacherActions: ["Bruk tid- og sted-delen og tidslinjen.", "Stopp ved ordet «først» og spør hvilket kriterium eleven bruker."], studentActions: ["Plasser de tre caseområdene.", "Forklar hvorfor intervaller kan overlappe."], sectionIds: ["tid-og-sted", "tidslinje"] },
+    { id: "sikre-fakta-2-3", title: "Sikre faktapunktene", duration: "25–45 min", purpose: "Etabler presise trekk ved Mesopotamia, Mohenjo-daro og Caral-Supe.", teacherActions: ["La elevene arbeide med F1–F6.", "Be dem begrunne svar med region, tid eller spor."], studentActions: ["Hent fram faktapunkter uten å lese teksten.", "Marker punkter som trenger nytt forsøk."], sectionIds: ["fakta", "oppgaver"] },
+    { id: "les-og-forklar-2-3", title: "Les og forklar", duration: "45–80 min", purpose: "Koble omland, ressurser og organisering uten å gjøre by eller stat til nødvendige trinn.", teacherActions: ["Be elevene lage kolonner for dokumentert, mulig og uavklart.", "Stopp ved forskjellen mellom koordinering og kontroll."], studentActions: ["Finn formuleringer med «kan» eller «mulig».", "Forklar hvordan samme spor kan støtte flere tolkninger."], sectionIds: ["forstaelse", "fagtekst"] },
+    { id: "kildeverksted-2-3", title: "Arbeid med spor", duration: "80–115 min", purpose: "Gjennomfør seks trinn fra observasjon til revidert konklusjon.", teacherActions: ["La grupper starte med ett materiale og sammenstille minst to case.", "Spør hvilke ord som er spor og hvilke som er forklaringer."], studentActions: ["Observer, kontekstualiser og vurder påstander.", "Skriv, begrunn og revider en konklusjon."], sectionIds: ["kildeblikk", "kildeverksted"] },
+    { id: "lange-linjer-2-3", title: "Sammenlign uten å rangere", duration: "115–135 min", purpose: "Vurder mulige kjeder, fordeler, kostnader og sårbarhet.", teacherActions: ["Test årsakskjeden med et «ikke alltid»-spørsmål.", "La elevene bruke minst to case i en lang linje."], studentActions: ["Skriv én likhet, to forskjeller og én begrensning.", "Vurder hvem som kan ha fått fordeler eller båret kostnader."], sectionIds: ["lange-linjer", "oppgaver"] },
+    { id: "egenvurdering-2-3", title: "Egenvurder og repeter", duration: "Etter økten", purpose: "Flytt læringen fra gjenlesing til gjenhenting og revisjon.", teacherActions: ["Bruk egenvurderingen som metakognitiv stopp.", "Avtal gjenhenting av F1–F6 og K4."], studentActions: ["Marker mål som sikkert, på vei eller nytt forsøk.", "Revider en setning som gikk for langt."], sectionIds: ["oppsummering", "repetisjon"] },
+  ],
+  priorKnowledgeActivation: {
+    prompt: "Be elevene hente fram lagring, arbeidsdeling, omland og ett skille mellom funn og tolkning fra 2.2.",
+    cues: ["Hvordan kan lagring og arbeidsdeling gjøre større bosetninger mulig uten at en stat følger automatisk?", "Hva kan et omland bidra med, og hvorfor trenger en by forbindelser utenfor bosetningen?", "Hva er forskjellen på et konkret spor og en forklaring vi lager ut fra sporet?"],
+    sectionIds: ["forkunnskap", "mal"],
+  },
+  textWork: {
+    instructions: ["La elevene bruke tid, sted og begreper før fagteksten.", "Marker konkrete funn og tolkninger med ulike farger.", "Samle setninger som viser regional forskjell eller kildebegrensning.", "Forklar hvorfor by, stat og sivilisasjon ikke er samme type kategori."],
+    sectionIds: ["tid-og-sted", "fakta", "fagtekst", "forstaelse"],
+  },
+  taskUse: {
+    sequence: "Arbeid i rekkefølgen fakta → forståelse → lange linjer → kildeblikk.",
+    firstAttempt: "La elevene gjøre et eget første forsøk. Ved første feil bruker de det avgrensede hintet.",
+    retry: "Be elevene prøve på nytt før forklaringen. Samtal om hva som endret seg i begrunnelsen.",
+    openResponses: "Åpne svar skal være egne, meningsbærende forsøk før modellresponsen vises. Bruk modellen til å finne spor, sammenligninger og forbehold som kan forbedres.",
+    sectionIds: ["oppgaver", "fakta", "forstaelse", "lange-linjer", "kildeblikk"],
+  },
+  selfAssessmentAndReview: {
+    selfAssessment: ["Kan eleven definere by eller urbanisering uten å bruke sivilisasjon som rangering?", "Kan eleven forklare by og omland med et konkret case?", "Kan eleven skille dokumentert spor fra mulig tolkning?", "Kan eleven sammenligne to case og skrive hva kildene ikke kan avgjøre?"],
+    repetition: ["Nå: Tegn tre bokser: spor, tolkning, begrensning, og fyll inn ett eksempel fra hvert case.", "Om 2–3 dager: Hent fram F1–F6 uten å lese først.", "Om 1–2 uker: Svar på L2 eller L4 på nytt og sammenlign case og forbehold.", "Senere: Hent fram K4 og revider én setning som gikk for langt."],
+    sectionIds: ["oppsummering", "repetisjon", "oppgaver"],
+  },
+  misconceptions: [
+    { belief: "«By betyr konge, palass og hær.»", whyUnderstandable: "Kjente statsbygg brukes ofte som synlige kjennetegn.", diagnosticQuestion: "Hvilke demografiske eller funksjonelle trekk kan være relevante uten en identifisert konge?", response: "Bruk by som et analytisk arbeidsbegrep for konsentrasjon av mennesker, aktiviteter og institusjoner med virkninger for et omland." },
+    { belief: "«Jordbruk fører automatisk til by.»", whyUnderstandable: "En rett pil fra matoverskudd til by er lett å huske.", diagnosticQuestion: "Hvilke mellomledd og regionale valg må undersøkes?", response: "Lagring, arbeid, forbindelser og institusjoner kunne virke sammen, men ingen kilde støtter en universell og nødvendig kjede." },
+    { belief: "«Uruk var sentrumet som alle andre byer kopierte.»", whyUnderstandable: "Uruk har lenge dominert fortellingen om de første byene.", diagnosticQuestion: "Hva viser kildene om nordlige Mesopotamia?", response: "Nordlige prosesser var samtidige og hadde lokale trekk. Kontakt kan ha funnet sted uten at én kjerne–periferi-modell forklarer alt." },
+    { belief: "«Drenering beviser at Mohenjo-daro var egalitært.»", whyUnderstandable: "Felles infrastruktur kan se ut som direkte likhet.", diagnosticQuestion: "Hva viser dreneringen konkret, og hva står åpent?", response: "Drenering kan støtte koordinering, men avgjør ikke helse, rettigheter, ulikhet eller én styringsform." },
+    { belief: "«Priest-king er et funn.»", whyUnderstandable: "Eldre lærebokfortellinger kan gi tolkninger status som fakta.", diagnosticQuestion: "Hvordan beskriver du arkitekturen før herskertolkningen?", response: "Presenter «priest-king» som en eldre eller omstridt tolkning, uten å erstatte den med sikker egalitarisme." },
+    { belief: "«Monumenter beviser tvangsarbeid.»", whyUnderstandable: "Store bygg krever arbeid, som intuitivt kobles til kontroll.", diagnosticQuestion: "Hvilke andre ordninger kan organisere arbeid?", response: "Monumentalitet viser arbeid og organisering i stor skala, men ikke automatisk konge, tvang eller fast klasseordning." },
+    { belief: "«Caral var bare et tempelområde.»", whyUnderstandable: "Monumentale plattformer blir lett tolket ut fra én funksjon.", diagnosticQuestion: "Hvilke bolig-, ikke-bolig- og ressursforbindelser inngår?", response: "Caral-Supe beskrives som et større urbant landskap med flere bosetninger og en regional ressurskombinasjon." },
+    { belief: "«Sammenligning betyr rangering.»", whyUnderstandable: "Ord som først, størst og mest avansert er vanlige i oversikter.", diagnosticQuestion: "Kan du skrive én likhet, to forskjeller og én begrensning?", response: "Sammenlign konkrete trekk og forklar hvor sammenligningen bryter sammen. Likhet betyr ikke samme årsak eller politisk form." },
+  ],
+  assessmentCriteria: [
+    { area: "Faktakunnskap", shortAnswer: "Gjengir region, tid og minst ett dokumentert spor presist.", extendedAnswer: "Velger relevante faktapunkter uten å blande case eller gjøre intervaller til globale startdatoer." },
+    { area: "Historiske begreper", shortAnswer: "Bruker by, urbanisering og omland riktig.", extendedAnswer: "Problematiserer stat, sivilisasjon eller kompleks når kategoriene kan skjule kriterier eller rangering." },
+    { area: "Årsaker og virkninger", shortAnswer: "Forklarer én mulig kobling med «kan» eller «bidro til».", extendedAnswer: "Viser flere mulige ledd og minst én alternativ forklaring på tvers av case." },
+    { area: "Kildebruk", shortAnswer: "Skiller ett konkret spor fra én tolkning.", extendedAnswer: "Sammenstiller minst to case og sier hva materialet ikke kan bevise alene." },
+    { area: "Konkrete eksempler", shortAnswer: "Nevner et sted og et tidsrom eller spor.", extendedAnswer: "Bruker tre case som belyser samme spørsmål uten å gjøre dem like." },
+    { area: "Nyansering og historisk usikkerhet", shortAnswer: "Bruker forbehold der kilden er åpen.", extendedAnswer: "Viser variasjon og reviderer en for sterk setning." },
+  ],
+  sourceWorkshop: {
+    workshopId: "2-3-byer-kildeverksted",
+    purpose: "Trene eleven i å gå fra materielle spor til en avgrenset sammenligning av koordinering, ressurser og makt.",
+    recommendedPlacement: "Etter fagteksten og kildeblikket, før lange linjer og oppgavene.",
+    distinctions: ["observasjon: det materialet beskriver konkret", "kontekst: tid, sted, funnkontekst, bevaring og dokumentasjon", "tolkning: en mulig forklaring som må støttes av spor", "begrensning: det kildene ikke kan avgjøre alene"],
+    commonMisreadings: ["å lese UNESCOs stat eller sivilisasjon som universell definisjon", "å gjøre drenering til bevis for helse eller egalitarisme", "å gjøre monumentalitet til bevis for konge eller tvang", "å bruke fravær av palass som bevis for fravær av makt"],
+    discussionQuestions: ["Hvilket ord i svaret viser til et spor, og hvilket ord er en forklaring?", "Kan infrastruktur være felles uten én konge?", "Hvilken forskjell gjør en enkel utviklingskjede mindre sannsynlig?", "Hvilket nytt funn ville endret tolkningen mest?"],
+    assessmentCriteria: ["minst tre navngitte og konkrete spor", "tydelig skille mellom observasjon og tolkning", "sammenligning av minst to case uten å gjøre likhet til identitet", "minst ett forbehold eller en alternativ forklaring", "én setning om hva kildene ikke kan bevise", "en revidert formulering som presiserer første svar"],
+    sourceIds: ["2-3-k-02", "2-3-k-03", "2-3-k-04", "2-3-k-06", "2-3-k-07", "2-3-k-08", "2-3-k-09", "2-3-k-11"],
+  },
+  resources: [
+    { label: "Start i elevkapitlet", description: "Åpne hovedspørsmål og læringsmål.", visibility: "public", sectionId: "mal" },
+    { label: "Bruk tidslinjen", description: "Orienter klassen i regionale intervaller.", visibility: "public", sectionId: "tid-og-sted" },
+    { label: "Arbeid med kildeblikk", description: "Skill spor, tolkning og begrensning.", visibility: "public", sectionId: "kildeblikk" },
+    { label: "Åpne oppgavene", description: "Bruk 19 oppgaver til gjenhenting og nytt forsøk.", visibility: "public", sectionId: "oppgaver" },
+    { label: "Planlegg repetisjon", description: "Finn egenvurdering og repetisjon over tid.", visibility: "public", sectionId: "repetisjon" },
+    { label: "Lokalt undervisningsmateriale", description: "Internt materiale er ikke offentlig publisert og har ingen nettleserlenke.", visibility: "local" },
+    { label: "Lokalt arbeidsark", description: "Redaksjonelt arbeidsmateriale er ikke offentlig publisert.", visibility: "local" },
+  ],
+};
+
+const sourceWorkshop2_3: SourceWorkshop = {
+  id: "2-3-byer-kildeverksted",
+  chapterId: "2.3",
+  sectionId: "kildeverksted",
+  title: "Hva holder en by sammen?",
+  guidingQuestion: "Var tidlige bysamfunn først og fremst et resultat av kontroll, samarbeid eller en kombinasjon?",
+  learningGoals: [
+    "skrive observasjoner før tolkninger",
+    "kontekstualisere tid, sted, funnkontekst, bevaring og dokumentasjon",
+    "vurdere påstander som direkte støttet, mulige, for sterke eller ikke avgjørbare",
+    "sammenstille minst to case med både mønstre og brudd",
+    "skrive og revidere en begrenset konklusjon",
+  ],
+  context: {
+    time: "Uruk og nordlige Mesopotamia: fjerde årtusen f.Kr.; Mohenjo-daro: hovedsakelig ca. 2600–1900 f.Kr.; Caral-Supe: ca. 3000–1800 f.Kr. i UNESCOs stedramme.",
+    place: "Sørlige og nordlige Mesopotamia, Indusdalen i dagens Pakistan og Supe-dalen på nord-sentrale kysten av Peru.",
+    findContext: "Materialene er tekstlige, egne beskrivelser av bosetningsareal, bygg, registrering, hushold, gater, drenering, monumenter og ressursforbindelser.",
+    preservation: "Utgravningsgrad, bevaring og dokumentasjon varierer mellom case. Mohenjo-daro er bare delvis undersøkt, og materialet gir ikke direkte utsagn fra menneskene som laget sporene.",
+    documentedBy: "McMahon, Ur, UNESCO World Heritage Centre, Green og Sandweiss m.fl.; materialene er redaksjonelle parafraser med kilde-ID-er.",
+    limitations: ["Et bygg eller anlegg kan ha hatt flere funksjoner.", "Fravær av et identifisert palass eller en herskergrav beviser ikke fravær av makt.", "Miljøendring i Supe-området er en mulig bidragsforklaring, ikke en sikker eller eneste årsak.", "Tre case kan vise variasjon, men kan ikke beskrive alle tidlige bysamfunn."],
+  },
+  materials: [
+    {
+      id: "uruk-registrering-og-bosetning",
+      label: "Materiale A · Uruk og nordlige Mesopotamia",
+      materialType: "arkitektoniske spor",
+      date: "Fjerde årtusen f.Kr., med Uruk-periodens vekst ca. 3500–3100 f.Kr.",
+      place: "Sørlige og nordlige Mesopotamia, særlig Uruk og Tell Brak-området.",
+      findContext: "Oversikter over store bosetningsarealer, monumentale/offentlige bygg, produksjonsområder og administrative gjenstander eller registreringsspor.",
+      preservation: "Dokumentasjonen er ujevnt fordelt mellom steder og regioner; bosetningsstørrelse og funksjon må tolkes i landskapskontekst.",
+      documentedBy: "Augusta McMahon og Jason Ur.",
+      documentedDescription: "Beskrivelsene gjelder bygg, bosetningsareal, produksjon og registrering som materielle spor.",
+      possibleObservations: ["store bosetningsarealer", "monumentale eller offentlige bygg", "produksjonsområder", "administrative gjenstander eller registreringsspor"],
+      supportedInterpretations: ["aktiviteter og institusjoner var samlet på en skala som kan beskrives som tidlig urbanisering", "ulike grupper og praksiser kan ha måttet koordineres"],
+      alternativeInterpretations: ["byggene kan ha hatt flere funksjoner", "administrasjon kan beskrive praksiser uten å bevise et moderne byråkrati", "lokal og regional makt kan ha vært blandet"],
+      cannotProve: "Én stat, én konge, én religion, «verdens første by» eller at nord var en passiv mottaker fra sør.",
+      sourceIds: ["2-3-k-03", "2-3-k-04"],
+      rights: { rightsHolder: "Augusta McMahon, Jason Ur og respektive utgivere.", originalUrl: "https://doi.org/10.1007/s10814-019-09136-7", licenseStatus: "K-03 er CC BY 4.0; K-04 brukes som referanse og egen parafrase uten åpen gjenbrukslisens.", credit: "McMahon (2020) og Ur (2014), DOI-ene i kildelisten.", adaptation: "Egen norsk tekstlig beskrivelse; ingen tabeller, figurer eller mediefiler.", checked: "25. august 2026" },
+    },
+    {
+      id: "mohenjo-daro-gater-og-dren",
+      label: "Materiale B · Mohenjo-daro",
+      materialType: "arkitektoniske spor",
+      date: "Moden Indus-periode, hovedsakelig ca. 2600–1900 f.Kr.",
+      place: "Mohenjo-daro i Indusdalen, dagens Sindh i Pakistan.",
+      findContext: "Stedbeskrivelser og forskning på murte hus og kvartaler, gater, brønner, bad-/vaskeplattformer og sammenkoblede dreneringsanlegg.",
+      preservation: "Bare deler av området er utgravd, og bevarings- og tolkningsproblemer gjør at effekten av anleggene ikke kan leses direkte.",
+      documentedBy: "UNESCO World Heritage Centre, Adam S. Green (2020) og Adam S. Green (2022).",
+      documentedDescription: "Beskrivelsene gjelder hus, kvartaler, gater, brønner, plattformer og dreneringsspor som materielle mønstre.",
+      possibleObservations: ["murte hus og kvartaler", "gater og brønner", "bad- eller vaskeplattformer", "sammenkoblede dreneringsspor"],
+      supportedInterpretations: ["mange hushold og grupper måtte forholde seg til felles eller sammenkoblede infrastrukturer", "kollektiv koordinering er en mulig forklaring på vedlikehold og bruk"],
+      alternativeInterpretations: ["infrastrukturen kan ha blitt vedlikeholdt gjennom lokale ordninger", "flere sentre eller en mer sentralisert ordning kan ha virket sammen"],
+      cannotProve: "Moderne hygiene, bedre helse for alle, en «priest-king», fravær av hierarki eller lik erfaring for alle.",
+      sourceIds: ["2-3-k-06", "2-3-k-07", "2-3-k-08"],
+      rights: { rightsHolder: "UNESCO World Heritage Centre, Adam S. Green og respektive utgivere.", originalUrl: "https://whc.unesco.org/en/list/138", licenseStatus: "UNESCOs stedbeskrivelse er CC-BY-SA IGO 3.0; K-07 og K-08 er CC BY 4.0.", credit: "UNESCO, Green (2020) og Green (2022), med lenker i kildelisten.", adaptation: "Egen norsk tekstlig beskrivelse; ingen UNESCO-galleri, NHK-video, foto eller artikkelfigur.", checked: "25. august 2026" },
+    },
+    {
+      id: "caral-monumenter-og-ressurser",
+      label: "Materiale C · Caral-Supe",
+      materialType: "arkitektoniske spor",
+      date: "Ca. 3000–1800 f.Kr. i UNESCOs stedramme; miljøstudien bruker en bredere kalibrert tidsramme.",
+      place: "Supe-dalen og tilgrensende dalfører på nord-sentrale kysten av Peru.",
+      findContext: "Stedbeskrivelser og forskning på plattformhauger, nedsenkede sirkulære plasser, bolig- og ikke-boligbygg, flere bosetninger, fiske, irrigasjon og planteproduksjon.",
+      preservation: "Stedene er ulikt undersøkt. Ressursspor og miljødata gir ikke alene svar på fordeling, arbeidsforhold eller politisk organisering.",
+      documentedBy: "UNESCO World Heritage Centre, Ruth Shady Solís m.fl. og Daniel H. Sandweiss m.fl.",
+      documentedDescription: "Beskrivelsene gjelder monumental arkitektur, et større bosetningslandskap og kombinasjoner av marine og landbaserte ressurser.",
+      possibleObservations: ["monumentale plattformhauger", "nedsenkede sirkulære plasser", "bolig- og ikke-boligbygg", "marine ressurser, irrigasjon og planteproduksjon"],
+      supportedInterpretations: ["urbane og monumentale prosjekter kunne opprettholdes gjennom en regional ressurskombinasjon", "Caral-Supe fulgte ikke samme material- og ressurskombinasjon som Mesopotamia"],
+      alternativeInterpretations: ["monumentalitet kan ha uttrykt religiøse, sosiale, politiske eller overlappende funksjoner", "ressursnettverket kan ha vært organisert gjennom ulike former for gjensidighet eller makt"],
+      cannotProve: "Én konge, tvang, en fast klassestruktur, én felles religion eller at miljøendring alene forklarte senere omforming.",
+      sourceIds: ["2-3-k-09", "2-3-k-10", "2-3-k-11"],
+      rights: { rightsHolder: "UNESCO World Heritage Centre, Shady Solís m.fl. og Sandweiss m.fl.", originalUrl: "https://whc.unesco.org/en/list/1269", licenseStatus: "UNESCOs stedtekst er CC-BY-SA IGO 3.0; K-10 og K-11 har ingen åpen lisens registrert i Crossref.", credit: "UNESCO, Shady Solís m.fl. (2001) og Sandweiss m.fl. (2009).", adaptation: "Egen norsk tekstlig beskrivelse; ingen fotografier, kart, figurer eller tabeller.", checked: "25. august 2026" },
+    },
+  ],
+  claims: [
+    { id: "påstand-1", text: "Uruk-området hadde store bosetninger, monumentale bygg og registreringsspor i fjerde årtusen f.Kr.", classification: "direct", explanation: "Sporene og oversiktene dokumenterer størrelse, bygg og registrering; «by» er neste analytiske steg.", sourceIds: ["2-3-k-03", "2-3-k-04"] },
+    { id: "påstand-2", text: "Tidlig urbanisering i Mesopotamia utviklet seg bare ved at Uruk spredte seg fra sør til et passivt nord.", classification: "too-strong", explanation: "Nordlige prosesser var samtidige og hadde lokale forløp; kontakt kan ha forekommet uten én kjerne–periferi-modell.", sourceIds: ["2-3-k-03", "2-3-k-04"] },
+    { id: "påstand-3", text: "Mohenjo-daros drenering viser at alle innbyggerne hadde bedre helse enn folk utenfor byen.", classification: "too-strong", explanation: "Drenering er dokumentert, men effekt, bruk og helsekonsekvens kan ikke leses direkte ut av anlegget.", sourceIds: ["2-3-k-06", "2-3-k-07", "2-3-k-08"] },
+    { id: "påstand-4", text: "Dreneringsanleggene ved Mohenjo-daro tyder på at mange grupper deltok i eller var avhengige av kollektiv koordinering.", classification: "possible", explanation: "Omfanget støtter en tolkning av koordinering; ordningen kan ha vært lokal, sentral eller blandet.", sourceIds: ["2-3-k-07", "2-3-k-08"] },
+    { id: "påstand-5", text: "Caral-Supe hadde urban og monumental organisering samtidig som marine ressurser og irrigert planteproduksjon inngikk i økonomien.", classification: "direct", explanation: "Kildene dokumenterer arkitektur, store bosetninger og kombinasjonen av fiske, irrigasjon og planter.", sourceIds: ["2-3-k-09", "2-3-k-11"] },
+    { id: "påstand-6", text: "Monumentale plattformhauger i Caral viser at én konge tvang alle til å arbeide.", classification: "too-strong", explanation: "Monumentene viser arbeid i stor skala, ikke automatisk hersker, tvang eller arbeidsforhold.", sourceIds: ["2-3-k-09", "2-3-k-11"] },
+    { id: "påstand-7", text: "Alle tidlige byer måtte ha en sentral stat før de kunne vedlikeholde felles infrastruktur.", classification: "cannot-determine", explanation: "Sammenligningen viser flere mulige ordninger; materialet kan ikke avgjøre en universell regel.", sourceIds: ["2-3-k-02", "2-3-k-07", "2-3-k-08"] },
+    { id: "påstand-8", text: "Likhet mellom tidlige byer betyr at alle fulgte samme utviklingskjede fra jordbruk til stat.", classification: "too-strong", explanation: "Likhet kan oppstå gjennom ulike kombinasjoner; perioder, ressurser og institusjoner varierer.", sourceIds: ["2-3-k-02", "2-3-k-03", "2-3-k-07", "2-3-k-09", "2-3-k-11"] },
+  ],
+  synthesisPrompt: "Velg minst to case. Forklar hva sporene samlet kan si om hvordan en by kunne holdes sammen. Skill mellom observasjon og tolkning, vis én forskjell og skriv hva materialet ikke kan avgjøre.",
+  synthesisCriteria: ["minst to materialer er representert med konkrete spor", "observasjon og tolkning er skilt", "minst én likhet og én forskjell er forklart", "minst én begrensning er synlig"],
+  conclusionPrompt: "Skriv en kort begrunnet konklusjon til spørsmålet: Var tidlige bysamfunn først og fremst et resultat av kontroll, samarbeid eller en kombinasjon? Bruk minst tre konkrete spor, ett forbehold og én alternativ forklaring.",
+  modelResponse: {
+    observations: "I Mesopotamia beskrives store bosetninger, monumentale bygg, produksjonsområder og registreringsspor. Ved Mohenjo-daro beskrives gater, hushold, brønner og sammenkoblede dreneringsanlegg. I Caral-Supe beskrives plattformhauger, sirkulære plasser, flere bosetninger, fiske, irrigasjon og planteproduksjon.",
+    interpretation: "Sporene kan støtte at mennesker, aktiviteter og ressurser måtte koordineres i større bosetninger. Koordineringen kan ha vært lokal, sentralisert, regional eller en kombinasjon.",
+    reservation: "Likheter i stor skala og organisering betyr ikke at caseområdene fulgte samme utviklingskjede. De hadde ulike ressurser, perioder og dokumentasjonsforhold.",
+    limitation: "Materialet kan ikke bevise én konge, én stat, samme religion, moderne helseeffekt, tvang eller hvordan alle grupper opplevde fordelingen.",
+  },
+  rubric: ["minst tre navngitte og konkrete spor", "tydelig skille mellom observasjon og tolkning", "sammenligning av minst to case uten å gjøre likhet til identitet", "minst ett «kan» eller «mulig» der materialet er åpent", "én setning om hva kildene ikke kan bevise", "en revidert formulering som presiserer første svar"],
+  sourceIds: ["2-3-k-02", "2-3-k-03", "2-3-k-04", "2-3-k-06", "2-3-k-07", "2-3-k-08", "2-3-k-09", "2-3-k-11"],
+  progressVersion: 1,
+  lastChecked: "25. august 2026",
+};
+
 const sourceRights: Record<string, string> = {
   udir: "Institusjonell offentlig kilde; kun referanse og egen pedagogisk formulering, ingen medier kopiert.",
   openstax: "OpenStax CC BY-NC-SA 4.0; ingen tekst eller medier kopiert, kun kildebasert parafrase og kreditering.",
@@ -1328,6 +1820,11 @@ export const jordbruksrevolusjonen: Chapter = {
     "Overskudd og lagring kunne bidra til arbeidsdeling, eiendom og forskjeller i makt.",
     "Overgangen hadde også kostnader: hardt arbeid, sykdom, ensidig kosthold og sterkere naturinngrep.",
   ],
+  reviewPlan: [
+    { label: "Nå", text: "Lukk fagteksten og gjenfortell de fem punktene i oppsummeringen med egne ord." },
+    { label: "Om 2–3 dager", text: "Gjør faktaoppgavene på nytt uten å lese først. Bruk bare hint hvis du står fast." },
+    { label: "Om 1–2 uker", text: "Svar på framskrittsspørsmålet og kildeoppgaven på nytt. Sammenlign begrunnelse, eksempler og forbehold." },
+  ],
   timeline: [
     { sortKey: -9700, date: "ca. 9700 f.Kr.", title: "Holocen begynner", description: "Holocen begynner – formelt datert til 11 700 år før nåtid, altså ca. 9700 f.Kr. Varmere og ofte mer stabile lokale miljøer endrer ressursgrunnlaget.", sourceIds: ["holocene-ics", "openstax"] },
     { sortKey: -9600, date: "ca. 9600–8800 f.Kr.", title: "Dyrking av ville kornslag", description: "Mennesker sår og høster ville kornslag i deler av Sørvest-Asia før plantene er biologisk domestiserte.", sourceIds: ["zeder", "openstax"] },
@@ -1337,7 +1834,7 @@ export const jordbruksrevolusjonen: Chapter = {
     { sortKey: -7400, date: "ca. 7400–6200 f.Kr.", title: "Çatalhöyük", description: "En stor, tett og langvarig bosetning kombinerer flere matstrategier.", sourceIds: ["catalhoyuk", "catalhoyuk-guide"] },
     { sortKey: -3500, date: "fram mot ca. 3500–3000 f.Kr.", title: "Større bysamfunn noen steder", description: "Overskudd, spesialisering og maktkonsentrasjon blir viktig i noen områder, men ikke som automatisk følge overalt.", sourceIds: ["openstax"] },
   ],
-  tasks,
+  tasks: tasks2_2,
   progressVersion: 2,
   teacherGuide: teacherGuide2_2,
   sources: ([
@@ -1356,7 +1853,177 @@ export const jordbruksrevolusjonen: Chapter = {
   lastChecked: "22. august 2026",
 };
 
-export const chapters = [jordbruksrevolusjonen];
+export const byerUtenEnOppskrift: Chapter = {
+  id: "2.3",
+  number: "2.3",
+  slug: "2-3-byer-uten-en-oppskrift",
+  sectionSlug: "02-fra-jegere-til-bysamfunn",
+  title: "Byer uten én oppskrift: mennesker, ressurser og makt i tidlige bysamfunn",
+  shortIntro: "Hvordan kunne mennesker bygge og opprettholde store bosetninger, og hva kan materielle spor fortelle om samarbeid, ressurser og makt?",
+  guidingQuestion: "Hvordan kunne noen steder bli byer uten at jordbruk, stat og makt fulgte én fast oppskrift?",
+  priorKnowledge: {
+    prompt: "Hent fram det du husker fra 2.2 om lagring, arbeidsdeling, bofasthet og mulige utviklingskjeder.",
+    cues: ["Hva kan et omland bidra med til en større bosetning?", "Må jordbruk alltid føre til by eller stat?", "Hva er forskjellen på et funn, en tolkning og det en kilde ikke kan bevise?"],
+  },
+  period: "Omtrent fjerde til andre årtusen f.Kr., med regionale intervaller",
+  geography: "Sørlige og nordlige Mesopotamia, Indusdalen i dagens Pakistan og nordvestlige India, samt Supe-dalen på nord-sentrale kysten av Peru",
+  status: "published",
+  learningGoals: [
+    "plassere de tre caseområdene på tidslinje og forklare hvorfor intervaller overlapper",
+    "bruke et arbeidsbegrep for by, urbanisering, omland og institusjon",
+    "gjøre rede for dokumenterte trekk ved Mesopotamia, Mohenjo-daro og Caral-Supe",
+    "forklare hvordan ressurser, arbeid, forbindelser og institusjoner kunne organiseres ulikt",
+    "skille observasjon, tolkning, syntese og det materialet ikke kan avgjøre",
+    "sammenligne uten å rangere og skrive en begrenset konklusjon med forbehold",
+  ],
+  competenceGoals: [
+    "utforske fortiden ved å stille spørsmål og innhente, tolke og bruke ulikt historisk materiale for å finne svar",
+    "reflektere over hvorfor historikere deler inn fortiden i perioder og vurdere hvordan vi kan periodisere fortiden på grunnlag av ulike kriterier",
+    "gjøre rede for viktige endringer i hvordan mennesker har skaffet seg mat og brukt naturressurser, og vurdere betydningen av dette for mennesker og et bærekraftig samfunn",
+    "presentere viktige demografiske endringer og vurdere årsaker til disse endringene og virkninger av dem for mennesker og samfunn",
+    "gjøre rede for hvordan handel og økonomiske systemer har påvirket maktforhold og menneskers liv",
+    "utforske hvordan kommunikasjon og kulturmøter har hatt betydning for mennesker i Norge og verden",
+  ],
+  facts: [
+    { text: "Tidlig urbanisering må undersøkes som flere historiske prosesser; «by» er et analytisk arbeidsbegrep og ikke en universell innbyggertallgrense.", sourceIds: ["2-3-k-02"] },
+    { text: "Store bosetninger, monumentale bygg, produksjonsområder og registreringsspor finnes i både sørlige og nordlige Mesopotamia i fjerde årtusen f.Kr.", sourceIds: ["2-3-k-03", "2-3-k-04"] },
+    { text: "Mohenjo-daro har dokumenterte gater, hus og kvartaler, brønner, bad-/vaskeplattformer og dreneringsspor.", sourceIds: ["2-3-k-06", "2-3-k-07"] },
+    { text: "Caral-Supe omfatter et større bosetningslandskap med plattformhauger, nedsenkede sirkulære plasser og bolig- og ikke-boligbygg.", sourceIds: ["2-3-k-09", "2-3-k-10"] },
+    { text: "Caral-Supe forbindes i kildene med en lokal kombinasjon av marine ressurser, irrigasjon og planteproduksjon.", sourceIds: ["2-3-k-09", "2-3-k-11"] },
+    { text: "En by er avhengig av omland, ressurser, arbeid og forbindelser, men omland betyr ikke nødvendigvis politisk underordning.", sourceIds: ["2-3-k-02", "2-3-k-03"] },
+    { text: "Infrastruktur og monumenter kan støtte tolkninger om koordinering, men avgjør ikke alene hvem som bestemte, hvordan makt ble legitimert eller hvordan alle opplevde ordningen.", sourceIds: ["2-3-k-04", "2-3-k-07", "2-3-k-08"] },
+    { text: "Miljøendring i Supe-området kan ha bidratt til senere omforming, men kilden støtter ikke en enkel eller eneste «kollaps»-forklaring.", sourceIds: ["2-3-k-11"] },
+    { text: "Sammenligningen av tre case viser mulige mønstre og tydelige brudd, men kan ikke beskrive alle tidlige bysamfunn.", sourceIds: ["2-3-k-02", "2-3-k-03", "2-3-k-07", "2-3-k-09", "2-3-k-11"] },
+  ],
+  concepts: [
+    { term: "By", definition: "Et analytisk arbeidsbegrep for en bosetning der mennesker, aktiviteter og/eller institusjoner er konsentrert og virker inn på et større omland. Ingen terskel passer alle perioder og regioner." },
+    { term: "Urbanisering", definition: "En prosess der mennesker, bosetning, aktiviteter eller institusjoner samles og organiseres på nye måter. Det er ikke bare et spørsmål om innbyggertall." },
+    { term: "Omland", definition: "Området som forsyner, bruker eller påvirkes av en sentral bosetning. Omland betyr ikke nødvendigvis politisk underordning." },
+    { term: "Institusjon", definition: "En varig ordning, praksis eller organisasjon som samordner handlinger, ressurser eller forventninger." },
+    { term: "Stat", definition: "En historisk og analytisk kategori for politisk organisering. Monumenter og administrative spor kan støtte en tolkning av sentralisering, men beviser ikke alene en bestemt statstype." },
+    { term: "Sivilisasjon", definition: "En senere samle- og vurderingskategori som ikke skal brukes som synonym for avansert eller som en universell utviklingstrapp." },
+    { term: "Registrering", definition: "At informasjon blir materialisert gjennom tegn, avtrykk eller andre systemer. Registrering sier ikke automatisk hva tegnene betydde eller hvem som brukte dem." },
+    { term: "Koordinering", definition: "At mennesker eller grupper samordner arbeid, ressurser eller handlinger. Koordinering kan skje gjennom flere politiske og sosiale ordninger." },
+    { term: "Syntese", definition: "En begrenset sammenstilling av flere spor og tolkninger som viser både mønstre, forskjeller og kildebegrensninger." },
+    { term: "Periodisering", definition: "Å dele fortiden inn etter valgte kriterier. Regionale intervaller kan overlappe uten å utgjøre én global startdato." },
+  ],
+  narrative: [
+    {
+      heading: "Hva mener vi med by?",
+      paragraphs: [
+        { text: "Ordet «by» kan brukes på flere måter. I dette kapitlet undersøker vi en bosetning der mennesker, aktiviteter og/eller institusjoner er konsentrert og virker inn på et større omland. Det er et arbeidsbegrep: Det hjelper oss å stille spørsmål, men er ikke en naturlov eller en universell innbyggertallgrense.", sourceIds: ["2-3-k-02"] },
+        { text: "En slik definisjon gjør to kriterier synlige. Vi kan spørre om mennesker er samlet i en større bosetning, og om bestemte aktiviteter eller institusjoner har virkninger utover de enkelte husholdene. Et sted kan derfor være viktig i et nettverk selv om vi ikke kan rekonstruere én stat eller én hersker.", sourceIds: ["2-3-k-02"] },
+      ],
+    },
+    {
+      heading: "Fra 2.2 til større bosetninger",
+      paragraphs: [
+        { text: "I 2.2 møtte du lagring, arbeidsdeling og omland som mulige deler av historiske utviklingskjeder. Når mennesker og aktiviteter samles, må mat, vann, råvarer, arbeid og informasjon på en eller annen måte forbindes. Det betyr ikke at jordbruk automatisk skapte byer. Det betyr at vi må undersøke hvilke ressurser og ordninger som faktisk finnes i hvert case.", sourceIds: ["2-3-k-02", "2-3-k-03"] },
+        { text: "Et omland er heller ikke bare en leverandør til en by. Mennesker i omlandet kan bruke, påvirke og forhandle med den sentrale bosetningen. Derfor skal «omland» ikke automatisk bety provins, underordning eller én bestemt politisk relasjon.", sourceIds: ["2-3-k-02", "2-3-k-03"] },
+      ],
+    },
+    {
+      heading: "Mesopotamia: flere urbane prosesser",
+      paragraphs: [
+        { text: "Uruk er en kjent referanse for urban vekst i sørlige Mesopotamia. Kildene beskriver store bosetninger, monumentale bygg, produksjonsområder og registreringsspor. Slike spor kan støtte at aktiviteter og institusjoner ble samlet på en skala som kan beskrives som tidlig urbanisering.", sourceIds: ["2-3-k-03", "2-3-k-04"] },
+        { text: "Samtidig viser forskning på nordlige Mesopotamia store og mangfoldige bosetninger og lokale urbane prosesser i samme brede periode. Kontakt mellom nord og sør kan ha vært viktig, men kontakt er ikke det samme som at ett sentrum forklarer alle andre. «Administrasjon», «stat» og «by» er tolkende kategorier som må brukes med forbehold.", sourceIds: ["2-3-k-03", "2-3-k-04"] },
+      ],
+    },
+    {
+      heading: "Mohenjo-daro: by med infrastruktur",
+      paragraphs: [
+        { text: "Ved Mohenjo-daro beskrives murte hus og kvartaler, gater, brønner, bad-/vaskeplattformer og dreneringsanlegg. Dette er materielle spor som gjør det rimelig å undersøke hvordan mange hushold kunne forholde seg til sammenkoblede infrastrukturer.", sourceIds: ["2-3-k-06", "2-3-k-07"] },
+        { text: "Dreneringen avgjør likevel ikke hvor effektivt systemet var etter moderne helsekriterier. Den avgjør heller ikke om ordningen var lokal, sentralisert eller blandet. «Priest-king» skal derfor presenteres som en eldre eller omstridt tolkning, mens hus, gater og drenering beskrives som spor.", sourceIds: ["2-3-k-07", "2-3-k-08"] },
+      ],
+    },
+    {
+      heading: "Caral-Supe: bylandskap uten standardpakken",
+      paragraphs: [
+        { text: "Caral-Supe på nord-sentrale kysten av Peru beskrives som et større landskap med flere urbane steder, monumental stein- og jordarkitektur, plattformhauger og nedsenkede sirkulære plasser. UNESCO bruker også kategorier som «sivilisasjon» og «stat». I elevteksten merker vi disse som institusjonelle eller ettertidige kategorier, ikke som en universell utviklingstrapp.", sourceIds: ["2-3-k-09", "2-3-k-10"] },
+        { text: "Ressursgrunnlaget viser en annen kombinasjon enn den mesopotamiske fortellingen: intensivt fiske, irrigert dyrking, bomull, matvekster og store monumentale bosetninger. Det gjør ikke Caral-Supe til en motsats uten forbindelser, men viser at stor skala ikke krever én fast pakke av arter, keramikk, skrift eller politiske uttrykk.", sourceIds: ["2-3-k-09", "2-3-k-11"] },
+      ],
+    },
+    {
+      heading: "Sammenlign uten å rangere",
+      paragraphs: [
+        { text: "Mesopotamia, Mohenjo-daro og Caral-Supe har spor av konsentrerte aktiviteter og store prosjekter. Men sporene er ulike: registrering og produksjonsområder i Mesopotamia, gater og drenering ved Mohenjo-daro, og plattformhauger, sirkulære plasser og et regionalt ressursnettverk i Caral-Supe.", sourceIds: ["2-3-k-02", "2-3-k-03", "2-3-k-07", "2-3-k-09", "2-3-k-11"] },
+        { text: "En likhet kan derfor gi et godt spørsmål, men ikke en ferdig årsak. Ulike ressurser, perioder, dokumentasjonsforhold og politiske ordninger kan ha ført til at lignende problemer ble håndtert på forskjellige måter.", sourceIds: ["2-3-k-02", "2-3-k-04", "2-3-k-07"] },
+      ],
+    },
+    {
+      heading: "Byer, makt og sårbarhet",
+      paragraphs: [
+        { text: "Monumenter, registrering og infrastruktur kan vise at arbeid, ressurser eller informasjon ble organisert. De avgjør ikke alene hvem som bestemte, hvordan makt ble legitimert eller om arbeid var frivillig, pålagt eller en blanding. Fravær av et identifisert palass er heller ikke bevis for fravær av maktforskjeller.", sourceIds: ["2-3-k-04", "2-3-k-07", "2-3-k-08"] },
+        { text: "Større bosetninger kunne samle utveksling og samarbeid, men kunne også kreve vedlikehold, arbeid og håndtering av tetthet, ressursavhengighet og ulik fordeling. I Supe-området argumenterer forskere for at jordskjelv, El Niño-flom, strandvoller og sanddyner kan ha bidratt til senere omforming. Det er en hypotese om mulig bidrag, ikke en enkel kollapsårsak.", sourceIds: ["2-3-k-02", "2-3-k-11"] },
+      ],
+    },
+  ],
+  causes: [
+    "Ressursgrunnlag og forbindelser mellom bosetning, omland, vann, råvarer og arbeid.",
+    "Mennesker, aktiviteter og institusjoner samles på nye måter.",
+    "Behov for å vedlikeholde infrastruktur, registrering, produksjon eller offentlige rom.",
+    "Lokale valg og ulike former for koordinering, kontroll eller gjensidighet.",
+  ],
+  effects: [
+    "Større konsentrasjon av mennesker, aktiviteter og institusjoner.",
+    "Muligheter for utveksling, samarbeid, spesialisering og felles infrastruktur.",
+    "Arbeidskrav, vedlikehold, ressursavhengighet og mulige forskjeller i fordeling.",
+    "Sårbarhet for miljøendring, forsyningsbrudd eller tetthet, med regionale variasjoner.",
+    "Nye spørsmål om makt og styring som materielle spor sjelden avgjør alene.",
+  ],
+  continuities: [
+    "Byer var fortsatt avhengige av omland, jord, vann, råvarer, arbeid og forbindelser.",
+    "Lokale ressurser og praksiser fortsatte å forme hvordan større bosetninger fungerte.",
+    "Samarbeid, kontroll og gjensidighet kan ha eksistert samtidig i ulike kombinasjoner.",
+  ],
+  breaks: [
+    "Mennesker, aktiviteter og institusjoner ble noen steder samlet tettere i større bosetninger.",
+    "Infrastruktur og monumentale prosjekter fikk virkninger på tvers av mange hushold eller steder.",
+    "By og omland ble knyttet sammen gjennom nye former for registrering, arbeid og ressursflyt.",
+  ],
+  causeChain: ["Ressursgrunnlag og forbindelser", "Mennesker og aktiviteter samles", "Infrastruktur og institusjoner må vedlikeholdes", "Ulike former for koordinering og kontroll", "Mulige forskjeller i arbeid, ressurser og makt"],
+  sourceLooks: [
+    { label: "Kilde A · Uruk og nordlige Mesopotamia", period: "Fjerde årtusen f.Kr.", place: "Sørlige og nordlige Mesopotamia", sourceIds: ["2-3-k-03", "2-3-k-04"], evidence: ["store bosetningsarealer og monumentale bygg", "produksjonsområder", "administrative gjenstander eller registreringsspor"], supports: "Aktiviteter og institusjoner var samlet på en skala som kan beskrives som tidlig urbanisering.", cannotProve: "Én konge, én stat, én religion, «verdens første by» eller at nord var en passiv mottaker." },
+    { label: "Kilde B · Mohenjo-daro", period: "Ca. 2600–1900 f.Kr.", place: "Indusdalen", sourceIds: ["2-3-k-06", "2-3-k-07", "2-3-k-08"], evidence: ["murte hus og kvartaler", "gater, brønner og bad-/vaskeplattformer", "sammenkoblede dreneringsspor"], supports: "Mange hushold og grupper kan ha måttet forholde seg til felles eller sammenkoblede infrastrukturer.", cannotProve: "Moderne hygiene, bedre helse for alle, prestekonge, fravær av hierarki eller lik erfaring." },
+    { label: "Kilde C · Caral-Supe", period: "Ca. 3000–1800 f.Kr. i UNESCOs ramme", place: "Supe-dalen, Peru", sourceIds: ["2-3-k-09", "2-3-k-10", "2-3-k-11"], evidence: ["plattformhauger og nedsenkede sirkulære plasser", "bolig- og ikke-boligbygg og flere bosetninger", "marine ressurser, irrigasjon og planteproduksjon"], supports: "Monumentale prosjekter kunne inngå i en regional ressurskombinasjon som ikke fulgte en mesopotamisk standardpakke.", cannotProve: "Én konge, tvang, fast klassestruktur, én religion eller miljøendring som eneste forklaring." },
+  ],
+  reviewPlan: [
+    { label: "Nå", text: "Lukk fagteksten og tegn tre bokser: spor, tolkning, begrensning. Fyll inn ett eksempel fra hvert case." },
+    { label: "Om 2–3 dager", text: "Hent fram F1–F6 uten å lese først. Bruk bare hint etter første feil." },
+    { label: "Om 1–2 uker", text: "Svar på L2 eller L4 på nytt og sammenlign hvilke case og forbehold du faktisk brukte." },
+    { label: "Senere", text: "Hent fram K4 og revider én setning som gikk for langt. Koble urbanisering til én lang linje fra 2.2." },
+  ],
+  sourceWorkshops: [sourceWorkshop2_3],
+  longLineIds: ["mat-og-naturressurser", "demografi", "handel-og-okonomi", "kommunikasjon-og-kulturmoter", "makt-og-legitimering", "religion-og-identitet"],
+  summary: ["Tidlige bysamfunn utviklet seg i flere regioner og etter ulike forløp.", "En by kan undersøkes som konsentrasjon av mennesker, aktiviteter og institusjoner, men begrepet må tilpasses spørsmål og kilde.", "Byer var avhengige av omland, ressurser, arbeid og forbindelser.", "Infrastruktur og monumenter kan vise koordinering, men avgjør ikke alene hvem som bestemte eller hvordan fordeler ble fordelt.", "Sammenligning av Mesopotamia, Mohenjo-daro og Caral-Supe viser både mulige mønstre og historisk variasjon."],
+  timeline: [
+    { sortKey: -4000, date: "ca. 4000 f.Kr.", title: "Store og komplekse bosetninger i nordlige Mesopotamia", description: "Store bosetninger og institusjonelle trekk viser at tidlig urbanisering ikke må fortelles som én sørmesopotamisk oppfinnelse.", sourceIds: ["2-3-k-03"] },
+    { sortKey: -3500, date: "ca. 3500–3100 f.Kr.", title: "Uruk-periodens urbane vekst og registrering", description: "Større bosetning, monumental arkitektur og administrative spor kan undersøkes uten å gjøre én stat til automatisk forklaring.", sourceIds: ["2-3-k-03", "2-3-k-04"] },
+    { sortKey: -3000, date: "ca. 3000–1800 f.Kr.", title: "Caral-Supe og flere urbane bosetninger i Supe-området", description: "Monumental og urban organisering inngår i Andes med en annen ressurskombinasjon enn Mesopotamia.", sourceIds: ["2-3-k-09", "2-3-k-11"] },
+    { sortKey: -2600, date: "ca. 2600–1900 f.Kr.", title: "Moden urbanisering i Indusdalen", description: "Mohenjo-daros gater, hus og drenering åpner for spørsmål om kollektiv handling og styring.", sourceIds: ["2-3-k-06", "2-3-k-07", "2-3-k-08"] },
+    { sortKey: -1900, date: "etter ca. 1900 f.Kr.", title: "Urban omforming og miljømessig sårbarhet i Supe-området", description: "Miljøendring kan ha bidratt til omforming, men kilden støtter ikke en enkel kollapsforklaring.", sourceIds: ["2-3-k-11"] },
+  ],
+  tasks: tasks2_3,
+  progressVersion: 1,
+  teacherGuide: teacherGuide2_3,
+  sources: [
+    { id: "2-3-k-01", title: "Utdanningsdirektoratet · Kompetansemål etter vg2 – Læreplan i historie fellesfag (HIS01-03)", href: "https://www.udir.no/lk20/his01-03/kompetansemaal-og-vurdering/kv84", note: "Offisiell læreplanside for kompetansekobling og underveisvurdering; ikke historisk dokumentasjon.", rights: "Offentlig institusjonell referansekilde; korte nødvendige målhenvisninger; kontrollert 25. august 2026." },
+    { id: "2-3-k-02", title: "Fernández-Götz og Smith (2024) · The Archaeology of Early Cities: “What Is the City but the People?”", href: "https://doi.org/10.1146/annurev-anthro-041222-094823", note: "Fagfellevurdert komparativ oversikt, fulltekst lest; støtter definisjon og sammenligningsmetode, men ingen universell årsakskjede.", rights: "CC BY 4.0; egen norsk parafrase; tredjepartsmateriale kan ha egne vilkår; kontrollert 25. august 2026." },
+    { id: "2-3-k-03", title: "McMahon (2020) · Early Urbanism in Northern Mesopotamia", href: "https://doi.org/10.1007/s10814-019-09136-7", note: "Fagfellevurdert oversikt, fulltekst lest; støtter nordlige prosesser, lokale variasjoner og omland i fjerde årtusen f.Kr.", rights: "CC BY 4.0; egen parafrase, ingen figurer; kontrollert 25. august 2026." },
+    { id: "2-3-k-04", title: "Ur (2014) · Households and the Emergence of Cities in Ancient Mesopotamia", href: "https://doi.org/10.1017/S095977431400047X", note: "Fagfellevurdert studie, fulltekst lest; støtter Uruk/Tell Brak og problematiserer projisering av senere statsmodeller.", rights: "Cambridge terms-felt, ikke dokumentert åpen gjenbrukslisens; referanse og egen kort parafrase; kontrollert 25. august 2026." },
+    { id: "2-3-k-05", title: "Emberling (2015) · Mesopotamian cities and urban process, 3500–1600BCE", href: "https://doi.org/10.1017/CHO9781139035606.016", note: "Akademisk bokkapittel brukt som bibliografisk kontrollspor; sammendrag alene bærer ikke sentrale elevpåstander.", rights: "Cambridge terms-felt; referansebruk og egen parafrase; kontrollert 25. august 2026." },
+    { id: "2-3-k-06", title: "UNESCO · Archaeological Ruins at Moenjodaro", href: "https://whc.unesco.org/en/list/138", note: "Institusjonell stedbeskrivelse av Mohenjo-daro, gater, bygg, brønner, offentlige bad og dreneringsspor; bare delvis utgravet.", rights: "CC-BY-SA IGO 3.0 for stedbeskrivelsen; ingen UNESCO-/NHK-medier; egen parafrase; kontrollert 25. august 2026." },
+    { id: "2-3-k-07", title: "Green (2020) · Killing the Priest-King: Addressing Egalitarianism in the Indus Civilization", href: "https://doi.org/10.1007/s10814-020-09147-9", note: "Fagfellevurdert artikkel, fulltekst lest; drøfter drenering, kollektiv handling og den omstridte prestekonge-tolkningen.", rights: "CC BY 4.0; egen parafrase, ingen figurer; kontrollert 25. august 2026." },
+    { id: "2-3-k-08", title: "Green (2022) · Of Revenue Without Rulers: Public Goods in the Egalitarian Cities of the Indus Civilization", href: "https://doi.org/10.3389/fpos.2022.823071", note: "Fagfellevurdert åpen artikkel, fulltekst lest; viser at offentlige goder ikke automatisk krever en påvist herskende elite.", rights: "CC BY 4.0; egen parafrase, ingen bilder eller figurer; kontrollert 25. august 2026." },
+    { id: "2-3-k-09", title: "UNESCO · Sacred City of Caral-Supe", href: "https://whc.unesco.org/en/list/1269", note: "Institusjonell stedbeskrivelse av omtrent 18 urbane steder, monumental arkitektur og UNESCOs ca. 3000–1800 f.Kr.-ramme.", rights: "CC-BY-SA IGO 3.0 for stedbeskrivelsen; UNESCOs kategorier merkes som kategorier; ingen medier; kontrollert 25. august 2026." },
+    { id: "2-3-k-10", title: "Shady Solís, Haas og Creamer (2001) · Dating Caral, a Preceramic Site in the Supe Valley on the Central Coast of Peru", href: "https://doi.org/10.1126/science.1059519", note: "Fagfellevurdert radiokarbondateringsstudie brukt som støtte- og kontrollspor; sammendraget bærer ikke påstander om makt eller økonomi alene.", rights: "Ingen åpen lisens registrert i Crossref; referanse og egen parafrase, ingen tabell eller figur; kontrollert 25. august 2026." },
+    { id: "2-3-k-11", title: "Sandweiss m.fl. (2009) · Environmental change and economic development in coastal Peru between 5,800 and 3,600 years ago", href: "https://doi.org/10.1073/pnas.0812645106", note: "Fagfellevurdert fulltekst lest; støtter ressurskombinasjon og hypotesen om mulig miljøbidrag til senere omforming.", rights: "Fulltekst via PMC, men ingen åpen lisens registrert i Crossref; egen parafrase, ingen figurer; kontrollert 25. august 2026." },
+    { id: "2-3-k-12", title: "Haas, Creamer og Ruiz (2004) · Dating the Late Archaic occupation of the Norte Chico region in Peru", href: "https://doi.org/10.1038/nature03146", note: "Kronologi- og kontrollspor basert på metadata og sammendrag; brukes ikke alene for politisk, økonomisk eller sosial forklaring.", rights: "Springer TDM-felt, ikke generell åpen gjenbrukslisens; referansebruk og egen parafrase; kontrollert 25. august 2026." },
+  ],
+  lastChecked: "25. august 2026",
+};
+
+export const chapters = [jordbruksrevolusjonen, byerUtenEnOppskrift];
 
 export const curriculumSections = curriculumSectionDefinitions.map((section) => ({
   ...section,
@@ -1630,6 +2297,14 @@ export function getContentModelIssues() {
       for (const sourceId of claim.sourceIds) if (!sourceIds.has(sourceId)) issues.push(`Ukjent kilde-ID i faktapunkt for ${chapter.id}: ${sourceId}`);
     }
     let previousSortKey: number | undefined;
+    for (const narrativeSection of chapter.narrative) {
+      for (const paragraph of narrativeSection.paragraphs) {
+        if (typeof paragraph === "string") continue;
+        if (!paragraph.text.trim() || paragraph.sourceIds.length === 0) issues.push(`Fagtekst i ${chapter.id} mangler tekst eller kildekobling`);
+        for (const sourceId of paragraph.sourceIds) if (!sourceIds.has(sourceId)) issues.push(`Ukjent kilde-ID i fagtekst for ${chapter.id}: ${sourceId}`);
+      }
+    }
+
     for (const point of chapter.timeline) {
       if (!Number.isInteger(point.sortKey)) issues.push(`Tidslinjepunktet «${point.title}» i ${chapter.id} mangler gyldig sortKey`);
       if (previousSortKey !== undefined && point.sortKey < previousSortKey) issues.push(`Tidslinjen i ${chapter.id} er ikke sortert på sortKey`);

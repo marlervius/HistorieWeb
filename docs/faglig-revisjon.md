@@ -132,3 +132,24 @@ De viktigste svakhetene som gjenstår er at oppgavene fortsatt ligger samlet ett
 ## Anbefalt neste faglige prioritet
 
 Komponenttestene for første feil, nytt forsøk, åpne svar, kildeverkstedets seks trinn, kapittelspesifikk lagring og korrupt lagring er nå levert som en egen teknisk milepæl. Læreroversikten har fått en egen kildeverksteddel med undervisningsplassering, faglige skiller, misforståelser, samtalespørsmål og vurderingskriterier. Prøver og fasiter holdes fortsatt utenfor offentlig publisering.
+## Oppfølging: implementering av kapittel 2.3
+
+Kontrollert: 25. august 2026.
+
+Kapittel 2.3 «Byer uten én oppskrift: mennesker, ressurser og makt i tidlige bysamfunn» er lagt inn som publisert kapittel med stabil slug og samme seksjonsmodell som 2.2. Kapittelet følger progresjonen fakta → forståelse → lange linjer → kildeblikk og bruker tre avgrensede case: Mesopotamia, Mohenjo-daro og Caral-Supe. Teksten skiller mellom dokumenterte spor, mulige tolkninger og det kildene ikke kan bevise.
+
+Innholdsmodellen inneholder:
+
+- 19 oppgaver: F1–F6, U1–U5, L1–L4 og K1–K4.
+- 10 sentrale begreper, fem tidslinjepunkter, tre kildeblikk og seks lange linjer.
+- 12 navngitte kilder med kilde-ID-er, kildekoblede faktapunkter, tidslinje, kildeblikk og fagtekst.
+- Et seks-trinns kildeverksted med tre tekstlige arkitektoniske materialer, åtte påstander og modellrespons etter elevens eget forsøk.
+- Lærerveiledning med sju undervisningsfaser, åtte misoppfatninger, seks vurderingsområder og lokal/publisert ressursmerking.
+
+Det er ikke lagt til bilder, kart, PDF-er, database, autentisering, analyse eller elevregistrering. Kildeverkstedets observasjoner, oppgaver og egenvurderinger bruker samme kapittel- og versjonsisolerte lokale lagringsmønster som 2.2. Kapittelnavigasjonen er datadrevet; nye kapitler legges til i innholdsmodellen uten manuell navigasjonsliste.
+
+Kvalitetssikring for endringen:
+
+- Typekontroll, lint, produksjonsbuild, server-rendering og enhetstester er kjørt etter endringen.
+- Lokal agent-browser-kontroll ved 320, 375 og 1280 px viser ingen horisontal overflyt, ingen duplikate DOM-ID-er og ingen konsollfeil. Kildeverkstedet viser seks trinn, og fokus flyttes til det nye trinnets overskrift ved faktisk trinnbytte.
+- Endringen er lokal og er ikke pushet eller publisert. Oppsummerings-PDF vises ikke før en kvalitetssikret fil finnes.
