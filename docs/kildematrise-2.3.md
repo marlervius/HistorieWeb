@@ -1,7 +1,7 @@
 # Kildematrise for kapittel 2.3
 
 **Foreslått kapittel:** 2.3 «Byer uten én oppskrift»
-**Kontrollert:** 25. august 2026.
+**Kontrollert:** 26. august 2026.
 **Status:** Kildesettet er tilstrekkelig for implementering innenfor avgrensningen i [kapittelplanen](kapittelplan-2.3.md).
 **Metode:** Faglige konklusjoner bygger på fulltekst der det er oppgitt som kjernegrunnlag, på institusjonelle stedssider for dokumenterte beskrivelser og på Crossref for metadata og registrerte lisensfelt. Crossref brukes ikke som dokumentasjon for historiske påstander. Ingen bilder, kart, figurer eller mediefiler er lastet ned eller lagt i `public/`.
 
@@ -98,13 +98,13 @@ Tre registrerte publikasjoner beholdes som støtte- eller kontrollspor, men bruk
 
 **Indus, hus og mulig kollektiv handling**
 
-- **Full tittel:** Adam S. Green (2020), [Killing the Priest-King: Addressing Egalitarianism in the Indus Civilization](https://doi.org/10.1007/s10814-020-09147-9), *Journal of Archaeological Research* 29, s. 1–58.
+- **Full tittel:** Adam S. Green (2021; publisert online 2020), [Killing the Priest-King: Addressing Egalitarianism in the Indus Civilization](https://doi.org/10.1007/s10814-020-09147-9), *Journal of Archaeological Research* 29, s. 153–202.
 - **Kildetype og dekning:** Fagfellevurdert forskningsartikkel med åpen fulltekst lest. Støtter at Mohenjo-daros hus ligger i kvartaler med gater og drenering, at dreneringen kan vise kollektiv handling, og at arkitekturen ikke uten videre viser en «priest-king» eller én herskerklasse. Støtter også at Indusbyer kan ha vært poly­sentriske og at mange bosetninger ikke var byer.
 - **Geografi og tid:** Indus-sivilisasjonens urbane områder, med særlig vekt på Mohenjo-daro; moden Indus-periode, hovedsakelig tredje årtusen f.Kr.
 - **Funn, tolkning eller syntese:** Hus, kvartaler, gater og drenering er materielle spor. Kollektiv handling, heterarki, egalitarisme og poly­sentrisitet er fortolkende modeller og skal markeres som slike.
 - **Forbehold:** Artikkelen er en argumenterende tolkning i en pågående forskningsdebatt. «Egalitær» betyr ikke at alle hadde samme liv, og fravær av et identifisert palass beviser ikke fravær av maktforskjeller.
 - **Kan ikke bevise:** At Indussamfunn var helt uten hierarki, eller at alle innbyggere deltok likt i beslutninger og vedlikehold.
-- **Tilgang og rettigheter:** CC BY 4.0 registrert av Crossref. Bruk egen parafrase; ingen figurer kopieres.
+- **Tilgang og rettigheter:** Artikkelen er åpen tilgang under CC BY 4.0; enkelte tredjepartsfigurer kan ha egne krediteringsvilkår. Ingen figurer kopieres.
 - **Crossref-kontroll:** DOI, metadata og lisensfelt kontrollert 25. august 2026.
 
 ### K-08
@@ -150,7 +150,7 @@ Tre registrerte publikasjoner beholdes som støtte- eller kontrollspor, men bruk
 
 **Caral-Supe, ressurser og miljø**
 
-- **Full tittel:** Daniel H. Sandweiss m.fl. (2009), [Environmental change and economic development in coastal Peru between 5,800 and 3,600 years ago](https://doi.org/10.1073/pnas.0812645106), åpen fulltekst via [PubMed Central](https://pmc.ncbi.nlm.nih.gov/articles/PMC2635784/), *PNAS* 106(5), s. 1359–1363.
+- **Full tittel:** Daniel H. Sandweiss, Ruth Shady Solís, Michael E. Moseley, David K. Keefer og Charles R. Ortloff (2009), [Environmental change and economic development in coastal Peru between 5,800 and 3,600 years ago](https://doi.org/10.1073/pnas.0812645106), åpen fulltekst via [PubMed Central](https://pmc.ncbi.nlm.nih.gov/articles/PMC2635784/), *PNAS* 106(5), s. 1359–1363.
 - **Kildetype og dekning:** Fagfellevurdert forskningsartikkel med fulltekst lest. Støtter at tidlige kystsamfunn i Peru kombinerte intensivt fiske, irrigert dyrking og store monumentale bosetninger, og at forfatterne argumenterer for at jordskjelv, El Niño-flom, strandvoller og sanddyner kan ha bidratt til senere omforming/forlatelse.
 - **Geografi og tid:** Nord-sentrale kysten av Peru, Supe og tilgrensende ørkendaler; omtrent 5800–3600 kalibrerte år før nåtid, med sen prekeramisk periode som hovedramme.
 - **Funn, tolkning eller syntese:** Fiske, plante- og irrigasjonsdata, monumenter og geologiske spor er evidens; miljøbidrag til omforming er forfatternes hypotese/syntese.
@@ -386,9 +386,9 @@ Påstandene som planlegges i `SourceWorkshop.claims` er:
 | `påstand-3` Mohenjo-daro-drenering ga alle bedre helse | `too-strong` | K-06, K-07, K-08 | Infrastruktur kan observeres; effekt må undersøkes separat. |
 | `påstand-4` Mohenjo-daro krevde mulig kollektiv koordinering | `possible` | K-07, K-08 | Be om «kan» og en alternativ styringsforklaring. |
 | `påstand-5` Caral hadde urban/monumental organisering med flere ressurser | `direct` | K-09, K-11 | Hold «dokumentert» til bygg/ressursspor; «organisering» er en avgrenset syntese. |
-| `påstand-6` Caral-monumenter viser én konge som tvang arbeid | `too-strong` | K-09, K-11 | Monumentalitet alene avgjør ikke makt eller arbeidsforhold. |
+| `påstand-6` Materialet avgjør ikke alene om én konge tvang arbeid | `cannot-determine` | K-09, K-11 | Monumentalitet alene avgjør ikke om én konge, tvang eller bestemte arbeidsforhold var til stede. |
 | `påstand-7` Alle byer måtte ha sentral stat før infrastruktur | `cannot-determine` | K-02, K-07, K-08 | Materialet kan ikke avgjøre en universell regel. |
-| `påstand-8` Likhet mellom byer viser én felles utviklingskjede | `too-strong` | K-02, K-03, K-07, K-09, K-11 | Likhet skal skilles fra identisk årsak og samme politiske form. |
+| `påstand-8` Likhet mellom byer kan peke mot felles utfordringer, men viser ikke én utviklingskjede | `possible` | K-02, K-03, K-07, K-09, K-11 | Likhet kan støtte en avgrenset sammenligning, men viser ikke identisk årsak eller samme politiske form. |
 
 ## 7. Rettighetsregister
 

@@ -131,6 +131,17 @@ test("renders chapter 2.3 with three cases and chapter navigation", async () => 
   }
 });
 
+test("renders the global timeline from all published chapters", async () => {
+  const response = await render("/tidslinje");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /Mohenjo-daro/);
+  assert.match(html, /Caral-Supe/);
+  assert.match(html, /de publiserte kapitlene/);
+  assert.doesNotMatch(html, /Første versjon inneholder de kvalitetssikrede punktene fra jordbruksrevolusjonen/);
+});
+
+
 test("renders the public teacher overview without local assessment material", async () => {
   const response = await render("/laerere");
   assert.equal(response.status, 200);

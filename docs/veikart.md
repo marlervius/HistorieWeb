@@ -1,14 +1,14 @@
 # Prioritert veikart
 
-Sist revidert: 25. august 2026.
+Sist revidert: 26. august 2026.
 
 ## Målbar status etter faglig revisjon og testmilepæl
 
 - Omfang: 2 publiserte kapitler, 38 oppgaver, 22 sentrale begreper, 12 tidslinjepunkter, 13 lange linjer og 2 datadrevne kildeverksteder.
-- Kilder: 3 lokale Word-ressurser og 23 navngitte eksterne fagkilder i innholdsmodellen. Kapittel 2.3 har 12 kildeoppføringer med kilde-ID-er, rettighetsnotater og `lastChecked` 25. august 2026; ingen nye medier er tatt inn.
-- Testdekning: 6 server-renderingstester og 63 enhetstester som dekker oppgaveforsøk, seedet stokking over flere seeds, svarlekkasje-diagnostikk, kildeverkstedets påstandssett, fokus ved trinnbytte, kronologi, rail/DOM-synkronisering, åpne svar, fasesletting, egenvurdering, kapittelisolert repetisjon, versjonert lagring med migrering, personvern og tastatur/status.
+- Kilder: 3 lokale Word-ressurser og 23 navngitte eksterne fagkilder i innholdsmodellen. Kapittel 2.3 har 12 kildeoppføringer med kilde-ID-er, rettighetsnotater og `lastChecked` 26. august 2026; ingen nye medier er tatt inn.
+- Testdekning: 7 server-renderingstester og 66 enhetstester som dekker oppgaveforsøk, seedet stokking over flere seeds, svarlekkasje-diagnostikk, kildeverkstedets påstandssett, fokus ved trinnbytte, kronologi, rail/DOM-synkronisering, åpne svar, fasesletting, egenvurdering, kapittelisolert repetisjon, versjonert lagring med migrering, personvern og tastatur/status.
 - Tilgjengelighet: hopp-lenke, synlig fokusmarkering, redusert bevegelse, permanente statusregioner, tastaturflyt og fokus ved kildeverkstedets trinnbytte er kontrollert.
-- Nettleserkontroll 23. august 2026 ved 320, 375 og 1280 piksler: null horisontal overflyt på alle tre bredder, ingen døde interne ankere, ingen dupliserte DOM-ID-er, ingen overskriftshopp og ingen applikasjonsfeil i konsollen. Fokus ved trinnbytte i kildeverkstedet lander på trinnets overskrift 60 piksler fra toppen av visningsflaten.
+- Nettleserkontroll 26. august 2026 mot lokal produksjonsserver ved 320, 375 og 1280 piksler på alle ni offentlige ruter: 27/27 kontroller grønne, null horisontal overflyt, ingen døde interne ankere, ingen dupliserte DOM-ID-er, ingen overskriftshopp og ingen applikasjonsfeil i konsollen. Fokus- og tastaturflyt er i tillegg dekket av komponenttestene; reell skjermleser er ikke kontrollert.
 - Personvern: ingen nettverkskode, analyse, database eller autentisering. Framdrift og egenvurdering ligger i kapittelspesifikke, versjonerte `localStorage`-envelopes; korrupte og ukjente versjoner forkastes trygt.
 - Publisering: ingen offentlig PDF og ingen brutt PDF-lenke. Endringene holdes lokale; det blir ikke pushet eller publisert.
 
@@ -35,6 +35,7 @@ Sist revidert: 25. august 2026.
 - [x] Kontroller repetisjonsinngangen i lokal Chrome ved 320, 375 og 1280 piksler, inkludert første økt, lokal sletting og horisontal overflyt.
 - [x] Gjennomfør forstudie for kapittel 2.3 med kapittelplan, kildematrise, kompetansekobling, komplett oppgavegrunnlag og kontrollert kildeverksted; grunnlaget er klart for implementering innenfor avgrensningen i dokumentene.
 - [x] Implementer kapittel 2.3 med tre-case-fagtekst, 19 oppgaver, kildekoblede avsnitt, seks-trinns kildeverksted, lærerveiledning, kapittelnavigasjon og regresjonstester.
+- [x] Gjennomfør uavhengig sluttrevisjon av 2.3 og fellesflater: rett kilde-/metadatafeil, balanser oppgaver og kildeverksted, korriger mobil-overflyt og dupliserte React-nøkler, og dokumenter residuale risikoer.
 ## Neste prioriterte leveranser
 
 1. **Oppsummerings-PDF 2.2.** Produser og publiser først etter faglig og visuell kontroll; lærerfasit og prøve forblir lokale til annet er besluttet.

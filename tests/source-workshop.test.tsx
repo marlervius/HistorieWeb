@@ -1,4 +1,4 @@
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, test, vi } from "vitest";
 import { SourceWorkshop, getSourceWorkshopStorageKey, isMeaningfulSourceWorkshopResponse } from "../components/SourceWorkshop";
@@ -114,6 +114,22 @@ describe("kildeverkstedets elevflyt", () => {
     expect(screen.queryByText(workshop.claims[0].explanation)).not.toBeInTheDocument();
     await user.click(check);
     expect(screen.getAllByText(workshop.claims[0].explanation)).toHaveLength(2);
+  });
+
+  test("skjuler forklaringer når en vurdering endres etter modellrespons", async () => {
+    const user = await renderWorkshop();
+    await reachClaims(user);
+    for (const choice of screen.getAllByRole("radio", { name: "Direkte støttet" })) await user.click(choice);
+    const check = screen.getByRole("button", { name: "Sjekk påstander" });
+    await user.click(check);
+    await user.click(check);
+    expect(screen.getAllByText(workshop.claims[0].explanation)).toHaveLength(2);
+
+    const firstClaim = screen.getByRole("group", { name: workshop.claims[0].text });
+    await user.click(within(firstClaim).getByRole("radio", { name: "Mulig tolkning" }));
+    expect(screen.queryByText(workshop.claims[0].explanation)).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Sammenstill spor/ })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Sjekk påstander" })).toBeEnabled();
   });
 
   test("lager verkstedspesifikk lokal tilstand og nullstiller ikke andre oppgaver", async () => {

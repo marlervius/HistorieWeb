@@ -10,7 +10,7 @@ export default function LongLinesPage() {
         <div className="line-grid">
           {longLines.map((line, index) => {
             const connected = chapters.filter((chapter) => chapter.longLineIds.includes(line.id));
-            return <article className="line-card" key={line.id}><span className="line-number">{String(index + 1).padStart(2, "0")}</span><h3>{line.title}</h3><p>{line.description}</p>{connected.length > 0 ? <Link href={`${getChapterPath(connected[0])}#lange-linjer`}>Se bidrag fra {connected[0].number} →</Link> : <span className="card-source">Kobles til kommende kapitler</span>}</article>;
+            return <article className="line-card" key={line.id}><span className="line-number">{String(index + 1).padStart(2, "0")}</span><h2>{line.title}</h2><p>{line.description}</p>{connected.length > 0 ? <Link href={`${getChapterPath(connected[0])}#lange-linjer`}>Se bidrag fra {connected[0].number} →</Link> : <span className="card-source">Kobles til kommende kapitler</span>}</article>;
           })}
         </div>
         <section className="section-block"><div className="content-box"><h2>En enkel arbeidsmåte</h2><p>Velg en linje. Finn minst tre konkrete historiske punkter. Forklar hva som endrer seg, hva som fortsetter, og hvem som får ulike fordeler eller kostnader.</p></div></section>

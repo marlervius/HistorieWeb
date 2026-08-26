@@ -81,7 +81,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .home-grid, .card-grid, .line-grid, .chapter-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
 .card, .chapter-card, .line-card, .feature-card, .source-card, .glossary-card { border: 1px solid var(--line); background: rgb(255 255 255 / 42%); }
 .card, .feature-card { padding: 24px; }
-.card h3, .feature-card h3, .line-card h3 { margin: 0 0 8px; font-size: 22px; font-weight: 500; line-height: 1.15; }
+.card h3, .feature-card h2, .feature-card h3, .line-card h2, .line-card h3 { margin: 0 0 8px; font-size: 22px; font-weight: 500; line-height: 1.15; }
 .card p, .feature-card p, .line-card p { margin: 0; color: var(--ink-soft); }
 .card-link { display: inline-block; margin-top: 20px; color: var(--teal); font-family: Arial, sans-serif; font-size: 13px; font-weight: 800; text-underline-offset: 4px; }
 .feature-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
@@ -97,7 +97,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .chapter-card.published { border-top: 4px solid var(--teal); }
 .chapter-card.coming-soon { border-top: 4px solid var(--line-dark); opacity: .82; }
 .chapter-card .chapter-number { color: var(--teal); font-family: Arial, sans-serif; font-size: 12px; font-weight: 800; letter-spacing: .1em; }
-.chapter-card h3 { margin: 16px 0 8px; font-size: 22px; font-weight: 500; line-height: 1.1; }
+.chapter-card h2, .chapter-card h3 { margin: 16px 0 8px; font-size: 22px; font-weight: 500; line-height: 1.1; }
 .chapter-card p { margin: 0; color: var(--ink-soft); }
 .chapter-card .card-link { margin-top: auto; }
 .status-pill { display: inline-block; align-self: flex-start; margin-top: 18px; padding: 4px 8px; border-radius: 99px; background: var(--forest-pale); color: var(--teal-dark); font-family: Arial, sans-serif; font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
@@ -183,7 +183,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .timeline-item { position: relative; display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 24px; padding: 0 0 28px; }
 .timeline-item::before { content: ""; position: absolute; top: 6px; left: 77px; width: 11px; height: 11px; border: 3px solid var(--paper); border-radius: 50%; background: var(--ochre); box-shadow: 0 0 0 1px var(--ochre); }
 .timeline-date { padding-right: 20px; color: var(--teal); font-family: Arial, sans-serif; font-size: 12px; font-weight: 800; text-align: right; }
-.timeline-content h3 { margin: 0 0 4px; font-size: 21px; font-weight: 500; }
+.timeline-content h2, .timeline-content h3 { margin: 0 0 4px; font-size: 21px; font-weight: 500; }
 .timeline-content p { max-width: 620px; margin: 0; color: var(--ink-soft); font-size: 16px; }
 .claim-sources { white-space: nowrap; }
 .claim-sources sup { margin-left: 3px; font-family: Arial, sans-serif; font-size: 10px; }
@@ -278,7 +278,7 @@ textarea { resize: vertical; min-height: 120px; padding: 11px; font-size: 15px; 
 .line-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .line-card { min-height: 180px; padding: 24px; }
 .line-card .line-number { color: var(--ochre); font-family: Arial, sans-serif; font-size: 12px; font-weight: 800; }
-.line-card h3 { margin-top: 16px; }
+.line-card h2, .line-card h3 { margin-top: 16px; }
 .line-card a { display: inline-block; margin-top: 14px; color: var(--teal); font-family: Arial, sans-serif; font-size: 12px; font-weight: 700; }
 .glossary-explorer { margin-top: 30px; }
 .search-label { display: block; margin-bottom: 7px; font-family: Arial, sans-serif; font-size: 12px; font-weight: 800; }
@@ -286,7 +286,7 @@ textarea { resize: vertical; min-height: 120px; padding: 11px; font-size: 15px; 
 .result-count { color: var(--ink-soft); font-family: Arial, sans-serif; font-size: 12px; }
 .glossary-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
 .glossary-card { padding: 18px; }
-.glossary-card h3 { margin: 0 0 8px; font-size: 20px; font-weight: 500; }
+.glossary-card h2, .glossary-card h3 { margin: 0 0 8px; font-size: 20px; font-weight: 500; }
 .glossary-card p { margin: 0; color: var(--ink-soft); font-size: 15px; }
 .card-source { display: block; margin-top: 18px; color: var(--teal); font-family: Arial, sans-serif; font-size: 10px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
 .empty-state { padding: 30px; border: 1px dashed var(--line-dark); color: var(--ink-soft); }
@@ -366,7 +366,7 @@ textarea { resize: vertical; min-height: 120px; padding: 11px; font-size: 15px; 
   .chapter-hero h1 { font-size: clamp(21px, 7vw, 29px); letter-spacing: -.065em; overflow-wrap: normal; hyphens: auto; }
   .hero-aside { padding: 22px; }
   .hero-aside p { font-size: 22px; }
-  .home-grid, .card-grid, .feature-row, .line-grid, .columns-2, .source-grid, .task-grid, .glossary-grid { grid-template-columns: 1fr; }
+  .home-grid, .card-grid, .feature-row, .line-grid, .chapter-grid, .columns-2, .source-grid, .task-grid, .glossary-grid { grid-template-columns: 1fr; }
   .section-block { padding-top: 55px; }
   .chapter-rail { grid-template-columns: 1fr; }
   .article-section { padding-top: 42px; }

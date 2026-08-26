@@ -416,7 +416,7 @@ export function SourceWorkshop({
                 key={claim.id}
                 claim={claim}
                 selected={state.claims[claim.id] ?? ""}
-                onChange={(value) => updateState((current) => ({ ...current, claims: { ...current.claims, [claim.id]: value } }))}
+                onChange={(value) => updateState((current) => ({ ...current, claims: { ...current.claims, [claim.id]: value }, claimsFeedback: "idle" }))}
                 showExplanation={state.claimsFeedback === "model" || state.claimsFeedback === "success"}
                 classificationOptions={displayClassificationEntries}
               />

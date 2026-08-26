@@ -16,7 +16,7 @@ export default function LearnworkPage() {
             const isPublished = section.chapters.length > 0;
             return <section className="chapter-card" key={section.slug} id={section.slug}>
               <span className="chapter-number">{section.number}</span>
-              <h3>{section.title}</h3>
+              <h2>{section.title}</h2>
               <p>{section.description}</p>
               {isPublished ? section.chapters.map((chapter) => <div key={chapter.id}><span className="status-pill">Ferdig referansekapittel</span><Link className="card-link" href={`/laereverk/${chapter.sectionSlug}/${chapter.slug}`}>{chapter.number} · {chapter.title} →</Link></div>) : <span className="status-pill soon">Kommer senere</span>}
             </section>;

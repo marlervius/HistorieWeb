@@ -1,7 +1,7 @@
 # Forstudie og kapittelplan 2.3
 
 **Status:** Klar for implementering med de avgrensningene og forbeholdene som står i dette dokumentet.
-**Kontrollert:** 25. august 2026.
+**Kontrollert:** 26. august 2026.
 **Foreslått kapittel:** 2.3 «Byer uten én oppskrift»
 **Arbeidsregel:** Dette er et redaksjonelt grunnlag. Kapitlet legges ikke inn i `content/chapters.ts` i denne leveransen.
 
@@ -253,9 +253,9 @@ Ingen mediefiler skal lastes ned. Materialene er korte, egne norske beskrivelser
 | `påstand-3` | Mohenjo-daros drenering viser at alle innbyggerne hadde bedre helse enn folk utenfor byen. | For sterk | Drenering er dokumentert, men effekt, bruk og helsekonsekvens kan ikke leses direkte ut av anlegget. |
 | `påstand-4` | Dreneringsanleggene ved Mohenjo-daro tyder på at mange grupper deltok i eller var avhengige av kollektiv koordinering. | Mulig | Omfanget støtter en tolkning av koordinering; det avgjør ikke om ordningen var lokal, sentral eller blandet. |
 | `påstand-5` | Caral-Supe hadde urban og monumental organisering samtidig som marine ressurser og irrigert planteproduksjon inngikk i økonomien. | Direkte støttet | Kildene dokumenterer arkitektur, store bosetninger og den særegne kombinasjonen av fiske, irrigasjon og planter. |
-| `påstand-6` | Monumentale plattformhauger i Caral viser at én konge tvang alle til å arbeide. | For sterk | Monumentene viser organisering og arbeid i stor skala, ikke automatisk hersker, tvang eller arbeidsforhold. |
+| `påstand-6` | Materialet avgjør ikke alene om én konge tvang alle til å arbeide ved Caral-Supe. | Kan ikke avgjøres | Monumentene viser arbeid i stor skala, men materialet avgjør ikke alene hersker, tvang eller arbeidsforhold. |
 | `påstand-7` | Alle tidlige byer måtte ha en sentral stat før de kunne vedlikeholde felles infrastruktur. | Kan ikke avgjøres / for sterk | Sammenligningen viser flere mulige ordninger; materialet kan ikke avgjøre en universell regel. |
-| `påstand-8` | Likhet mellom tidlige byer betyr at alle fulgte samme utviklingskjede fra jordbruk til stat. | For sterk | Likhet i konsentrasjon eller infrastruktur kan oppstå gjennom ulike kombinasjoner; periodene, ressursene og institusjonene varierer. |
+| `påstand-8` | Likhet mellom tidlige byer kan peke mot noen felles utfordringer, men viser ikke at alle fulgte samme utviklingskjede fra jordbruk til stat. | Mulig | Likheter kan støtte en avgrenset sammenligning, men perioder, ressurser og institusjoner varierer; en felles utviklingskjede er ikke vist. |
 
 ### Elevens syntese og kriterier
 
