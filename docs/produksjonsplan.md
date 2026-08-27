@@ -2,9 +2,9 @@
 
 **Status:** Bindende redaksjonell og teknisk gjennomføringsplan
 
-**Sist revidert:** 27. august 2026
+**Sist revidert:** 28. august 2026
 
-**Utgangspunkt:** Kapittel 2.2 og 2.3 er publisert og kvalitetssikret. Seksten kapitler gjenstår.
+**Utgangspunkt:** Kapittel 2.2 og 2.3 er publisert og kvalitetssikret. P01: 1.1 har R1; femten øvrige planlagte kapitler gjenstår på R0.
 
 Planen omsetter [helhetsplanen](./helhetsplan-vg2.md) og [kompetansematrisen](./kompetansematrise-vg2.md) til leveranser. Den autoriserer ikke implementering av flere kapitler i samme arbeidsøkt. Hvert kapittel skal gjennom hele løpet nedenfor, godkjennes som en selvstendig leveranse og få én lokal commit før neste kapittel starter.
 
@@ -123,7 +123,7 @@ Før commit:
 | R2 – implementert og sporbart | Kapittel, kildevisning, oppgaver og lærerstoff er implementert og testet | Uavhengig sluttkontroll og feilretting |
 | R3 – godkjent leveranse | Uavhengig kontroll og alle porter er lukket i én lokal commit | Kapittelet kan inngå i en senere godkjent utgivelse |
 
-Kapittel 2.2 og 2.3 regnes som R3 ut fra eksisterende revisjonsrapporter. Alle planlagte kapitler starter på R0. Et R0-eksempel i helhetsplanen er en kildeinngang, ikke et løfte om at kilden er tilstrekkelig eller publiserbar.
+Kapittel 2.2 og 2.3 regnes som R3 ut fra eksisterende revisjonsrapporter. P01: 1.1 er løftet til R1 – produksjonsklart grunnlag – etter godkjent kildekontroll 28. august 2026; øvrige planlagte kapitler starter på R0. Et R0-eksempel i helhetsplanen er en kildeinngang, ikke et løfte om at kilden er tilstrekkelig eller publiserbar.
 
 ## 4. Prioritert rekkefølge for de seksten leveransene
 
@@ -214,14 +214,8 @@ Dette er ikke automatisk en offentlig utgivelse. Ekstern publisering krever i ti
 
 ## 8. Neste konkrete leveranse
 
-**Neste kapittel er P01: 1.1 «Hva kan vi vite om fortiden?»**
+**P01: 1.1 «Hva kan vi vite om fortiden?» har R1 – produksjonsklart grunnlag – godkjent 28. august 2026.**
 
-Første arbeidsøkt skal bare løfte kapitlet fra R0 til R1:
+R1-leveransen har avgrenset fire kildetyper, etablert påstand–kilde-matrise, formulert et besvarbart kapittelspørsmål, dokumentert kildebegrensninger/rettigheter/lastChecked, levert to uavhengige reviewer-spor og gjort Q-01 reproduserbar uten persondata.
 
-1. avgrense fire kildetyper som kan brukes lovlig og pedagogisk;
-2. lage påstand–kilde-matrisen;
-3. formulere kapittelspørsmål og en elevundersøkelse som introduserer KM2;
-4. dokumentere kildenes begrensninger, lisens og `lastChecked`;
-5. innhente uavhengig kildekontroll.
-
-Kapitteltekst, komponentarbeid og nye offentlige filer starter først når denne R1-porten er godkjent.
+Neste arbeidsøkt kan starte R2: implementering av kapitteltekst, kildeverksted og oppgaver etter en egen arbeidsbeslutning. R3 er ikke påstått; teknisk og pedagogisk sluttkontroll gjenstår.

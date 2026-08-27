@@ -1,6 +1,6 @@
 # Prioritert veikart
 
-Sist revidert: 27. august 2026.
+Sist revidert: 28. august 2026.
 
 Dette veikartet er kortversjonen av tre bindende dokumenter:
 
@@ -14,7 +14,8 @@ Ved konflikt stoppes produksjonen til dokumentene er samordnet. Veikartet skal i
 
 - Målbildet er en komplett bok med **18 kapitler i seks deler**.
 - **2 kapitler er levert på R3-nivå:** 2.2 «Jordbruksrevolusjonen» og 2.3 «Byer uten én oppskrift: mennesker, ressurser og makt i tidlige bysamfunn».
-- **16 kapitler gjenstår og står på R0:** retning og realistiske kildeankre er identifisert, men ingen er klare for implementering.
+- **1 kapittel har R1:** P01, 1.1 «Hva kan vi vite om fortiden?», godkjent 28. august 2026 som produksjonsklart kildegrunnlag.
+- **15 kapitler gjenstår og står på R0:** retning og realistiske kildeankre er identifisert, men ingen av disse er klare for implementering.
 - Nummerhullet er reelt og skal fylles av 2.1 «Før jordbruket». Eksisterende 2.2 og 2.3 beholdes med dagens nummer og URL-er.
 - Dagens innhold gir full tematisk dekning av mat/naturressurser innenfor det publiserte stoffet, delvis dekning av kildearbeid, periodisering, demografi, handel/økonomi og kommunikasjon/kulturmøter, og mangler fem mål: fortiden former oss, lokal/nasjonal erindring, demokrati, makt fra middelalder til tidlig nytid og religion fra middelalder til vår tid.
 - Global bredde er påbegynt i 2.2 og 2.3. Norsk og samisk historie er fortsatt et hovedgap og skal integreres særlig i 4.2, 5.1, 6.1 og 6.2.
@@ -51,9 +52,9 @@ Ved konflikt stoppes produksjonen til dokumentene er samordnet. Veikartet skal i
 
 ## Neste konkrete leveranse
 
-**P01: løft 1.1 «Hva kan vi vite om fortiden?» fra R0 til R1.**
+**P01: 1.1 «Hva kan vi vite om fortiden?» er løftet fra R0 til R1.**
 
-Før det skrives kapitteltekst skal redaksjonen velge et lovlig og faglig robust sett med materiell, skriftlig, visuell og kvantitativ dokumentasjon, lage påstand–kilde-matrisen, formulere elevundersøkelsen som introduserer KM2 og få kildesettet uavhengig kontrollert. Dette er neste arbeidspakke; implementering starter først etter godkjent R1.
+Kildegrunnlaget er godkjent etter avgrenset spørsmål, påstand–kilde-matrise, dokumentert proveniens/rettighet, to uavhengige reviewer-spor og reproduserbart Q-01-aggregat. Neste arbeidspakke er R2-implementering; R3 og offentlig publisering krever egne porter.
 
 Oppsummerings-PDF for 2.2 og visuell kontroll av lokale Word-ressurser er ønskelige støttearbeider, men er ikke lenger høyere prioritert enn bokas metodegrunnlag. Ingen fil gjøres offentlig uten egen faglig, visuell, rettighets- og tilgjengelighetskontroll.
 
