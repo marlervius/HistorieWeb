@@ -1,4 +1,4 @@
-import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, test, vi } from "vitest";
 import { SourceWorkshop, getSourceWorkshopStorageKey, isMeaningfulSourceWorkshopResponse } from "../components/SourceWorkshop";
@@ -25,7 +25,7 @@ async function renderWorkshop() {
 
 async function reachClaims(user: ReturnType<typeof userEvent.setup>) {
   const observations = screen.getByRole("textbox", { name: "Dine observasjoner" });
-  await user.type(observations, "Det finnes lag, tett plasserte hus og spor etter lagring. Andre redskaper har bruksspor som passer med kornbearbeiding.");
+  fireEvent.change(observations, { target: { value: "Det finnes lag, tett plasserte hus og spor etter lagring. Andre redskaper har bruksspor som passer med kornbearbeiding." } });
   await user.click(screen.getByRole("button", { name: /Sett kilden i sammenheng/ }));
   await user.click(screen.getByRole("button", { name: /Fra spor til slutning/ }));
   expect(screen.getByRole("heading", { name: "Hvor langt kan påstanden gå?" })).toBeInTheDocument();
@@ -91,12 +91,12 @@ describe("kildeverkstedets elevflyt", () => {
     await user.click(checkboxes[0]);
     await user.click(checkboxes[4]);
     const synthesis = screen.getByRole("textbox", { name: "Din sammenstilling" });
-    await user.type(synthesis, "Sporene styrker at mat og arbeid ble organisert i ulike sammenhenger, men funksjonene kan ha vært forskjellige.");
+    fireEvent.change(synthesis, { target: { value: "Sporene styrker at mat og arbeid ble organisert i ulike sammenhenger, men funksjonene kan ha vært forskjellige." } });
     await user.click(screen.getByRole("button", { name: "Lagre sammenstillingen" }));
     await user.click(screen.getByRole("button", { name: /Skriv konklusjon/ }));
 
     const conclusion = screen.getByRole("textbox", { name: "Din konklusjon" });
-    await user.type(conclusion, "Ved Çatalhöyük ser vi lagdelte, tett plasserte hus med spor etter lagring, mens Göbekli Tepe har mange redskaper og plantespor. Samlet kan dette støtte organisert matarbeid og samarbeid, men ulike funksjoner er mulige. Materialet kan ikke bevise hvem som bestemte eller hva alle tenkte.");
+    fireEvent.change(conclusion, { target: { value: "Ved Çatalhöyük ser vi lagdelte, tett plasserte hus med spor etter lagring, mens Göbekli Tepe har mange redskaper og plantespor. Samlet kan dette støtte organisert matarbeid og samarbeid, men ulike funksjoner er mulige. Materialet kan ikke bevise hvem som bestemte eller hva alle tenkte." } });
     expect(screen.getByRole("button", { name: "Vis modellrespons" })).toBeEnabled();
     await user.click(screen.getByRole("button", { name: "Vis modellrespons" }));
     expect(await screen.findByRole("heading", { name: "Sammenlign, behold din stemme og revider" })).toBeInTheDocument();
@@ -136,7 +136,7 @@ describe("kildeverkstedets elevflyt", () => {
     const otherKey = "historie-i-sammenheng:tasks:v2:2.2";
     window.localStorage.setItem(otherKey, "behold meg");
     const user = await renderWorkshop();
-    await user.type(screen.getByRole("textbox", { name: "Dine observasjoner" }), "Dette er et lokalt observasjonssvar med konkrete spor fra begge materialene.");
+    fireEvent.change(screen.getByRole("textbox", { name: "Dine observasjoner" }), { target: { value: "Dette er et lokalt observasjonssvar med konkrete spor fra begge materialene." } });
     await waitFor(() => expect(window.localStorage.getItem(workshopKey())).not.toBeNull());
     await user.click(screen.getByRole("button", { name: "Nullstill verkstedet" }));
     await waitFor(() => expect(window.localStorage.getItem(workshopKey())).toBeNull());
@@ -176,7 +176,7 @@ describe("fokus og rulling ved trinnbytte", () => {
       // Fokus skal ikke stjeles ved montering; kravet gjelder etter trinnbytte.
 
       const observations = screen.getByRole("textbox", { name: "Dine observasjoner" });
-      await user.type(observations, "Det finnes lag, tett plasserte hus og spor etter lagring. Redskapene har bruksspor som passer med kornbearbeiding.");
+      fireEvent.change(observations, { target: { value: "Det finnes lag, tett plasserte hus og spor etter lagring. Redskapene har bruksspor som passer med kornbearbeiding." } });
       await user.click(screen.getByRole("button", { name: /Sett kilden i sammenheng/ }));
 
       const heading = await screen.findByRole("heading", { name: "Hva vet vi om materialet?" });

@@ -32,6 +32,29 @@
 - Interaktive oppgaver skal fungere med tastatur og skjermleser, vise hint etter første feil og forklaring eller modellrespons ved nytt forsøk.
 - PDF-lenker skal bare vises når filen faktisk finnes.
 
+## Autonomi og menneskeporter
+
+- Følg `WORKFLOW.md` og `docs/production-status.json` for kapittelproduksjon. De utfyller, men overstyrer ikke, de bindende planene i `docs/`.
+- Arbeid på ett kapittel om gangen. Ta normale tekniske, pedagogiske og redaksjonelle valg autonomt innenfor et godkjent kildegrunnlag.
+- Stopp ved `R1_CANDIDATE` og `R3_CANDIDATE`. En agent kan aldri godkjenne sitt eget arbeid som R1 eller R3.
+- Stopp også ved endring av produktstrategi eller personvernmodell, større arkitekturendringer, tvilsomme rettigheter eller motstridende historiske kilder som krever et redaksjonelt valg.
+- Lokal commit ved R3, push, pull request, merge og publisering krever uttrykkelig menneskelig godkjenning.
+- Vanlig implementasjonsusikkerhet er ikke en menneskeport. Undersøk repoet, relevant dokumentasjon og tester før du ber om en beslutning.
+
+## Code Review Rules
+
+### Historisk integritet
+
+- Flagg nye eller endrede bærende historiske påstander når kildebelegget mangler, er uklart eller ikke støtter påstandens styrke. Flagg også sammenblanding av funn, tolkning og usikkerhet eller deterministiske årsaksforklaringer som kildene bare støtter som mulige eller medvirkende. Sikker vei er sporbar kilde-ID og språk som samsvarer med beleggets styrke.
+
+### Kilder og rettigheter
+
+- Flagg ukjent kilde-ID, manglende proveniens, udokumentert rettighetsstatus eller endret `lastChecked` uten faktisk ny kontroll. Flagg også offentlig PDF eller medium som ikke finnes eller mangler dokumentert kreditering og brukstillatelse. Sikker vei er tekstlig læringsdesign eller ekstern kataloglenke til kontrollen er dokumentert.
+
+### Elevdata og pedagogisk respons
+
+- Flagg nye nettverkskall, cookies, analyse, database, autentisering eller ekstern lagring av elevdata. Flagg oppgaver som viser fasit før elevens eget forsøk, eller som ikke gir hint etter første feil før forklaring eller modellrespons ved nytt forsøk. Sikker vei er kapittelspesifikk, versjonert lokal lagring uten ekstern overføring og det etablerte totrinnsløpet for respons.
+
 ## Ferdigkriterier
 
 Før en endring regnes som klar, skal typekontroll, lint, relevante tester og produksjonsbuild være grønne. Gjør også en kort gjennomgang av mobilbredde, fokusmarkeringer, interne lenker, kildevisning og at ingen persondata sendes eksternt.

@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 1,
+  "lastUpdated": "2026-08-31",
+  "currentChapter": "1.1",
+  "sources": [
+    "docs/helhetsplan-vg2.md",
+    "docs/produksjonsplan.md",
+    "docs/veikart.md",
+    "docs/kildekontroll-1.1.md",
+    "docs/revisjon-1.1-r3-candidate.md"
+  ],
+  "chapters": {
+    "1.1": {
+      "priority": "P01",
+      "title": "Hva kan vi vite om fortiden?",
+      "status": "R3",
+      "next": null,
+      "lastStatusChange": "2026-08-31"
+    },
+    "1.2": {
+      "priority": "P02",
+      "title": "Hvem deler fortiden inn?",
+      "status": "R0",
+      "next": "R1_CANDIDATE"
+    },
+    "1.3": {
+      "priority": "P03",
+      "title": "Hvordan lever fortiden?",
+      "status": "R0",
+      "next": "R1_CANDIDATE"
+    },
+    "2.1": {
+      "priority": "P04",
+      "title": "Før jordbruket",
+      "status": "R0",
+      "next": "R1_CANDIDATE"
+    },
+    "2.2": {
+      "priority": null,
+      "title": "Jordbruksrevolusjonen",
+      "status": "R3",
+      "next": null,
+      "published": true
+    },
+    "2.3": {
+      "priority": null,
+      "title": "Byer uten én oppskrift: mennesker, ressurser og makt i tidlige bysamfunn",
+      "status": "R3",
+      "next": null,
+      "published": true
+    },
+    "3.1": {
+      "priority": "P05",
+      "title": "Hva holdt oldtidsrikene sammen?",
+      "status": "R0",
+      "next": "R1_CANDIDATE"
+    },
+    "3.2": {
+      "priority": "P06",
+      "title": "Hvem fikk delta?",
+      "status": "R0",
+      "next": "R1_CANDIDATE"
+    },
+    "3.3": {
+      "priority": "P07",
+      "title": "Hva bandt antikkens verdener sammen?",
+      "status": "R0",
+      "next": "R1_CANDIDATE"
+    },
+    "4.1": {
+      "priority": "P08",
+      "title": "Hvordan ble religion samfunnsmakt?",
+      "status": "R0",
+      "next": "R1_CANDIDATE"
+    },
+    "4.2": {
+      "priority": "P09",
+      "title": "Hvordan ble makt forhandlet i Norge og Sápmi?",
+      "status": "R0",
+      "next": "R1_CANDIDATE"
+    },
+    "4.3": {
+      "priority": "P10",
+      "title": "Hva bandt middelalderens handelsverdener sammen?",
+      "status": "R0",
+      "next": "R1_CANDIDATE"
+    },
+    "4.4": {
+      "priority": "P11",
+      "title": "Hvorfor ble svartedauden et vendepunkt – og for hvem?",
+      "status": "R0",
+      "next": "R1_CANDIDATE"
+    },
+    "5.1": {
+      "priority": "P12",
+      "title": "Hvordan endret reformasjon og statsbygging makten?",
+      "status": "R0",
+      "next": "R1_CANDIDATE"
+    },
+    "5.2": {
+      "priority": "P13",
+      "title": "Hva skjedde da verdenshavene ble knyttet tettere sammen?",
+      "status": "R0",
+      "next": "R1_CANDIDATE"
+    },
+    "5.3": {
+      "priority": "P14",
+      "title": "Hvordan gjorde sølv, tvangsarbeid og handelskompanier verden mer sammenvevd?",
+      "status": "R0",
+      "next": "R1_CANDIDATE"
+    },
+    "6.1": {
+      "priority": "P15",
+      "title": "Hvem eier minnet?",
+      "status": "R0",
+      "next": "R1_CANDIDATE"
+    },
+    "6.2": {
+      "priority": "P16",
+      "title": "Hvordan har religion formet makt, identitet og syn på andre fra middelalderen til i dag?",
+      "status": "R0",
+      "next": "R1_CANDIDATE"
+    }
+  }
+}

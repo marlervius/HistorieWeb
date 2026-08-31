@@ -24,6 +24,8 @@ export type SourceWorkshopState = {
   conclusionAttempts: number;
   conclusionSubmitted: boolean;
   lastSubmittedConclusion?: string;
+  initialConclusion?: string;
+  revisionSubmitted: boolean;
 };
 
 export const classificationLabels: Record<WorkshopClaimClassification, string> = {
@@ -67,6 +69,7 @@ function blankState(): SourceWorkshopState {
     conclusion: "",
     conclusionAttempts: 0,
     conclusionSubmitted: false,
+    revisionSubmitted: false,
   };
 }
 
@@ -79,9 +82,33 @@ export function getSourceWorkshopStorageKey(chapterId: string, workshopId: strin
     + encodeURIComponent(workshopId);
 }
 
+export function sourceWorkshopWordCount(value: string) {
+  const trimmed = value.trim();
+  return trimmed ? trimmed.split(/\s+/).length : 0;
+}
+
 export function isMeaningfulSourceWorkshopResponse(value: string) {
   const trimmed = value.trim();
-  return trimmed.length >= 80 && trimmed.split(/\s+/).length >= 15;
+  return trimmed.length >= 80 && sourceWorkshopWordCount(trimmed) >= 15;
+}
+
+export function meetsSourceWorkshopConclusionRequirement(
+  value: string,
+  wordRange?: SourceWorkshop["conclusionWordRange"],
+) {
+  if (!isMeaningfulSourceWorkshopResponse(value)) return false;
+  if (!wordRange) return true;
+  const count = sourceWorkshopWordCount(value);
+  return count >= wordRange.min && count <= wordRange.max;
+}
+
+export function hasSubstantiveSourceWorkshopRevision(initial: string, revised: string) {
+  const initialWords = initial.trim().toLocaleLowerCase("nb-NO").split(/\s+/);
+  const revisedWords = revised.trim().toLocaleLowerCase("nb-NO").split(/\s+/);
+  if (initialWords.join(" ") === revisedWords.join(" ")) return false;
+  const changedPositions = Math.max(initialWords.length, revisedWords.length)
+    - initialWords.filter((word, index) => revisedWords[index] === word).length;
+  return changedPositions >= 3;
 }
 
 function isMeaningfulSynthesis(value: string) {
@@ -122,7 +149,9 @@ function isWorkshopState(value: unknown): value is SourceWorkshopState {
     && Number.isInteger(candidate.conclusionAttempts)
     && candidate.conclusionAttempts >= 0
     && typeof candidate.conclusionSubmitted === "boolean"
-    && (candidate.lastSubmittedConclusion === undefined || typeof candidate.lastSubmittedConclusion === "string");
+    && (candidate.lastSubmittedConclusion === undefined || typeof candidate.lastSubmittedConclusion === "string")
+    && (candidate.initialConclusion === undefined || typeof candidate.initialConclusion === "string")
+    && (candidate.revisionSubmitted === undefined || typeof candidate.revisionSubmitted === "boolean");
 }
 
 export function readSourceWorkshopState(storageKey: string, progressVersion: number) {
@@ -136,7 +165,7 @@ export function readSourceWorkshopState(storageKey: string, progressVersion: num
       window.localStorage.removeItem(storageKey);
       return { state: blankState(), status: "ready" as const };
     }
-    return { state: envelope.state, status: "ready" as const };
+    return { state: { ...blankState(), ...envelope.state }, status: "ready" as const };
   } catch {
     try {
       window.localStorage.removeItem(storageKey);
@@ -279,8 +308,9 @@ export function SourceWorkshop({
     const selectedMaterials = new Set(
       evidenceItems.filter((item) => state.synthesisEvidence.includes(item.id)).map((item) => item.materialId),
     );
-    if (selectedMaterials.size < 2) {
-      setValidationMessage("Velg minst ett konkret spor fra hvert av de to materialene.");
+    const requiredMaterials = workshop.synthesisMinimumMaterials ?? 2;
+    if (selectedMaterials.size < requiredMaterials) {
+      setValidationMessage("Velg konkrete spor fra minst " + requiredMaterials + " forskjellige materialer.");
       return;
     }
     if (!isMeaningfulSynthesis(state.synthesis)) {
@@ -292,19 +322,33 @@ export function SourceWorkshop({
   }
 
   function submitConclusion() {
-    if (!isMeaningfulSourceWorkshopResponse(state.conclusion)) {
-      setValidationMessage("Skriv minst 80 tegn og 15 ord i en begrunnet konklusjon før du viser modellresponsen.");
+    if (!meetsSourceWorkshopConclusionRequirement(state.conclusion, workshop.conclusionWordRange)) {
+      setValidationMessage(workshop.conclusionWordRange
+        ? "Skriv mellom " + workshop.conclusionWordRange.min + " og " + workshop.conclusionWordRange.max + " ord før du går videre. Du har skrevet " + sourceWorkshopWordCount(state.conclusion) + " ord."
+        : "Skriv minst 80 tegn og 15 ord i en begrunnet konklusjon før du viser modellresponsen.");
       return;
     }
-    const submitted = JSON.stringify(state.conclusion.trim());
+    const submitted = state.conclusion.trim();
+    const isRevision = state.conclusionSubmitted;
+    const initialConclusion = state.initialConclusion ?? submitted;
+    if (isRevision && workshop.requiresRevision && !hasSubstantiveSourceWorkshopRevision(initialConclusion, submitted)) {
+      setValidationMessage("Gjør en reell revisjon: endre minst tre ord eller setningsledd etter at du har sammenlignet med modellresponsen.");
+      return;
+    }
     updateState((current) => ({
       ...current,
       conclusionAttempts: current.conclusionAttempts + 1,
       conclusionSubmitted: true,
+      initialConclusion: current.initialConclusion ?? submitted,
+      revisionSubmitted: isRevision ? true : false,
       lastSubmittedConclusion: submitted,
     }));
     goTo(5);
-    setAnnouncement("Modellresponsen er synlig. Revider gjerne svaret ditt med egne ord.");
+    setAnnouncement(isRevision
+      ? "Revisjonen er lagret lokalt i denne nettleseren."
+      : workshop.requiresRevision
+        ? "Modellresponsen er synlig. Sammenlign og lagre deretter en reell revisjon."
+        : "Modellresponsen er synlig. Revider gjerne svaret ditt med egne ord.");
   }
 
   function resetWorkshop() {
@@ -329,7 +373,7 @@ export function SourceWorkshop({
         <div>
           <span className="eyebrow">Kildeverksted · {workshop.id}</span>
           <h3>{workshop.title}</h3>
-          <p>{workshop.guidingQuestion}</p>
+          <p>{workshop.guidingQuestion}</p>{workshop.conclusionWordRange && <p className="field-note">Sluttprodukt: krav {workshop.conclusionWordRange.min}–{workshop.conclusionWordRange.max} ord. Modellresponsen vises først etter ditt eget svar.</p>}
         </div>
         <button className="button button-quiet button-small" type="button" onClick={resetWorkshop}>Nullstill verkstedet</button>
       </div>
@@ -373,7 +417,7 @@ export function SourceWorkshop({
             aria-describedby="source-workshop-observation-help"
             placeholder="Skriv minst to konkrete observasjoner …"
           />
-          <p className="field-note" id="source-workshop-observation-help">Nevn detaljer om form, plassering, lag, redskaper eller andre registrerte spor.</p>
+          <p className="field-note" id="source-workshop-observation-help">Nevn detaljer om form, plassering, ordvalg, utsnitt, tall eller andre registrerte spor.</p>
           <div className="source-workshop-actions">
             <button className="button" type="button" onClick={continueFromObservation} disabled={storageLoading}>Sett kilden i sammenheng →</button>
           </div>
@@ -387,8 +431,8 @@ export function SourceWorkshop({
           <dl className="source-context-grid">
             <ContextItem label="Tid" value={workshop.context.time} />
             <ContextItem label="Sted" value={workshop.context.place} />
-            <ContextItem label="Funnkontekst" value={workshop.context.findContext} />
-            <ContextItem label="Bevaring" value={workshop.context.preservation} />
+            <ContextItem label="Opphavssituasjon eller funnkontekst" value={workshop.context.findContext} />
+            <ContextItem label="Bevaring og formidlingsvei" value={workshop.context.preservation} />
             <ContextItem label="Dokumentert av" value={workshop.context.documentedBy} />
           </dl>
           <div className="content-box ochre">
@@ -449,7 +493,9 @@ export function SourceWorkshop({
       {step === 3 && (
         <section className="source-workshop-step" aria-labelledby="workshop-synthesis-title">
           <span className="eyebrow">04 · Sammenstill kilder</span>
-          <h4 id="workshop-synthesis-title" tabIndex={-1}>Bruk minst to forskjellige spor</h4>
+          <h4 id="workshop-synthesis-title" tabIndex={-1}>
+            {(workshop.synthesisMinimumMaterials ?? 2) === 2 ? "Bruk minst to forskjellige spor" : "Bruk minst " + workshop.synthesisMinimumMaterials + " forskjellige materialer"}
+          </h4>
           <p>{workshop.synthesisPrompt}</p>
           <fieldset className="source-evidence-list">
             <legend>Velg spor du bruker i svaret</legend>
@@ -490,11 +536,26 @@ export function SourceWorkshop({
           <p>{workshop.conclusionPrompt}</p>
           <ul className="source-rubric-list">{workshop.rubric.map((item) => <li key={item}>{item}</li>)}</ul>
           <label htmlFor="source-workshop-conclusion"><strong>Din konklusjon</strong></label>
-          <textarea id="source-workshop-conclusion" rows={9} value={state.conclusion} onChange={(event) => updateState((current) => ({ ...current, conclusion: event.target.value }))} placeholder="Skriv svaret ditt her …" />
-          <p className="field-note">Svaret blir ikke automatisk klassifisert som riktig eller galt.</p>
+          <textarea
+            id="source-workshop-conclusion"
+            rows={12}
+            value={state.conclusion}
+            aria-describedby="source-workshop-conclusion-help source-workshop-conclusion-count"
+            onChange={(event) => updateState((current) => ({
+              ...current,
+              conclusion: event.target.value,
+              revisionSubmitted: current.lastSubmittedConclusion === event.target.value.trim() && current.revisionSubmitted,
+            }))}
+            placeholder="Skriv svaret ditt her …"
+          />
+          <p className="field-note" id="source-workshop-conclusion-help">Svaret blir ikke automatisk klassifisert som riktig eller galt.</p>
+          <p className="field-note" id="source-workshop-conclusion-count" role="status">
+            {sourceWorkshopWordCount(state.conclusion)} ord
+            {workshop.conclusionWordRange ? " · krav " + workshop.conclusionWordRange.min + "–" + workshop.conclusionWordRange.max + " ord" : ""}
+          </p>
           <div className="source-workshop-actions">
             <button className="button button-secondary" type="button" onClick={() => goTo(3)}>← Forrige</button>
-            <button className="button" type="button" onClick={submitConclusion}>{state.conclusionSubmitted ? "Oppdater modellrespons" : "Vis modellrespons"}</button>
+            <button className="button" type="button" onClick={submitConclusion}>{state.conclusionSubmitted ? "Lagre revisjon" : "Vis modellrespons"}</button>
           </div>
         </section>
       )}
@@ -510,13 +571,38 @@ export function SourceWorkshop({
             <ModelPart label="Forbehold eller alternativ" value={workshop.modelResponse.reservation} />
             <ModelPart label="Dette kan materialet ikke bevise alene" value={workshop.modelResponse.limitation} />
           </div>
-          <label htmlFor="source-workshop-revision"><strong>Revider ditt svar hvis du vil</strong></label>
-          <textarea id="source-workshop-revision" rows={9} value={state.conclusion} onChange={(event) => updateState((current) => ({ ...current, conclusion: event.target.value }))} />
+          <label htmlFor="source-workshop-revision">
+            <strong>{workshop.requiresRevision ? "Revider svaret ditt" : "Revider ditt svar hvis du vil"}</strong>
+          </label>
+          <textarea
+            id="source-workshop-revision"
+            rows={12}
+            value={state.conclusion}
+            aria-describedby="source-workshop-revision-help source-workshop-revision-count"
+            onChange={(event) => updateState((current) => ({
+              ...current,
+              conclusion: event.target.value,
+              revisionSubmitted: current.lastSubmittedConclusion === event.target.value.trim() && current.revisionSubmitted,
+            }))}
+          />
+          <p className="field-note" id="source-workshop-revision-help">
+            {workshop.requiresRevision
+              ? "Sammenlign med modellresponsen og gjør en synlig endring i påstand, kildebruk eller forbehold."
+              : "Behold din egen stemme, men gjør kildebruken tydeligere der det trengs."}
+          </p>
+          <p className="field-note" id="source-workshop-revision-count" role="status">
+            {sourceWorkshopWordCount(state.conclusion)} ord
+            {workshop.conclusionWordRange ? " · krav " + workshop.conclusionWordRange.min + "–" + workshop.conclusionWordRange.max + " ord" : ""}
+          </p>
           <div className="source-workshop-actions">
             <button className="button button-secondary" type="button" onClick={() => goTo(4)}>← Tilbake til svaret</button>
-            <button className="button" type="button" onClick={submitConclusion}>Oppdater modellrespons</button>
+            <button className="button" type="button" onClick={submitConclusion}>
+              {workshop.requiresRevision ? "Lagre revisjon" : "Oppdater modellrespons"}
+            </button>
           </div>
-          <p className="source-workshop-complete" role="status">Du har gjennomført kildeverkstedet. Svar og revisjoner blir liggende lokalt i denne nettleseren.</p>
+          {workshop.requiresRevision && !state.revisionSubmitted
+            ? <p className="source-workshop-validation" role="status">Verkstedet er ikke fullført før du har lagret en reell revisjon.</p>
+            : <p className="source-workshop-complete" role="status">Du har gjennomført kildeverkstedet. Svar og revisjoner blir liggende lokalt i denne nettleseren.</p>}
         </section>
       )}
     </div>
@@ -532,11 +618,26 @@ function ContextItem({ label, value }: { label: string; value: string }) {
 }
 
 function MaterialPreview({ material }: { material: SourceMaterial }) {
-  return <article className="source-material-card"><span className="source-meta">{material.materialType}</span><h5>{material.label}</h5><p>{material.documentedDescription}</p><p className="field-note">Ingen tolkning er gitt her. Skriv det du kan observere i beskrivelsen.</p></article>;
+  return <article className="source-material-card">
+    <span className="source-meta">{material.materialType}</span>
+    <h5>{material.label}</h5>
+    <p>{material.documentedDescription}</p>
+    {material.externalLink && (
+      <p><a href={material.externalLink.href} target="_blank" rel="noreferrer">{material.externalLink.label} ↗</a></p>
+    )}
+    <p className="field-note">Ingen tolkning er gitt her. Skriv det du kan observere i beskrivelsen.</p>
+  </article>;
 }
 
 function MaterialContext({ material }: { material: SourceMaterial }) {
-  return <article className="source-material-card"><span className="source-meta">{material.date} · {material.place}</span><h5>{material.label}</h5><p><strong>Funnkontekst:</strong> {material.findContext}</p><p><strong>Bevaring:</strong> {material.preservation}</p><p><strong>Dokumentert av:</strong> {material.documentedBy}</p><p><strong>Rettighetsstatus:</strong> {material.rights.licenseStatus}</p></article>;
+  return <article className="source-material-card">
+    <span className="source-meta">{material.date} · {material.place}</span>
+    <h5>{material.label}</h5>
+    <p><strong>Opphavssituasjon eller funnkontekst:</strong> {material.findContext}</p>
+    <p><strong>Bevaring og formidlingsvei:</strong> {material.preservation}</p>
+    <p><strong>Dokumentert av:</strong> {material.documentedBy}</p>
+    <p><strong>Rettighetsstatus:</strong> {material.rights.licenseStatus}</p>
+  </article>;
 }
 
 function ClaimCard({

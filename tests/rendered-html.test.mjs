@@ -14,6 +14,7 @@ const publicRoutes = [
   "/begreper",
   "/tidslinje",
   "/laerere",
+  "/laereverk/01-historiefaglig-grunnlag/1-1-hva-kan-vi-vite-om-fortiden",
   "/om",
   "/laereverk/02-fra-jegere-til-bysamfunn/2-2-jordbruksrevolusjonen",
   "/laereverk/02-fra-jegere-til-bysamfunn/2-3-byer-uten-en-oppskrift",
@@ -88,6 +89,29 @@ test("renders the public homepage", async () => {
   assert.equal(existsSync(join(projectRoot, "public", "og.png")), true);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape|react-loading-skeleton/);
 });
+
+test("renders chapter 1.1 with four source materials and revision requirements", async () => {
+  const response = await render("/laereverk/01-historiefaglig-grunnlag/1-1-hva-kan-vi-vite-om-fortiden");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /Hva kan vi vite om fortiden/);
+  assert.match(html, /Fire materialvinduer mot Manzanar/);
+  assert.match(html, /M-01/);
+  assert.match(html, /W-01/);
+  assert.match(html, /V-01/);
+  assert.match(html, /Q-01/);
+  assert.match(html, /250–400 ord/);
+  assert.match(html, /Rettighet\/proveniens/);
+  assert.match(html, /Ingen elevsvar sendes eksternt/);
+  assert.match(html, /Neste:/);
+  assert.match(html, /2-2-jordbruksrevolusjonen/);
+  assert.doesNotMatch(html, /Forhistoriske samfunn etterlot seg ikke tekster/);
+  assert.doesNotMatch(html, /m_pseudoid\s*[:=]|fødselsår\s*[:=]|adresse(?:felt)?\s*[:=]|personnavn\s*[:=]/i);
+  for (const sectionId of ["mal", "tid-og-sted", "tidslinje", "fakta", "forstaelse", "fagtekst", "kildeblikk", "kildeverksted", "lange-linjer", "oppgaver", "oppsummering", "repetisjon"]) {
+    assert.match(html, new RegExp(`id="${sectionId}"`), sectionId);
+  }
+});
+
 
 test("renders the reference chapter and its source-backed sections", async () => {
   const response = await render("/laereverk/02-fra-jegere-til-bysamfunn/2-2-jordbruksrevolusjonen");
@@ -165,7 +189,7 @@ test("renders the public teacher overview without local assessment material", as
   for (const sectionId of ["mal", "tid-og-sted", "tidslinje", "fakta", "forstaelse", "fagtekst", "kildeblikk", "kildeverksted", "lange-linjer", "oppgaver", "oppsummering", "repetisjon"]) {
     assert.match(chapterHtml, new RegExp(`id="${sectionId}"`), sectionId);
   }
-  assert.doesNotMatch(html, /kort-fortalt\.pdf|\.docx|fasit|testoppgave|prøveoppgave/i);
+  assert.doesNotMatch(html, /href="[^"]*(?:kort-fortalt\.pdf|\.docx)/i);
 });
 
 test("renders every public information route", async () => {

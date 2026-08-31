@@ -1,4 +1,4 @@
-import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { LearningTask, Phase } from "../content/chapters";
 import { InteractiveTasks } from "../components/InteractiveTasks";
@@ -127,21 +127,19 @@ describe("oppgavemotoren", () => {
     const user = await renderTasks([task]);
     const textbox = screen.getByRole("textbox", { name: /Svar på Forklar sammenhengen/ });
 
-    await user.type(textbox, "For kort.");
+    fireEvent.change(textbox, { target: { value: "For kort." } });
     expect(screen.getByText(/Skriv minst 40 tegn og 8 ord/)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Vis modellrespons" })).toBeDisabled();
     expect(screen.queryByText(task.modelResponse!)).not.toBeInTheDocument();
 
-    await user.clear(textbox);
-    await user.type(textbox, validAnswer());
+    fireEvent.change(textbox, { target: { value: validAnswer() } });
     expect(textbox).toHaveValue(validAnswer());
     await user.click(screen.getByRole("button", { name: "Vis modellrespons" }));
     expect(await screen.findByText(task.modelResponse!)).toBeInTheDocument();
     expect(screen.getAllByRole("status").some((element) => element.textContent?.includes("Sammenlign med modellresponsen"))).toBe(true);
 
     const revised = `${validAnswer()} Dette viser også at endringene ikke skjedde likt overalt.`;
-    await user.clear(textbox);
-    await user.type(textbox, revised);
+    fireEvent.change(textbox, { target: { value: revised } });
     await user.click(screen.getByRole("button", { name: "Vis modellrespons" }));
     expect(textbox).toHaveValue(revised);
     await waitFor(() => expect(storedTaskState(task.id)).toMatchObject({ attempts: 2, completed: true, feedback: "model" }));

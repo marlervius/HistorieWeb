@@ -21,7 +21,12 @@ function chapterSectionHref(chapter: Chapter, sectionId: ChapterSectionId) {
 }
 
 function ChapterLinks({ chapter, sectionIds }: { chapter: Chapter; sectionIds: ChapterSectionId[] }) {
-  return <nav className="teacher-related-links" aria-label="Relevante deler av elevkapitlet"><span>Se også i elevkapitlet:</span><ul>{sectionIds.map((sectionId) => <li key={sectionId}><Link href={chapterSectionHref(chapter, sectionId)}>{sectionLabels[sectionId]}</Link></li>)}</ul></nav>;
+  return <nav className="teacher-related-links" aria-label="Relevante deler av elevkapitlet"><span>Se også i elevkapitlet:</span><ul>{sectionIds.map((sectionId) => {
+    const label = sectionId === "forstaelse" && chapter.understandingLabels
+      ? chapter.understandingLabels.heading
+      : sectionLabels[sectionId];
+    return <li key={sectionId}><Link href={chapterSectionHref(chapter, sectionId)}>{label}</Link></li>;
+  })}</ul></nav>;
 }
 
 function ResourceList({ chapter, resources }: { chapter: Chapter; resources: TeacherResource[] }) {
@@ -49,6 +54,10 @@ function TeacherChapter({ chapter }: { chapter: TeacherChapter }) {
     <section className="teacher-section" aria-labelledby={"teacher-goals-" + chapter.id}>
       <div className="section-heading"><span className="eyebrow">Læreplan</span><h3 id={"teacher-goals-" + chapter.id}>Relevante kompetansemål</h3></div>
       <ul className="fact-list">{chapter.competenceGoals.map((goal) => <li key={goal}>{goal}</li>)}</ul>
+    </section>
+    <section className="teacher-section" aria-labelledby={"teacher-concepts-" + chapter.id}>
+      <div className="section-heading"><span className="eyebrow">Fagspråk</span><h3 id={"teacher-concepts-" + chapter.id}>Sentrale begreper</h3></div>
+      <div className="glossary-grid">{chapter.concepts.map((concept) => <article className="glossary-card" key={concept.term}><h4>{concept.term}</h4><p>{concept.definition}</p></article>)}</div>
     </section>
     <section className="teacher-section" aria-labelledby={"teacher-path-" + chapter.id}>
       <div className="section-heading"><span className="eyebrow">Undervisningsløp</span><h3 id={"teacher-path-" + chapter.id}>En mulig gjennomføring</h3></div>
@@ -93,6 +102,13 @@ function TeacherChapter({ chapter }: { chapter: TeacherChapter }) {
       <div className="teacher-criteria-grid">{guide.assessmentCriteria.map((criterion) => <article className="teacher-criterion" key={criterion.area}><h4>{criterion.area}</h4><p><strong>Kort svar:</strong> {criterion.shortAnswer}</p><p><strong>Lengre svar:</strong> {criterion.extendedAnswer}</p></article>)}</div>
     </section>
     <section className="teacher-section" aria-labelledby={"teacher-resources-" + chapter.id}>
+    {guide.adaptation && <section className="teacher-section" aria-labelledby={"teacher-adaptation-" + chapter.id}>
+      <div className="section-heading"><span className="eyebrow">Tilpasning</span><h3 id={"teacher-adaptation-" + chapter.id}>Støtte og utvidelse</h3></div>
+      <div className="columns-2">
+        <div className="content-box"><h4>Støtte underveis</h4><ul className="plain-list">{guide.adaptation.supports.map((item) => <li key={item}>{item}</li>)}</ul></div>
+        <div className="content-box ochre"><h4>Utvidelse</h4><ul className="plain-list">{guide.adaptation.extensions.map((item) => <li key={item}>{item}</li>)}</ul></div>
+      </div>
+    </section>}
       <div className="section-heading"><span className="eyebrow">Lenker og status</span><h3 id={"teacher-resources-" + chapter.id}>Ressurser</h3></div>
       <p className="intro-copy">Offentlige lenker går til elevkapitlet. Lokalt materiale markeres uten URL og legges ikke i nettleseren.</p>
       <ResourceList chapter={chapter} resources={guide.resources} />

@@ -64,7 +64,7 @@ export function SelfAssessment({
             checked={checked[index] ?? false}
             onChange={(event) => setChecked((current) => current.map((value, itemIndex) => itemIndex === index ? event.target.checked : value))}
           />
-          <span>Jeg kan {goal}.</span>
+          <span>Jeg kan {goal}{goal.endsWith(".") ? "" : "."}</span>
         </label>
       ))}
       <p className="self-assessment-status" role="status" aria-live="polite">{checked.filter(Boolean).length} av {goals.length} mål markert.</p>

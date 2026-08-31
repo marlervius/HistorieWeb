@@ -97,7 +97,14 @@ export type SourceRights = {
 export type SourceMaterial = {
   id: string;
   label: string;
-  materialType: "bosetningsspor" | "arkitektoniske spor" | "redskaps- og plantespor";
+  materialType:
+    | "bosetningsspor"
+    | "arkitektoniske spor"
+    | "redskaps- og plantespor"
+    | "materielt/arkeologisk spor"
+    | "skriftlig dokument"
+    | "visuelt materiale"
+    | "kvantitativt materiale";
   date: string;
   place: string;
   findContext: string;
@@ -110,6 +117,10 @@ export type SourceMaterial = {
   cannotProve: string;
   sourceIds: string[];
   rights: SourceRights;
+  externalLink?: {
+    href: string;
+    label: string;
+  };
   media?: {
     path: string;
     altText: string;
@@ -155,7 +166,13 @@ export type SourceWorkshop = {
   claims: SourceWorkshopClaim[];
   synthesisPrompt: string;
   synthesisCriteria: string[];
+  synthesisMinimumMaterials?: number;
   conclusionPrompt: string;
+  conclusionWordRange?: {
+    min: number;
+    max: number;
+  };
+  requiresRevision?: boolean;
   modelResponse: SourceWorkshopModelResponse;
   rubric: string[];
   sourceIds: string[];
@@ -201,6 +218,10 @@ export type TeacherGuide = {
   misconceptions: TeacherMisconception[];
   assessmentCriteria: TeacherAssessmentCriterion[];
   sourceWorkshop: TeacherSourceWorkshopGuide;
+  adaptation?: {
+    supports: string[];
+    extensions: string[];
+  };
   resources: TeacherResource[];
 };
 
@@ -281,8 +302,21 @@ export type Chapter = {
   breaks: string[];
   causeChain: string[];
   sourceLooks: SourceLook[];
+  sourceIntroduction?: string;
   sourceWorkshops: SourceWorkshop[];
+  understandingLabels?: {
+    heading: string;
+    intro: string;
+    leftTitle: string;
+    rightTitle: string;
+    chainTitle: string;
+    chainIntro: string;
+    comparisonTitle: string;
+    breaksTitle: string;
+    continuitiesTitle: string;
+  };
   longLineIds: string[];
+  longLinesPrompt?: string;
   reviewPlan: { label: string; text: string }[];
   summary: string[];
   timeline: TimelinePoint[];
@@ -377,6 +411,597 @@ const curriculumSectionDefinitions = [
     description: "Planlagt del av læreverket. Innhold publiseres trinnvis.",
   },
 ];
+
+const tasks1_1: LearningTask[] = [
+  {
+    id: "F1",
+    phase: "Fakta",
+    kind: "choice",
+    title: "Hva er en historisk kilde?",
+    prompt: "Hvilken forklaring er mest presis?",
+    points: 1,
+    options: [
+      "En tekst som ble skrevet av en historiker etter at en hendelse var avsluttet.",
+      "Et spor fra fortiden som kan gi et sikkert svar uten at vi stiller spørsmål.",
+      "Et materiale vi bruker som kilde når vi stiller det spørsmål om fortiden.",
+      "Et gammelt objekt som alltid forteller mer enn et dokument eller et fotografi.",
+    ],
+    correct: 2,
+    hint: "Tenk på forholdet mellom materialet og spørsmålet historikeren stiller.",
+    explanation: "Et materiale blir brukt som historisk kilde i møte med et spørsmål. Det samme materialet kan derfor gi ulike typer kunnskap i ulike undersøkelser.",
+  },
+  {
+    id: "F2",
+    phase: "Fakta",
+    kind: "choice",
+    title: "Levning og beretning",
+    prompt: "Hvordan bør begrepene «levning» og «beretning» brukes?",
+    points: 1,
+    options: [
+      "Som faste kildetyper der gjenstander er levninger og tekster er beretninger.",
+      "Som funksjoner: et materiale kan brukes som spor etter en situasjon og som utsagn om noe.",
+      "Som en rangering der levninger alltid er mer troverdige enn beretninger.",
+      "Som navn på primærkilder og sekundærkilder fra samme historiske periode.",
+    ],
+    correct: 1,
+    hint: "Kan én avis både være et spor etter en redaksjonell situasjon og fortelle om et møte?",
+    explanation: "Levning og beretning beskriver hvordan vi bruker et materiale i en bestemt undersøkelse. De er ikke faste bokser for gjenstander og tekster.",
+  },
+  {
+    id: "F3",
+    phase: "Fakta",
+    kind: "order",
+    title: "Fra spørsmål til historisk svar",
+    prompt: "Sett arbeidsmåtene i en faglig rekkefølge.",
+    points: 5,
+    items: ["Sammenstille flere spor", "Stille et avgrenset spørsmål", "Formulere en konklusjon med forbehold", "Observere materialet", "Sette materialet i kontekst"],
+    expected: ["Stille et avgrenset spørsmål", "Observere materialet", "Sette materialet i kontekst", "Sammenstille flere spor", "Formulere en konklusjon med forbehold"],
+    hint: "Start med det som styrer hva materialene skal undersøkes for.",
+    explanation: "Spørsmålet avgrenser undersøkelsen. Observasjon og kontekst kommer før sammenstilling og en konklusjon som viser usikkerhet.",
+  },
+  {
+    id: "F4",
+    phase: "Fakta",
+    kind: "choice",
+    title: "Undersøkelsens ramme",
+    prompt: "Hva undersøker kildeverkstedet i dette kapitlet?",
+    points: 1,
+    options: [
+      "Hvordan alle internerte i alle leirer opplevde tvangsinterneringen under hele krigen.",
+      "Hvilke romlige og administrative rammer og enkelte lokale praksiser fire materialer kan dokumentere ved Manzanar 1942–45.",
+      "Om ett bestemt dokument kan bevise hvorfor amerikanske myndigheter opprettet alle leirene.",
+      "Hvordan fotografier alene kan gi et representativt bilde av privatlivet ved Manzanar.",
+    ],
+    correct: 1,
+    hint: "Se etter riktig sted, tidsrom, materialmengde og avgrensning.",
+    explanation: "Verkstedet gjelder Manzanar fra 1942 til 1945 og fire bestemte materialvinduer. Det skal ikke generaliseres til alle leirer eller alle erfaringer.",
+  },
+  {
+    id: "F5",
+    phase: "Fakta",
+    kind: "match",
+    title: "Fire materialtyper",
+    prompt: "Koble materialet til materialtypen.",
+    points: 4,
+    items: ["M-01 · hagedam og gjenstander", "W-01 · Manzanar Free Press", "V-01 · Lange-fotografi", "Q-01 · aggregert avreisestatistikk"],
+    choices: ["visuelt materiale", "kvantitativt materiale", "materielt/arkeologisk spor", "skriftlig dokument"],
+    answerMap: {
+      "M-01 · hagedam og gjenstander": "materielt/arkeologisk spor",
+      "W-01 · Manzanar Free Press": "skriftlig dokument",
+      "V-01 · Lange-fotografi": "visuelt materiale",
+      "Q-01 · aggregert avreisestatistikk": "kvantitativt materiale",
+    },
+    hint: "Skill mellom fysisk funn, publisert tekst, fotografisk utsnitt og tallmateriale.",
+    explanation: "Ulike materialtyper er skapt og bevart på ulike måter. Derfor må de observeres, kontekstualiseres og avgrenses forskjellig.",
+  },
+  {
+    id: "U1",
+    phase: "Forståelse",
+    kind: "choice",
+    title: "Kontekst endrer tolkningen",
+    prompt: "Hvorfor trenger vi opphavssituasjon og formidlingsvei?",
+    points: 1,
+    options: [
+      "De gjør at historikeren kan avgjøre nøyaktig hva alle personer tenkte.",
+      "De viser hvordan materialet ble til, valgt, bevart og tilgjengeliggjort, og påvirker hva vi kan slutte.",
+      "De erstatter behovet for å sammenligne materialet med andre kilder.",
+      "De avgjør om materialet skal regnes som levning eller beretning for alle spørsmål.",
+    ],
+    correct: 1,
+    hint: "Spør hvem som skapte og valgte materialet, og hvordan det nådde oss.",
+    explanation: "Kontekst gjør utvalg, formål og bevaring synlig. Den fjerner ikke usikkerhet, men gjør slutningen bedre begrunnet.",
+  },
+  {
+    id: "U2",
+    phase: "Forståelse",
+    kind: "sort",
+    title: "Representativitet eller fravær",
+    prompt: "Sorter utsagnene etter hvilket kildeproblem de først og fremst viser.",
+    points: 4,
+    items: ["Ett fotografi viser bare et valgt utsnitt", "195 rader mangler avreisestat", "Én hagedam kan ikke beskrive alle boligblokker", "Avisen viser ikke om alle var enige"],
+    choices: ["Representativitet", "Fravær i materialet"],
+    answerMap: {
+      "Ett fotografi viser bare et valgt utsnitt": "Representativitet",
+      "195 rader mangler avreisestat": "Fravær i materialet",
+      "Én hagedam kan ikke beskrive alle boligblokker": "Representativitet",
+      "Avisen viser ikke om alle var enige": "Fravær i materialet",
+    },
+    hint: "Representativitet handler om hvor bredt et utsnitt kan gjelde. Fravær handler om det materialet ikke registrerer eller viser.",
+    explanation: "Et snevert utsnitt kan være dårlig egnet til generalisering, mens manglende felt eller stemmer er et konkret fravær. Begge deler må synliggjøres.",
+  },
+  {
+    id: "U3",
+    phase: "Forståelse",
+    kind: "choice",
+    title: "Et forsvarlig forbehold",
+    prompt: "Hvilken formulering går ikke lenger enn materialet?",
+    points: 1,
+    options: [
+      "Hagefunnet beviser at alle internerte frivillig skapte de samme hagene.",
+      "Avisen dokumenterer at komiteene løste konfliktene for alle ved Manzanar.",
+      "Fotografiet kan støtte en beskrivelse av utendørs romlig organisering i fotografens valgte utsnitt.",
+      "Avreisestatistikken viser hvorfor hver person valgte sin destinasjon.",
+    ],
+    correct: 2,
+    hint: "Se etter en formulering som nevner både mulig støtte og materialets utsnitt.",
+    explanation: "Fotografiet kan beskrive synlige romlige trekk i utsnittet, men ikke privatliv, motiv eller hele leiren.",
+  },
+  {
+    id: "U4",
+    phase: "Forståelse",
+    kind: "order",
+    title: "Revider en for sterk påstand",
+    prompt: "Sett revisjonsarbeidet i en nyttig rekkefølge.",
+    points: 4,
+    items: ["Legg inn et presist forbehold", "Finn ordet som gjør påstanden for sikker", "Kontroller påstanden mot konkrete spor", "Sammenlign med et annet materiale"],
+    expected: ["Finn ordet som gjør påstanden for sikker", "Kontroller påstanden mot konkrete spor", "Sammenlign med et annet materiale", "Legg inn et presist forbehold"],
+    hint: "Oppdag først hva som går for langt, og bruk deretter belegg før du formulerer på nytt.",
+    explanation: "Revisjon er faglig arbeid: identifiser styrken i påstanden, prøv den mot belegg og sammenligning, og avgrens det som fortsatt er usikkert.",
+  },
+  {
+    id: "L1",
+    phase: "Lange linjer",
+    kind: "choice",
+    title: "Kommunikasjon som lang linje",
+    prompt: "Hva kan W-01 brukes til å undersøke i en lang linje om kommunikasjon?",
+    points: 1,
+    options: [
+      "Hvordan en lokal avis kunne formulere og distribuere informasjon om møter, komiteer og hverdagsstoff.",
+      "Hvor effektivt alle lesere fulgte rådene og om alle støttet redaksjonen.",
+      "Hvordan alle leiraviser brukte samme språk og hadde samme rolle under krigen.",
+      "Hvorfor myndighetene valgte tvangsinternering som nasjonal politikk.",
+    ],
+    correct: 0,
+    hint: "Hold deg til hva den konkrete avisutgaven viser at ble publisert.",
+    explanation: "Avisutgaven dokumenterer formulert og distribuert informasjon lokalt. Virkning, enighet og representativitet må undersøkes med andre kilder.",
+  },
+  {
+    id: "L2",
+    phase: "Lange linjer",
+    kind: "choice",
+    title: "Makt og administrasjon",
+    prompt: "Hvilken langlinjepåstand er mest presis?",
+    points: 1,
+    options: [
+      "Administrative kategorier i en sluttliste kan gjøre mennesker tellbare, men sier ikke alene hvordan ordningen ble opplevd.",
+      "En sluttliste viser at alle administrative valg ble gjennomført på samme måte gjennom hele perioden.",
+      "Manglende verdier beviser at myndighetene ønsket å skjule bestemte personer.",
+      "Tallmaterialet gjør de andre materialtypene overflødige fordi det dekker flest personer.",
+    ],
+    correct: 0,
+    hint: "Skill mellom hva administrativ registrering gjør synlig og hva den ikke registrerer.",
+    explanation: "Aggregert statistikk kan vise mønstre i registrerte kategorier. Erfaring, motiv og praksis over tid må undersøkes på andre måter.",
+  },
+  {
+    id: "L3",
+    phase: "Lange linjer",
+    kind: "reflection",
+    title: "Når blir fravær historisk viktig?",
+    prompt: "Velg to av materialene. Forklar hvordan det som mangler, påvirker en mulig lang linje om demografi, kommunikasjon eller makt.",
+    points: 2,
+    hint: "Nevn først hva materialet viser, deretter hvilken gruppe, periode, stemme eller forklaring som ikke er synlig.",
+    explanation: "Et godt svar bruker fravær som en avgrensning, ikke som bevis for det motsatte.",
+    modelResponse: "Q-01 viser et aggregert mønster i registrert avreisestat, men 195 rader mangler verdi, og tabellen sier ikke hvorfor personer reiste dit. W-01 viser hvilke saker en avisutgave formidlet, men ikke hvordan alle leste eller vurderte dem. En lang linje om administrasjon og kommunikasjon må derfor skille mellom registrerte kategorier, publisert informasjon og menneskers erfaringer.",
+  },
+  {
+    id: "K1",
+    phase: "Kildeblikk",
+    kind: "choice",
+    title: "Hva tåler M-01?",
+    prompt: "Hvilken slutning støttes best av M-01?",
+    points: 1,
+    options: [
+      "Det fantes en dokumentert dam/hage ved Block 15, Barracks 5, leilighet 2, med husholdningsrelaterte gjenstander i øvre fyll.",
+      "Alle hager ved Manzanar ble laget av samme grunn og på samme måte.",
+      "Gjenstandene viser nøyaktig hvem som bygde hagen og hva personen følte.",
+      "Hagen viser at livet i tvangsinterneringen først og fremst var frivillig fritid.",
+    ],
+    correct: 0,
+    hint: "Velg observasjonen som beholder sted, funnkontekst og begrensning.",
+    explanation: "M-01 dokumenterer et bestemt anlegg og en bestemt funnkontekst. Det kan ikke alene fastslå opphavsperson, motiv, følelser eller representativitet.",
+  },
+  {
+    id: "K2",
+    phase: "Kildeblikk",
+    kind: "choice",
+    title: "Hva tåler W-01?",
+    prompt: "Hva kan avisutgaven 24. oktober 1942 dokumentere?",
+    points: 1,
+    options: [
+      "At alle innbyggere støttet komiteene og deltok i blokk-møtene.",
+      "At lokal selvorganisering, møter og praktisk informasjon ble formulert og distribuert i denne utgaven.",
+      "At avisen var en nøytral og fullstendig gjengivelse av alle konflikter.",
+      "At komiteene hadde samme virkning i alle tvangsinterneringsleirer.",
+    ],
+    correct: 1,
+    hint: "Spør hva som faktisk står i og utgis gjennom én bestemt avisutgave.",
+    explanation: "Utgaven viser hva avisen publiserte om organisering og hverdagsstoff. Den viser ikke alles enighet, faktisk effekt eller alle erfaringer.",
+  },
+  {
+    id: "K3",
+    phase: "Kildeblikk",
+    kind: "choice",
+    title: "Fotografi og tall",
+    prompt: "Hvorfor er V-01 og Q-01 nyttige å sammenstille?",
+    points: 1,
+    options: [
+      "De kan sammen bevise hvordan alle personer opplevde leiren og hvorfor de reiste.",
+      "Fotografiet viser et romlig utsnitt, mens statistikken viser et aggregert administrativt mønster; forskjellen gjør kildegrensene synlige.",
+      "Tallmaterialet kan kontrollere om fotografens utsnitt er visuelt korrekt i alle deler av leiren.",
+      "Fotografiet kan fylle alle manglende verdier i den administrative sluttlisten.",
+    ],
+    correct: 1,
+    hint: "Se etter to ulike skalaer og to ulike formidlingsmåter.",
+    explanation: "Materialene belyser ulike sider og skalaer. Sammenstilling er ikke sammensmelting: hvert materiale beholder sine egne begrensninger.",
+  },
+  {
+    id: "K4",
+    phase: "Kildeblikk",
+    kind: "reflection",
+    title: "Bygg og avgrens et svar",
+    prompt: "Skriv 120–180 ord: Hva kan minst tre materialtyper dokumentere om rammer og lokale praksiser ved Manzanar, og hva kan de ikke avgjøre?",
+    points: 4,
+    hint: "Bruk ID-ene M-01, W-01, V-01 og/eller Q-01. Skill observasjon fra tolkning, og avslutt med representativitet eller fravær.",
+    explanation: "Et godt svar har et avgrenset spørsmål, konkrete spor fra minst tre materialtyper, en sammenstilling og tydelige forbehold.",
+    modelResponse: "M-01 dokumenterer en bestemt dam/hage ved Block 15 og husholdningsrelaterte gjenstander i øvre fyll. W-01 viser at en avisutgave publiserte stoff om blokk-møter, komiteer og hverdagsinformasjon. V-01 kan brukes til å beskrive barrakker, utendørs rom og landskap i fotografens valgte utsnitt. Q-01 viser at 10 875 av 11 070 rader har registrert avreisestat, med 5 965 til California og 4 910 til andre kjente stater. Samlet viser materialene både tvungne romlige og administrative rammer og enkelte lokale praksiser. De kan likevel ikke avgjøre hvem som skapte alle tiltak, hvordan alle opplevde dem, eller hvorfor hver person reiste til en bestemt stat. Ett anlegg, én avisutgave, ett fotografisk utsnitt og en sluttregistrering er ikke representative for alle tider og erfaringer.",
+  },
+];
+
+const sourceWorkshop1_1: SourceWorkshop = {
+  id: "1-1-manzanar-kildeverksted",
+  chapterId: "1.1",
+  sectionId: "kildeverksted",
+  title: "Fire materialvinduer mot Manzanar",
+  guidingQuestion: "Hvilke romlige og administrative rammer, og hvilke utvalgte lokale praksiser, kan de fire materialene dokumentere ved Manzanar i 1942–45 – og hva kan de ikke avgjøre?",
+  learningGoals: [
+    "Skille konkrete observasjoner fra tolkninger og for sterke konklusjoner.",
+    "Forklare hvordan opphav, utvalg, bevaring, representativitet og fravær påvirker et historisk svar.",
+    "Sammenstille minst tre ulike materialtyper uten å gjøre dem til en komplett fortelling.",
+    "Skrive 250–400 ord og gjennomføre en reell faglig revisjon etter modellrespons.",
+  ],
+  context: {
+    time: "21. mars 1942–21. november 1945; materialvinduene er fra 1942, leirperioden og avslutningen i 1945, mens M-01 ble undersøkt i 2010.",
+    place: "Manzanar War Relocation Center, Owens Valley, California, USA.",
+    findContext: "Materialene er skapt i ulike situasjoner: et arkeologisk undersøkt hageanlegg, en lokalt utgitt avis, et oppdragsfotografi og en administrativ sluttregistrering.",
+    preservation: "NPS, Densho, Library of Congress og NARA-relatert transkripsjonsarbeid har bevart og formidlet ulike utsnitt. Ingen av materialene er en komplett tidsserie.",
+    documentedBy: "NPS-arkeologi og samfunnsarbeid; Manzanar Free Press/Densho; Dorothea Lange/OWI/Library of Congress; WRA/NARA og NPS-transkripsjon formidlet av Densho.",
+    limitations: [
+      "Fire utvalgte vinduer kan ikke representere alle personer, boligblokker, år eller tvangsinterneringsleirer.",
+      "M-01 ble undersøkt lenge etter leirperioden, W-01 er redigert, V-01 er et valgt utsnitt, og Q-01 er en avslutningsregistrering.",
+      "Fravær av stemmer, motiv og private erfaringer skal beskrives som fravær – ikke fylles med gjetting.",
+      "Institusjonelle betegnelser fra samtidige kilder må analyseres som språk; elevteksten bruker «tvangsinternering» og «fengsling».",
+    ],
+  },
+  materials: [
+    {
+      id: "M-01",
+      label: "M-01 · Dam/hage ved Block 15",
+      materialType: "materielt/arkeologisk spor",
+      date: "Leirperioden 1942–45; arkeologisk undersøkt i 2010",
+      place: "Block 15, Barracks 5, apartment 2, Manzanar",
+      findContext: "NPS beskriver et dam-/hageanlegg og husholdningsrelaterte gjenstander i øvre fyll. Omtalen av om lag 4 000 gjenstander gjelder de bredere hageundersøkelsene, ikke denne ene dammen.",
+      preservation: "Fysiske spor er undersøkt gjennom senere arkeologi. Lag, fyll og tiltak etter leirperioden påvirker hva som er bevart.",
+      documentedBy: "National Park Service, Manzanar National Historic Site, med arkeologisk feltarbeid og samfunnskunnskap som ulike dokumentasjonsbidrag.",
+      documentedDescription: "Beskrivelsen registrerer en betongdam med øy-/skallopert kant i en boligblokk og husholdningsrelaterte gjenstander i den øvre fyllmassen.",
+      possibleObservations: [
+        "Anlegget ligger ved Block 15, Barracks 5, apartment 2.",
+        "NPS registrerer betongform, dam-/hagepreg og husholdningsrelaterte gjenstander i øvre fyll.",
+      ],
+      supportedInterpretations: [
+        "Noen beboere kan ha endret og brukt et avgrenset uteområde innenfor leirens romlige rammer.",
+        "Anlegget kan undersøkes som spor etter en lokal materiell praksis.",
+      ],
+      alternativeInterpretations: [
+        "Gjenstander i øvre fyll kan ha flere avsetningshistorier og trenger ikke alle å være del av den opprinnelige bruken.",
+        "Et anlegg ved én leilighet kan ha vært individuelt, husholdsbasert eller del av bredere samarbeid; materialet avgjør ikke dette alene.",
+      ],
+      cannotProve: "Hvem som bygget anlegget, motiv, følelser, grad av frivillighet eller om praksisen var representativ for alle ved Manzanar.",
+      sourceIds: ["M-01"],
+      rights: {
+        rightsHolder: "National Park Service; tredjepartsmateriale på siden kan ha egne rettighetshavere.",
+        originalUrl: "https://www.nps.gov/articles/community-archeology-at-manzanar.htm",
+        licenseStatus: "Lenket og parafrasert institusjonell dokumentasjon; ingen generell lisens for alt sidemateriale legges til grunn.",
+        credit: "National Park Service, Manzanar National Historic Site.",
+        adaptation: "Kort norsk parafrase; ingen bilder eller objektfiler kopiert.",
+        checked: "27. august 2026",
+      },
+    },
+    {
+      id: "W-01",
+      label: "W-01 · Manzanar Free Press, 24. oktober 1942",
+      materialType: "skriftlig dokument",
+      date: "24. oktober 1942, vol. II nr. 41",
+      place: "Manzanar War Relocation Center",
+      findContext: "En lokalt produsert avis knyttet til leiradministrasjonen og Manzanar Community Enterprises, med redaktør og redaksjon oppgitt i mastheaden.",
+      preservation: "Densho formidler objektside og stabil HTML-transkripsjon. Verkstedet bruker korte parafraser, ikke en full gjengivelse.",
+      documentedBy: "Manzanar Free Press; digitalt bevart og transkribert/formidlet av Densho.",
+      documentedDescription: "Utgaven har masthead og stoff om blant annet selvstyre, blokk-møter, Fair Practice Committee, hagekonkurranse og praktiske meldinger.",
+      possibleObservations: [
+        "Avisutgaven navngir redaksjonelle og administrative roller i mastheaden.",
+        "Utgaven publiserer informasjon om møter, komitéarbeid, en hagekonkurranse og praktiske ordninger.",
+      ],
+      supportedInterpretations: [
+        "Institusjonell og beboerrettet organisering ble formulert i et lokalt skriftlig offentlig rom.",
+        "Avisen kan brukes som spor etter hvordan informasjon og bestemte former for deltakelse ble presentert.",
+      ],
+      alternativeInterpretations: [
+        "Redaksjonelt utvalg og institusjonell tilknytning kan ha gjort noen saker eller stemmer mer synlige enn andre.",
+        "Publisert informasjon viser ikke automatisk hvordan tiltakene fungerte i praksis.",
+      ],
+      cannotProve: "At alle sluttet seg til forslagene, at ordningene virket likt for alle, eller at avisen gir et uhildet og komplett bilde.",
+      sourceIds: ["W-01"],
+      rights: {
+        rightsHolder: "Manzanar Free Press; digital formidling og transkripsjonsgrensesnitt ved Densho.",
+        originalUrl: "https://ddr.densho.org/ddr-densho-125-1/",
+        licenseStatus: "Densho oppgir ingen kjente opphavsrettsbegrensninger for arbeidet; sidegrensesnitt/transkripsjon er merket CC BY-NC-SA 4.0.",
+        credit: "Courtesy of Densho, ddr-densho-125-1.",
+        adaptation: "Korte norske parafraser; ingen full avisutgave eller mediefil kopiert.",
+        checked: "27. august 2026",
+      },
+      externalLink: {
+        href: "https://ddr.densho.org/media/ddr-densho-125/ddr-densho-125-1-mezzanine-38466bc636.htm",
+        label: "Åpne Denshos transkripsjon",
+      },
+    },
+    {
+      id: "V-01",
+      label: "V-01 · Dorothea Langes oversiktsfotografi",
+      materialType: "visuelt materiale",
+      date: "April–juli 1942",
+      place: "Manzanar, California",
+      findContext: "Dorothea Lange fotograferte på oppdrag i en myndighetsbundet dokumentasjonssituasjon for Office of War Information. Katalogposten identifiserer ett bestemt utsnitt.",
+      preservation: "Library of Congress beskriver negativ, filmkopi og digital gjengivelse. Verkstedet lenker til katalogvisningen og lagrer ikke bildet lokalt.",
+      documentedBy: "Dorothea Lange; United States Office of War Information; Library of Congress, Prints and Photographs Division.",
+      documentedDescription: "Katalogvisningen viser et utendørs oversiktsutsnitt med barrakker/boliger, åpne rom, avstander og landskap. Den viser ikke interiører eller hele leiren.",
+      possibleObservations: [
+        "Barrakker, utendørs rom, avstand og omkringliggende landskap er synlige i fotografens utsnitt.",
+        "Bildet er ett valgt perspektiv, ikke en plan eller fullstendig oversikt.",
+      ],
+      supportedInterpretations: [
+        "Fotografiet kan støtte en avgrenset vurdering av romlig organisering, avstand, kontroll og synlighet.",
+        "Oppdrag og utsnitt kan undersøkes som del av hvordan leiren ble dokumentert.",
+      ],
+      alternativeInterpretations: [
+        "Et åpent oversiktsutsnitt kan framheve orden og landskap, mens andre rom og erfaringer faller utenfor.",
+        "Det som ikke er synlig, kan skyldes utsnitt, tidspunkt eller oppdrag – ikke nødvendigvis at det ikke fantes.",
+      ],
+      cannotProve: "Privat erfaring, innendørsforhold, hele leiren, alle perioder eller hvordan de avbildede oppfattet fotograferingen.",
+      sourceIds: ["V-01"],
+      rights: {
+        rightsHolder: "Dorothea Lange/United States Office of War Information; Library of Congress som forvalter.",
+        originalUrl: "https://www.loc.gov/item/2017699966/",
+        licenseStatus: "Item-posten viser til rettighetsveiledning; FSA/OWI-samlingen beskrives av LOC som public domain. Ingen Creative Commons-lisens påstås.",
+        credit: "Dorothea Lange, Japanese relocation, California…, 1942 Apr.–July; Library of Congress; LC-USZ62-113725; cph 3c13725; record 2017699966.",
+        adaptation: "Kun ekstern kataloglenke og egen beskrivelse; ingen lokal bildekopi.",
+        checked: "28. august 2026",
+      },
+      externalLink: {
+        href: "https://www.loc.gov/item/2017699966/",
+        label: "Åpne fotografiet hos Library of Congress",
+      },
+    },
+    {
+      id: "Q-01",
+      label: "Q-01 · Aggregert avreisestatistikk",
+      materialType: "kvantitativt materiale",
+      date: "Final Accountability Roster, november 1945",
+      place: "Manzanar; administrativ sluttregistrering",
+      findContext: "WRA opprettet sluttregisteret. NPS-ansatte transkriberte Manzanar-materialet fra NARA-mikrofilm i 2002; Densho Names Registry formidler den separate CSV-en.",
+      preservation: "Aggregatet er beregnet fra feltet f_destinationstate. Bare summer brukes her; ingen navn, ID-er, fødselsår, adresser eller rå rader publiseres.",
+      documentedBy: "War Relocation Authority/National Archives; transkribert av National Park Service-ansatte; distribuert via Densho Names Registry.",
+      documentedDescription: "Av 11 070 rader har 10 875 kjent destinasjonsstat: 5 965 har CA og 4 910 en annen kjent verdi. 195 felt er blanke. CA er 54,85 prosent av kjente destinasjonsstater.",
+      possibleObservations: [
+        "Tabellen teller 11 070 rader, hvor 10 875 har en registrert destinasjonsstat og 195 er blanke.",
+        "Blant kjente destinasjonsstater er 5 965 CA og 4 910 andre verdier; CA-andelen er 54,85 prosent.",
+      ],
+      supportedInterpretations: [
+        "Administrasjonen klassifiserte bevegelser ved leirens avslutning gjennom bestemte felt og kategorier.",
+        "Aggregatet viser et avgrenset mønster i registrert destinasjonsstat ved avslutningen.",
+      ],
+      alternativeInterpretations: [
+        "Blank verdi kan ha flere administrative forklaringer; fraværet viser ikke én bestemt årsak.",
+        "Destinasjonsstat er ikke det samme som varig bosetting, ønsket mål eller individuell begrunnelse.",
+      ],
+      cannotProve: "Motiver, opplevelser, uregistrerte forhold, hele befolkningsforløpet eller årsaken til hver enkelt destinasjon.",
+      sourceIds: ["Q-01"],
+      rights: {
+        rightsHolder: "War Relocation Authority/NARA; NPS-transkripsjon formidlet av Densho Names Registry.",
+        originalUrl: "https://ddr.densho.org/names/",
+        licenseStatus: "Densho Names Registry tilbyr den transkriberte FAR-datasamlingen under CC0; skannede Ancestry-filer er separate og brukes ikke.",
+        credit: "Densho Names Registry; FAR Manzanar CSV, transkribert fra NARA-mikrofilm av NPS-ansatte i 2002.",
+        adaptation: "Kun kontrollerte aggregater fra f_destinationstate; ingen personopplysninger eller rådata gjengis.",
+        checked: "28. august 2026",
+      },
+    },
+  ],
+  claims: [
+    { id: "P1", text: "M-01 dokumenterer et dam-/hageanlegg ved én bestemt leilighet og husholdningsrelaterte gjenstander i øvre fyll.", classification: "direct", explanation: "Dette er en avgrenset beskrivelse i NPS-dokumentasjonen. Den sier ikke hvem som bygget anlegget eller hvorfor.", sourceIds: ["M-01"] },
+    { id: "P2", text: "Q-01 inneholder 11 070 rader, hvor 195 mangler registrert destinasjonsstat.", classification: "direct", explanation: "Dette følger av den kontrollerte aggregeringen av feltet f_destinationstate.", sourceIds: ["Q-01"] },
+    { id: "P3", text: "W-01 kan tyde på at et lokalt offentlig rom for informasjon og organisering fantes innenfor leirens tvungne rammer.", classification: "possible", explanation: "Innholdet støtter en forsiktig tolkning av organisering, men publikasjon er ikke det samme som allmenn deltakelse eller virkning.", sourceIds: ["W-01"] },
+    { id: "P4", text: "V-01 og Q-01 kan sammen bidra til en tolkning av romlig og administrativ kontroll, selv om de dokumenterer ulike skalaer.", classification: "possible", explanation: "Fotografiet og registeret belyser ulike rammer. Sammenstillingen er mulig, men materialene kan ikke alene måle kontrollens erfaring eller virkning.", sourceIds: ["V-01", "Q-01"] },
+    { id: "P5", text: "M-01 og W-01 beviser at de internerte hadde frihet til å forme hverdagen slik de ønsket.", classification: "too-strong", explanation: "Lokale praksiser innenfor tvangsinterneringen må ikke omtolkes til frihet, frivillighet eller likt handlingsrom.", sourceIds: ["M-01", "W-01"] },
+    { id: "P6", text: "V-01 viser hvordan alle boligområder og alle perioder ved Manzanar så ut.", classification: "too-strong", explanation: "Ett fotografi er et valgt utsnitt fra et begrenset tidspunkt.", sourceIds: ["V-01"] },
+    { id: "P7", text: "M-01 avgjør hvilken navngitt person som bygget dammen og hvilke følelser arbeidet uttrykte.", classification: "cannot-determine", explanation: "Materialet identifiserer ikke sikkert opphavsperson, motiv eller følelser.", sourceIds: ["M-01"] },
+    { id: "P8", text: "Q-01 avgjør hvorfor hver person reiste til den registrerte staten.", classification: "cannot-determine", explanation: "En registrert kategori er ikke dokumentasjon av individuell begrunnelse.", sourceIds: ["Q-01"] },
+  ],
+  synthesisPrompt: "Velg konkrete spor fra minst tre materialtyper. Forklar hva sporene styrker samlet, hvor de belyser ulike sider, og hvilket fravær eller representativitetsproblem som fortsatt begrenser svaret.",
+  synthesisCriteria: [
+    "Bruk material-ID og et konkret spor, ikke bare et generelt kildenavn.",
+    "La hvert materiale beholde sin egen opphavssituasjon, skala og begrensning.",
+    "Skill mellom det som er direkte registrert, en mulig tolkning og en påstand som går for langt.",
+    "Behandle forskjeller og fravær som informasjon; et flertall av kilder avgjør ikke automatisk hva som er sant.",
+  ],
+  synthesisMinimumMaterials: 3,
+  conclusionPrompt: "Skriv 250–400 ord som svarer på hovedspørsmålet. Bruk minst tre materialtyper, vis konkrete observasjoner og tolkninger, drøft representativitet og fravær, og si tydelig hva materialene ikke kan avgjøre.",
+  conclusionWordRange: { min: 250, max: 400 },
+  requiresRevision: true,
+  modelResponse: {
+    observations: "M-01 registrerer et avgrenset dam-/hageanlegg ved Block 15, Barracks 5, apartment 2 og husholdningsrelaterte gjenstander i øvre fyll. W-01 publiserer 24. oktober 1942 stoff om selvstyre, blokk-møter, komitéarbeid, hagekonkurranse og praktiske meldinger. V-01 viser barrakker, åpne uteområder, avstander og landskap i ett fotografisk utsnitt. Q-01 teller 11 070 rader: 10 875 med kjent destinasjonsstat, 5 965 CA, 4 910 andre kjente verdier og 195 blanke.",
+    interpretation: "Materialene kan samlet støtte et avgrenset historisk svar: Manzanar hadde sterke romlige og administrative rammer, samtidig som noen lokale materielle og organisatoriske praksiser er dokumentert innenfor disse rammene. M-01 og W-01 åpner for å undersøke hvordan uteområder og et lokalt informasjonsrom ble brukt. V-01 og Q-01 synliggjør forskjellige sider av romlig orden og administrativ kategorisering. Dette er en sammenstilling av ulike kildeskalaer, ikke bevis for én sammenhengende erfaring.",
+    reservation: "Representativiteten er begrenset. Ett anlegg, én avisutgave, ett valgt fotografisk utsnitt og en sluttregistrering dekker ikke alle blokker, personer eller år. Avisens publiserte innhold viser ikke alles enighet eller tiltakets virkning. Fotografiet utelater interiør og privatliv. I tallmaterialet er 195 destinasjonsfelt blanke, og kjente verdier sier ikke hvorfor personer reiste eller om destinasjonen ble varig.",
+    limitation: "Materialene kan ikke avgjøre hvem som skapte alle lokale tiltak, hvor frivillige aktivitetene var, hva alle internerte tenkte og følte, eller hvordan erfaringene fordelte seg mellom grupper og over tid. De kan heller ikke brukes som et representativt bilde av alle amerikanske tvangsinterneringsleirer. Et forsvarlig svar må derfor beholde tvangsrammen, navngi de konkrete vinduene og bruke formuleringer som «kan støtte» der slutningen er tolkende.",
+  },
+  rubric: [
+    "250–400 ord og et tydelig svar på det avgrensede undersøkelsesspørsmålet.",
+    "Minst tre av materialtypene materiell/arkeologisk, skriftlig, visuell og kvantitativ.",
+    "Minst ett konkret spor med material-ID fra hver materialtype som brukes.",
+    "Tydelig skille mellom observasjon, tolkning og det som ikke kan bevises.",
+    "Drøfting av både representativitet og fravær i materialene.",
+    "Presise forbehold uten automatisk utviklingskjede eller generalisering til alle.",
+    "En reell revisjon som forbedrer kildebruk, påstand eller forbehold etter modellresponsen.",
+  ],
+  sourceIds: ["M-01", "W-01", "V-01", "Q-01"],
+  progressVersion: 1,
+  lastChecked: "30. august 2026",
+};
+
+const teacherGuide1_1: TeacherGuide = {
+  overview: "Kapitlet etablerer arbeidsmåten for resten av læreverket: spørsmål → observasjon → kontekst → påstandsvurdering → sammenstilling → konklusjon → revisjon. Manzanar er en avgrenset øvingsundersøkelse, ikke en full framstilling av tvangsinterneringen. Elevene skal holde tvangsrammen fast og samtidig undersøke hva fire svært ulike materialvinduer kan og ikke kan dokumentere.",
+  teachingPhases: [
+    {
+      id: "forkunnskap-og-sporsmal",
+      title: "1. Aktiver forkunnskap og avgrens spørsmålet",
+      duration: "20–30 min",
+      purpose: "Synliggjøre at historisk kunnskap bygges i møtet mellom spørsmål og materiale.",
+      teacherActions: ["Vis et hverdagslig spor uten forklaring og samle forskjellen mellom observasjon og gjetning.", "Presenter Manzanar-spørsmålet, tidsrommet og hvorfor fire vinduer ikke er hele historien."],
+      studentActions: ["Skrive to observasjoner og to spørsmål.", "Markere ord i hovedspørsmålet som avgrenser sted, tid og påstand."],
+      sectionIds: ["forkunnskap", "mal", "tid-og-sted"],
+    },
+    {
+      id: "metodebegreper",
+      title: "2. Bygg metodebegrepene",
+      duration: "35–45 min",
+      purpose: "Gi elevene språk for kilde, levning/beretning, kontekst, representativitet og fravær.",
+      teacherActions: ["Modeller hvordan samme avis kan brukes som levning og beretning avhengig av spørsmål.", "Lag en felles tavle med tre kolonner: funn, tolkning, kan ikke bevise."],
+      studentActions: ["Forklare begrepene med egne eksempler.", "Gjøre F1–F3 individuelt før parsamtale."],
+      sectionIds: ["fakta", "fagtekst", "oppgaver"],
+    },
+    {
+      id: "materialmote",
+      title: "3. Møt fire materialtyper",
+      duration: "45–60 min",
+      purpose: "Trene observasjon før kontekst og gjøre ulike dokumentasjonsveier synlige.",
+      teacherActions: ["La elevene møte de korte materialbeskrivelsene før full kontekst.", "Påpek at V-01 er ekstern katalogvisning, og at Q-01 bare viser aggregater uten persondata."],
+      studentActions: ["Notere konkrete spor med material-ID.", "Sammenligne hva som er synlig i fysisk, skriftlig, visuelt og kvantitativt materiale."],
+      sectionIds: ["kildeblikk", "kildeverksted"],
+    },
+    {
+      id: "kontekst-og-pastand",
+      title: "4. Kontekstualiser og vurder påstander",
+      duration: "45–60 min",
+      purpose: "Skille direkte støtte, mulig tolkning, for sterk konklusjon og ikke mulig å avgjøre.",
+      teacherActions: ["Modeller én påstand høyt med opphav, utsnitt og alternativ forklaring.", "Vent med forklaringer til elevene har brukt hintet og gjort nytt forsøk."],
+      studentActions: ["Vurdere alle åtte påstandene.", "Begrunne én endret klassifisering med konkret kildebegrensning."],
+      sectionIds: ["kildeverksted", "oppgaver"],
+    },
+    {
+      id: "sammenstilling",
+      title: "5. Sammenstill uten å stemme over sannheten",
+      duration: "35–45 min",
+      purpose: "Koble minst tre materialtyper og beholde forskjeller i skala, opphav og fravær.",
+      teacherActions: ["Vis at materialer kan utfylle eller utfordre hverandre uten at flest kilder automatisk vinner.", "Stopp generaliseringer fra ett vindu til alle personer eller leirer."],
+      studentActions: ["Velge spor fra minst tre materialer.", "Skrive en sammenstilling med både styrke og begrensning."],
+      sectionIds: ["kildeverksted", "lange-linjer"],
+    },
+    {
+      id: "konklusjon-og-revisjon",
+      title: "6. Skriv og revider et historisk svar",
+      duration: "60–75 min",
+      purpose: "Skrive 250–400 ord og bruke modellrespons til en faktisk faglig forbedring.",
+      teacherActions: ["Bruk rubrikken før førsteutkastet.", "Be elevene markere hva de endret i påstand, kildebruk eller forbehold etter modellresponsen."],
+      studentActions: ["Skrive førsteutkast med minst tre materialtyper.", "Lagre en reell revisjon og forklare én faglig forbedring til en medelev."],
+      sectionIds: ["kildeverksted", "oppsummering"],
+    },
+    {
+      id: "henting-og-overforing",
+      title: "7. Hent fram og overfør metoden",
+      duration: "20–30 min nå, deretter korte økter",
+      purpose: "Gjøre kildearbeidet gjenbrukbart i senere kapitler.",
+      teacherActions: ["Planlegg henting etter 2–3 dager og 1–2 uker.", "Bruk L1–L3 til å koble materialenes begrensninger til kommunikasjon, demografi og makt."],
+      studentActions: ["Gjøre repetisjonsoppgaver uten å lese først.", "Revidere en eldre setning som generaliserer eller mangler forbehold."],
+      sectionIds: ["lange-linjer", "repetisjon", "oppsummering"],
+    },
+  ],
+  priorKnowledgeActivation: {
+    prompt: "Hva måtte være bevart fra dagen i går for at en ukjent person skulle kunne skrive en forsvarlig historie om klassen – og hva ville fortsatt mangle?",
+    cues: ["Skill mellom spor og spørsmål.", "Nevn minst én stemme eller erfaring som lett blir borte.", "Spør hvem som skapte, valgte og bevarte materialet."],
+    sectionIds: ["forkunnskap", "mal"],
+  },
+  textWork: {
+    instructions: ["La elevene merke hvert avsnitt med O for observasjon, T for tolkning eller B for begrensning.", "Stopp ved levning/beretning og bytt undersøkelsesspørsmål til samme materiale.", "Bruk «kan», «mulig» og «bidro til» som presisjonsverktøy, ikke som pynt.", "La elevene finne én representativitetsfare og ett konkret fravær i hver materialpakke."],
+    sectionIds: ["fakta", "forstaelse", "fagtekst", "kildeblikk"],
+  },
+  taskUse: {
+    sequence: "F1–F5 før U1–U4; bruk L1–L3 etter sammenstillingen og K1–K4 før eller etter sluttproduktet.",
+    firstAttempt: "Elevene svarer individuelt uten fasit. Første feil skal bare utløse hint.",
+    retry: "Eleven prøver på nytt før forklaring eller modellrespons brukes til egenkontroll.",
+    openResponses: "L3, K4 og verkstedets sluttprodukt beholdes lokalt. Vurder kilde-ID-er, skille mellom observasjon og tolkning, representativitet, fravær og presise forbehold – ikke om teksten kopierer modellen.",
+    sectionIds: ["oppgaver", "kildeverksted", "lange-linjer"],
+  },
+  selfAssessmentAndReview: {
+    selfAssessment: ["Kan eleven forklare hvorfor et materiale ikke er en kilde uten et spørsmål?", "Kan eleven navngi opphavssituasjon og formidlingsvei for minst tre materialer?", "Kan eleven peke på en faktisk revisjon som gjorde påstanden mer presis?"],
+    repetition: ["Hent F1–F5 etter 2–3 dager.", "Gjør U2 og K3 etter 1–2 uker uten å åpne fagteksten først.", "Bruk K4 som senere overgangsoppgave og sammenlign med verkstedets lagrede revisjon."],
+    sectionIds: ["oppsummering", "repetisjon"],
+  },
+  misconceptions: [
+    { belief: "Gamle materialer er kilder i seg selv og forteller sannheten direkte.", whyUnderstandable: "Dagligtale bruker «kilde» som navn på en ting eller tekst.", diagnosticQuestion: "Hvilket svar gir W-01 hvis vi ikke har formulert et spørsmål?", response: "Vis at spørsmål velger hvilke sider av materialet som blir relevante, og at svar krever tolkning." },
+    { belief: "Levning betyr gjenstand, og beretning betyr tekst.", whyUnderstandable: "Eksempler presenteres ofte som faste typer.", diagnosticQuestion: "Kan W-01 være spor etter en redaksjon og samtidig fortelle om et møte?", response: "Bruk levning og beretning som funksjoner i forhold til et spørsmål." },
+    { belief: "Et fotografi viser det som virkelig var, uten utvalg.", whyUnderstandable: "Fotografiet ligner en direkte avbildning.", diagnosticQuestion: "Hva finnes utenfor V-01s bildekant, før og etter eksponeringen?", response: "Analyser oppdrag, utsnitt, tidspunkt, synlighet og fravær." },
+    { belief: "Store tall er automatisk representative og objektive.", whyUnderstandable: "Tall virker presise og dekker mange rader.", diagnosticQuestion: "Hva forteller feltet f_destinationstate ikke om én persons reise?", response: "Skill registrert kategori fra motiv, erfaring og utvikling over tid; påpek 195 blanke felt." },
+    { belief: "Fravær i en kilde beviser at noe ikke skjedde.", whyUnderstandable: "Det er lett å forveksle «ikke synlig» med «fantes ikke».", diagnosticQuestion: "Beviser manglende interiør i V-01 at privatliv ikke fantes?", response: "Undersøk hvorfor noe kan mangle, og formuler fravær som begrensning." },
+    { belief: "Tre kilder som peker samme vei gjør konklusjonen sikker.", whyUnderstandable: "Flertall er en kjent beslutningsregel.", diagnosticQuestion: "Kan tre kilder bygge på samme institusjonelle utvalg?", response: "Vurder uavhengighet, opphav, skala og hva hvert materiale faktisk belyser." },
+    { belief: "Lokale hager og komiteer betyr at interneringen var frivillig eller fri.", whyUnderstandable: "Handling og organisering kan forveksles med fravær av tvang.", diagnosticQuestion: "Kan handlingsrom finnes innenfor en tvungen ramme?", response: "Hold tvangsinterneringen som ramme og analyser lokale praksiser uten å omtolke rammen." },
+    { belief: "En revisjon er å rette språkfeil eller gjøre teksten lengre.", whyUnderstandable: "Revisjon brukes ofte om språkvask.", diagnosticQuestion: "Hvilken påstand, kildekobling eller begrensning ble faglig endret?", response: "Krev en synlig endring i argument, belegg eller forbehold." },
+  ],
+  assessmentCriteria: [
+    { area: "Faktakunnskap", shortAnswer: "Identifiserer riktig sted, periode og minst tre materialer.", extendedAnswer: "Bruker presise detaljer fra M-01, W-01, V-01 og/eller Q-01 uten å flytte tall eller trekk mellom materialene." },
+    { area: "Historiske begreper", shortAnswer: "Bruker kilde, kontekst, levning/beretning og representativitet forståelig.", extendedAnswer: "Bruker begrepene analytisk og viser at levning/beretning avhenger av spørsmål og at fravær ikke er motbevis." },
+    { area: "Årsaker og virkninger", shortAnswer: "Unngår å gjøre materialene til en automatisk årsakskjede.", extendedAnswer: "Skiller rammer, praksiser og mulige virkninger, og bruker «kan» eller «bidro til» der materialet ikke bærer en sikker kjede." },
+    { area: "Kildebruk", shortAnswer: "Knytter påstander til material-ID og konkret spor.", extendedAnswer: "Drøfter opphav, utvalg, formidlingsvei, korroborering, representativitet og fravær for minst tre materialtyper." },
+    { area: "Konkrete eksempler", shortAnswer: "Nevner ett presist eksempel fra minst tre typer.", extendedAnswer: "Integrerer flere detaljer, for eksempel Block 15-funnet, avisstoffet, fotografiets utsnitt og Q-01s aggregater, uten å gjøre dem representative for alle." },
+    { area: "Nyansering og historisk usikkerhet", shortAnswer: "Har minst ett presist forbehold og ett «kan ikke bevise».", extendedAnswer: "Viser hvilke alternative tolkninger som finnes, hva som mangler, og hvordan en reell revisjon styrket svaret." },
+  ],
+  sourceWorkshop: {
+    workshopId: "1-1-manzanar-kildeverksted",
+    purpose: "Trene hele kjeden fra observasjon til revidert historisk svar med fire ulike materialvinduer.",
+    recommendedPlacement: "Etter metodefagteksten og F/U-oppgavene; fordel gjerne de seks trinnene over to økter.",
+    distinctions: ["Observasjon beskriver et registrert trekk; tolkning forklarer mulig betydning.", "Opphavssituasjon er ikke det samme som senere bevaring og digital formidling.", "Representativitet gjelder hvor bredt et utsnitt kan brukes; fravær gjelder det som ikke er registrert eller synlig.", "Lokalt handlingsrom innenfor tvang er ikke det samme som frihet fra tvang."],
+    commonMisreadings: ["4 000 gjenstander gjelder den bredere NPS-undersøkelsen, ikke én dam.", "W-01 viser publisert informasjon, ikke enighet eller effekt.", "V-01 er ett oppdragsbundet utsnitt, ikke hele leiren.", "Q-01 er en sluttregistrering; CA-andelen gjelder bare kjente destinasjonsstater."],
+    discussionQuestions: ["Hva blir synlig når fire materialtyper settes sammen?", "Hvor overlapper materialene, og hvor belyser de helt ulike spørsmål?", "Hvilket fravær er viktigst for konklusjonen?", "Hvordan kan vi beskrive lokale praksiser uten å svekke forståelsen av tvangsrammen?"],
+    assessmentCriteria: ["Minst tre materialtyper og konkrete ID-er.", "250–400 ord.", "Observasjon og tolkning er synlig skilt.", "Representativitet og fravær er begge behandlet.", "Konklusjonen sier hva materialene ikke kan avgjøre.", "Revisjonen endrer faglig innhold, ikke bare språk."],
+    sourceIds: ["M-01", "W-01", "V-01", "Q-01"],
+  },
+  adaptation: {
+    supports: ["Gi en skriveramme med fire setningsstarter: «M-01 viser …», «Dette kan bety …», «Sammen med …», «Materialene kan ikke …».", "La elever bruke tre materialer i stedet for fire, men behold kravet om tre ulike typer.", "Les opp materialbeskrivelsene og bruk material-ID som tydelige overskrifter.", "Del 250–400-ordsteksten i observasjon, sammenstilling og forbehold før eleven binder den sammen."],
+    extensions: ["La eleven undersøke hvordan levning/beretning-funksjonen endres når spørsmålet til W-01 byttes.", "Be eleven formulere to konkurrerende tolkninger av samme fravær.", "La eleven kritisere modellresponsens representativitet og foreslå hvilken ny kildetype som trengs.", "Sammenlign institusjonelle samtidstermer med faglig begrunnet språk om tvangsinternering."],
+  },
+  resources: [
+    { label: "Elevens kildeverksted", description: "Seks trinn med lokal lagring, ordkrav og revisjon.", visibility: "public", sectionId: "kildeverksted" },
+    { label: "Oppgaveprogresjon", description: "Fakta → forståelse → lange linjer → kildeblikk.", visibility: "public", sectionId: "oppgaver" },
+    { label: "Repetisjonsløp", description: "Kapittelspesifikke henteoppgaver og senere blandet repetisjon.", visibility: "public", sectionId: "repetisjon" },
+    { label: "Lokal observasjonsmal", description: "Valgfri tavle- eller papirressurs med kolonnene observasjon, tolkning og begrensning. Ikke publisert og ingen elevdata samles inn.", visibility: "local" },
+  ],
+};
 
 const tasks2_2: LearningTask[] = [
   {
@@ -1660,6 +2285,196 @@ const sourceRights: Record<string, string> = {
   "scientific-reports": "Scientific Reports CC BY 4.0; ingen tekst, figurer eller medier kopiert, egen parafrase og kreditering.",
 };
 
+export const historiskMetode: Chapter = {
+  id: "1.1",
+  number: "1.1",
+  slug: "1-1-hva-kan-vi-vite-om-fortiden",
+  sectionSlug: "01-historiefaglig-grunnlag",
+  title: "Hva kan vi vite om fortiden?",
+  shortIntro: "Fortiden er borte, men spor er bevart. I dette kapitlet lærer du å gjøre spørsmål, opphav, kontekst, sammenstilling og forbehold til deler av ett begrunnet historisk svar.",
+  guidingQuestion: "Hvordan bygges et historisk svar av spørsmål, kilder, kontekst, sammenstilling og forbehold?",
+  priorKnowledge: {
+    prompt: "Tenk på gårsdagen: Hvilke spor finnes, hvem skapte dem, og hva ville en ukjent person fortsatt ikke kunne vite?",
+    cues: ["Skill mellom det sporet viser og det du husker eller antar.", "Finn én stemme eller erfaring som lett mangler.", "Formuler ett spørsmål som kan undersøkes med sporene."],
+  },
+  period: "Historisk metode på tvers av tid; elevundersøkelsen er avgrenset til Manzanar 1942–45.",
+  geography: "Metode på tvers av steder; case: Manzanar, Owens Valley, California, USA.",
+  status: "published",
+  learningGoals: [
+    "Formulere og avgrense et historisk spørsmål.",
+    "Skille observasjon, tolkning og det et materiale ikke kan bevise.",
+    "Forklare opphav, kontekst, bevaring, representativitet og fravær.",
+    "Bruke levning og beretning som kildefunksjoner, ikke faste materialtyper.",
+    "Sammenstille ulike materialer og skrive en begrunnet konklusjon med forbehold.",
+    "Revidere et historisk svar når kildebruk eller påstand går for langt.",
+  ],
+  competenceGoals: [
+    "reflektere over hvordan fortiden former oss som mennesker",
+    "utforske fortiden ved å stille spørsmål og innhente, tolke og bruke ulikt historisk materiale for å finne svar",
+  ],
+  facts: [
+    { text: "Et historisk materiale brukes som kilde i forhold til et spørsmål; materialet gir ikke ett ferdig svar av seg selv.", sourceIds: ["M-02", "P-01"] },
+    { text: "Levning og beretning beskriver funksjoner i historikerens bruk av materialet, ikke faste og gjensidig utelukkende materialtyper.", sourceIds: ["M-02", "S-01"] },
+    { text: "Historisk resonnering omfatter blant annet spørsmål, kildebruk, kontekstualisering, argumentasjon og metakunnskap.", sourceIds: ["P-01"] },
+    { text: "Sammenstilling betyr å sammenligne materialers opphav, utsagn, utsnitt og begrensninger mot samme spørsmål; uenighet kan også være et resultat.", sourceIds: ["P-01", "P-02"] },
+    { text: "Manzanar var i drift fra 21. mars 1942 til 21. november 1945, og NPS oppgir at 11 070 mennesker ble fengslet/tvangsinternerte der.", sourceIds: ["H-01", "H-04"] },
+    { text: "Boligområdet var organisert i 36 blokker med brakker og fellesfunksjoner innenfor leirens kontrollerte rom.", sourceIds: ["H-02", "H-05"] },
+    { text: "De fire elevmaterialene har ulike kildevinduer: et fysisk leirspor undersøkt i 2010, en avis og et fotografi fra 1942 og en administrativ sluttregistrering fra 1945.", sourceIds: ["M-01", "W-01", "V-01", "Q-01"] },
+    { text: "Q-01s kontrollerte aggregat har 11 070 rader, 10 875 kjente destinasjonsstater, 5 965 CA, 4 910 andre kjente verdier og 195 blanke felt.", sourceIds: ["Q-01"] },
+  ],
+  concepts: [
+    { term: "Historisk spørsmål", definition: "Et avgrenset spørsmål om fortiden som styrer hvilke materialer, begreper og sammenligninger som er relevante." },
+    { term: "Kilde/materiale", definition: "Et bevart spor eller produkt som brukes til å begrunne et svar på et historisk spørsmål." },
+    { term: "Opphav", definition: "Hvem eller hva som skapte materialet, når, hvor og i hvilken situasjon." },
+    { term: "Kontekst", definition: "Historiske, sosiale, materielle og institusjonelle sammenhenger som gjør materialet forståelig." },
+    { term: "Observasjon", definition: "En beskrivelse av noe som faktisk kan registreres i materialet før betydningen forklares." },
+    { term: "Tolkning", definition: "En begrunnet forklaring av hva et observert spor kan bety i forhold til spørsmålet." },
+    { term: "Levning/spor", definition: "Materialet brukt som rest eller produkt av situasjonen der det ble skapt, brukt eller bevart." },
+    { term: "Beretning", definition: "Materialets meddelende utsagn brukt som opplysning om det utsagnet handler om." },
+    { term: "Sammenstilling/korroborering", definition: "Å prøve ulike materialers utsagn, utsnitt, opphav og begrensninger mot samme spørsmål." },
+    { term: "Representativitet", definition: "Hvor langt et materiale eller utvalg med rimelighet kan brukes utover det konkrete tilfellet." },
+    { term: "Fravær", definition: "Det som ikke er bevart, registrert, valgt eller synlig; fravær er en begrensning og ikke automatisk et motbevis." },
+    { term: "Usikkerhet", definition: "En presis angivelse av hvor sterkt belegg en påstand har, hvilke alternativer som finnes og hva som ikke kan avgjøres." },
+    { term: "Begrunnet konklusjon", definition: "Et svar som kobler påstand og konkrete belegg, viser styrkegrad og sier hva materialet ikke kan bevise." },
+  ],
+  narrative: [
+    {
+      heading: "Fortiden er borte – sporene er ikke svar",
+      paragraphs: [
+        { text: "Historikere kan ikke gå tilbake og observere fortiden direkte. De arbeider med materialer som er skapt, valgt, bevart og formidlet i bestemte situasjoner. Et materiale blir relevant som kilde når vi stiller det et spørsmål.", sourceIds: ["M-02", "P-01"] },
+        { text: "Derfor er «Hva kan vi vite?» ikke et spørsmål med svaret «alt» eller «ingenting». Vi kan begrunne noen påstander sterkere enn andre når vi viser konkrete spor, kontekst og begrensninger.", sourceIds: ["P-01", "U-01"] },
+      ],
+    },
+    {
+      heading: "Spørsmålet bestemmer kildefunksjonen",
+      paragraphs: [
+        { text: "En avis kan brukes som beretning når vi undersøker hva den meddeler om et møte. Den samme avisen kan brukes som levning når vi undersøker redaksjon, ordvalg og institusjonell organisering. Funksjonen følger spørsmålet, ikke materialtypen.", sourceIds: ["M-02", "S-01"] },
+        { text: "Dette betyr ikke at alle spørsmål passer like godt. Et fotografi kan vise synlige romlige trekk, men er dårlig egnet til å avgjøre private tanker. En administrativ tabell kan vise registrerte kategorier, men ikke automatisk menneskers motiv.", sourceIds: ["P-01", "V-01", "Q-01"] },
+      ],
+    },
+    {
+      heading: "Observer før du forklarer",
+      paragraphs: [
+        { text: "Observasjon beskriver et registrert trekk: en betongform, en avisoverskrift, en barrakke i et utsnitt eller et antall blanke felt. Tolkning knytter trekket til spørsmålet, for eksempel som mulig spor etter lokal praksis eller administrativ kategorisering.", sourceIds: ["M-02", "M-01", "W-01", "V-01", "Q-01"] },
+        { text: "Skillet er analytisk, ikke absolutt. Også observasjon styres av begreper og utvalg. Likevel tvinger rekkefølgen oss til å vise hva påstanden bygger på før vi forklarer hva sporet kan bety.", sourceIds: ["M-02", "P-01"] },
+      ],
+    },
+    {
+      heading: "Opphav, kontekst og formidlingsvei",
+      paragraphs: [
+        { text: "M-01 er et fysisk leirspor undersøkt gjennom senere arkeologi. W-01 er en redigert lokal avis. V-01 er et oppdragsbundet fotografisk utsnitt. Q-01 er et administrativt register som senere er transkribert og aggregert. Ulike opphav krever ulike kontrollspørsmål.", sourceIds: ["M-01", "W-01", "V-01", "Q-01"] },
+        { text: "Formidlingsveien er også del av kildekritikken. Et objekt i jordlag, en digital transkripsjon, en skannet katalogvisning og en CSV er ikke nøytrale beholdere. Bevaring og utvalg gjør noe synlig og lar annet bli borte.", sourceIds: ["M-01", "W-01", "V-01", "Q-01", "P-01"] },
+      ],
+    },
+    {
+      heading: "Sammenstill uten å telle stemmer",
+      paragraphs: [
+        { text: "Korroborering betyr ikke at tre kilder «slår» én. Materialene kan være avhengige av samme institusjon, belyse ulike skalaer eller motsi hverandre fordi de har forskjellig formål. Sammenlign derfor opphav, utsagn, utsnitt og fravær mot det samme spørsmålet.", sourceIds: ["P-01", "P-02"] },
+        { text: "I Manzanar-undersøkelsen kan V-01 og Q-01 belyse romlige og administrative rammer, mens M-01 og W-01 åpner for avgrensede spørsmål om materiell og organisatorisk praksis. Det er en forsiktig syntese, ikke en komplett tidsserie eller en fortelling om alles hverdag.", sourceIds: ["H-01", "M-01", "W-01", "V-01", "Q-01"] },
+      ],
+    },
+    {
+      heading: "Representativitet, fravær og usikkerhet",
+      paragraphs: [
+        { text: "Ett hageanlegg kan være svært godt dokumentert og likevel lite representativt for hele leiren. En tabell med mange rader kan dekke en stor administrativ registrering og likevel mangle motiv, erfaring og utvikling over tid. Rekkevidde må vurderes i forhold til spørsmålet.", sourceIds: ["P-01", "M-01", "Q-01"] },
+        { text: "Det som ikke finnes i materialet, er ikke automatisk bevis for at noe ikke skjedde. Interiør utenfor fotografiets utsnitt, stemmer utenfor avisen og 195 blanke felt må behandles som konkret fravær med flere mulige forklaringer.", sourceIds: ["W-01", "V-01", "Q-01"] },
+      ],
+    },
+    {
+      heading: "Historiske svar former også nåtiden",
+      paragraphs: [
+        { text: "Hvordan vi navngir og avgrenser fortiden, påvirker hvilke mennesker og handlinger som blir synlige. I dette kapitlet brukes «tvangsinternering» eller «fengsling», mens samtidige institusjonelle uttrykk undersøkes som historisk språk, ikke gjentas som nøytrale kategorier.", sourceIds: ["H-01", "H-02", "W-01", "U-01"] },
+        { text: "En begrunnet konklusjon er derfor både kunnskap og ansvar: Den skal si hva som støttes, hvor sterkt, hvilke alternativer som finnes, og hva materialene ikke avgjør. Revisjon gjør denne usikkerheten tydeligere i stedet for å skjule den.", sourceIds: ["P-01", "U-01"] },
+      ],
+    },
+  ],
+  causes: [
+    "Et avgrenset spørsmål gjør bestemte sider av et materiale relevante.",
+    "Konkrete observasjoner gir etterprøvbare holdepunkter.",
+    "Opphav, kontekst og formidlingsvei viser hvordan materialet ble skapt og bevart.",
+    "Sammenstilling kan styrke, nyansere eller utfordre en foreløpig påstand.",
+  ],
+  effects: [
+    "Materialutvalg og kildevinduer begrenser hvilke personer, tider og erfaringer som blir synlige.",
+    "Representativitetsproblemer stopper generalisering fra ett tilfelle til alle.",
+    "Fravær krever alternative forklaringer og kan ikke fylles med gjetning.",
+    "En historisk konklusjon må uttrykke styrkegrad og det som ikke kan avgjøres.",
+  ],
+  continuities: [
+    "Materialets konkrete opphav og dokumentasjonsvei må holdes fast når spørsmålet eller tolkningen endres.",
+    "Skillet mellom belegg og påstand gjelder for fysiske, skriftlige, visuelle og kvantitative materialer.",
+    "Alle historiske svar må kunne revideres når nye spørsmål, spor eller bedre begrunnelser kommer til.",
+  ],
+  breaks: [
+    "Det samme materialet kan få en annen kildefunksjon når undersøkelsesspørsmålet endres.",
+    "Nye materialtyper kan flytte oppmerksomheten fra enkeltsted til offentlig språk, rom eller aggregert mønster.",
+    "En revisjon kan endre påstandens styrke uten at de underliggende observasjonene endres.",
+  ],
+  causeChain: ["Avgrens spørsmålet", "Observer konkrete spor", "Undersøk opphav og kontekst", "Prøv påstander og alternativer", "Sammenstill ulike materialer", "Konkluder med forbehold og revider"],
+  sourceLooks: [
+    { label: "M-01 · Materielt/arkeologisk spor", period: "Leirperioden 1942–45; undersøkt 2010", place: "Block 15, Manzanar", sourceIds: ["M-01"], evidence: ["dam-/hageanlegg ved én leilighet", "betongform og øy-/skallopert kant", "husholdningsrelaterte gjenstander i øvre fyll"], supports: "Noen beboere kan ha formet et avgrenset uteområde innenfor leirens rammer.", cannotProve: "Opphavsperson, motiv, følelser, frivillighet eller representativitet." },
+    { label: "W-01 · Skriftlig dokument", period: "24. oktober 1942", place: "Manzanar", sourceIds: ["W-01"], evidence: ["masthead", "stoff om selvstyre, blokk-møter og komité", "hagekonkurranse og praktiske meldinger"], supports: "Organisering og informasjon ble formulert og distribuert i en lokal offentlighet.", cannotProve: "Enighet, faktisk deltakelse, virkning eller alle stemmer." },
+    { label: "V-01 · Visuelt materiale", period: "April–juli 1942", place: "Manzanar", sourceIds: ["V-01"], evidence: ["barrakker/boliger", "utendørs rom og avstander", "landskap og fotografisk utsnitt"], supports: "Et valgt utsnitt kan brukes i en avgrenset vurdering av romlig organisering og dokumentasjonsblikk.", cannotProve: "Interiør, privat erfaring, hele leiren eller alle perioder." },
+    { label: "Q-01 · Kvantitativt materiale", period: "November 1945", place: "Administrativ sluttregistrering for Manzanar", sourceIds: ["Q-01"], evidence: ["11 070 rader", "10 875 kjente destinasjonsstater", "5 965 CA, 4 910 andre kjente og 195 blanke"], supports: "Administrasjonen registrerte destinasjon gjennom kategorier ved leirens avslutning.", cannotProve: "Motiv, varig destinasjon, hele befolkningsforløpet eller individuell erfaring." },
+  ],
+  sourceIntroduction: "Fire materialtyper belyser samme avgrensede Manzanar-spørsmål fra ulike kildevinduer. Les først hva som faktisk er registrert. Undersøk deretter opphav, formidlingsvei, representativitet og fravær før du tolker. Ingen av materialene er en komplett tidsserie eller et representativt bilde av alle.",
+  sourceWorkshops: [sourceWorkshop1_1],
+  understandingLabels: {
+    heading: "Fra materiale til begrunnet historisk svar",
+    intro: "Et historisk svar blir sterkere når sammenhengen mellom spørsmål, spor og forbehold er synlig.",
+    leftTitle: "Det som styrker et svar",
+    rightTitle: "Det som begrenser et svar",
+    chainTitle: "Arbeidskjeden",
+    chainIntro: "Rekkefølgen er en læringsmodell. I faktisk historisk arbeid kan du gå fram og tilbake mellom leddene.",
+    comparisonTitle: "Når spørsmålet endres",
+    breaksTitle: "Det som kan endre seg",
+    continuitiesTitle: "Det som må holdes fast",
+  },
+  longLineIds: ["demografi", "kommunikasjon-og-kulturmoter", "makt-og-legitimering"],
+  longLinesPrompt: "Bruk metodebegrepene til å undersøke hvordan registrering, kommunikasjon og romlig kontroll kan bli synlige i lange linjer – og hvordan skiftende kilder gjør at noen mennesker, erfaringer og motiver forblir fraværende.",
+  reviewPlan: [
+    { label: "Nå", text: "Lukk teksten og tegn arbeidskjeden fra spørsmål til revisjon. Legg inn ett kildebegrep ved hvert ledd." },
+    { label: "Om 2–3 dager", text: "Gjør F1–F5 uten å lese først. Bruk hint bare etter første feil." },
+    { label: "Om 1–2 uker", text: "Hent fram U2 og K3. Forklar representativitet og fravær med to forskjellige materialtyper." },
+    { label: "Senere", text: "Åpne den lokalt lagrede verkstedteksten og revider én ny setning etter at du har arbeidet med kilder i et annet kapittel." },
+  ],
+  summary: [
+    "Historiske spørsmål styrer hvilke materialer og sider av materialet som blir relevante.",
+    "Observasjon, tolkning og det en kilde ikke kan bevise må skilles tydelig.",
+    "Levning og beretning er funksjoner i forhold til spørsmål, ikke faste kildetyper.",
+    "Opphav, kontekst, bevaring og formidlingsvei påvirker hva materialet kan støtte.",
+    "Sammenstilling krever sammenligning av opphav, utsnitt og begrensninger – ikke flertallsavstemning.",
+    "Representativitet, fravær, usikkerhet og reell revisjon er deler av et begrunnet historisk svar.",
+  ],
+  timeline: [
+    { sortKey: 19420321, date: "21. mars 1942", title: "Manzanar tas i bruk", description: "NPS bruker datoen som startpunkt for leirens drift; konteksten avgrenser materialundersøkelsen.", sourceIds: ["H-01", "H-04"] },
+    { sortKey: 19420401, date: "april–juli 1942", title: "Dorothea Lange fotograferer ved Manzanar", description: "V-01 er ett oppdragsbundet fotografisk utsnitt fra leirens første måneder.", sourceIds: ["V-01"] },
+    { sortKey: 19421024, date: "24. oktober 1942", title: "Manzanar Free Press vol. II nr. 41", description: "W-01 publiserer stoff om organisering, møter, komitéarbeid og hverdagsordninger.", sourceIds: ["W-01"] },
+    { sortKey: 19451101, date: "november 1945", title: "Final Accountability Roster", description: "Q-01 er en administrativ sluttregistrering, ikke en fortløpende folketelling eller erfaringskilde.", sourceIds: ["Q-01", "Q-02"] },
+    { sortKey: 20100000, date: "2010", title: "Arkeologisk undersøkelse i Block 15", description: "NPS undersøker fysiske leirspor; undersøkelsestidspunktet må skilles fra sporenes historiske tid.", sourceIds: ["M-01"] },
+  ],
+  tasks: tasks1_1,
+  progressVersion: 1,
+  teacherGuide: teacherGuide1_1,
+  sources: [
+    { id: "U-01", title: "Utdanningsdirektoratet · Kompetansemål og vurdering, Historie Vg2 HIS01-03", href: "https://www.udir.no/lk20/his01-03/kompetansemaal-og-vurdering/kv84?lang=nob", note: "Gjeldende bokmålsformulering av KM1, KM2 og relevante vurderingspassasjer; læreplan, ikke historisk belegg om Manzanar.", rights: "Offentlig forvaltningsside; korte nødvendige målformuleringer; kontrollert 27. august 2026." },
+    { id: "P-01", title: "van Drie og van Boxtel (2008) · Historical Reasoning: Towards a Framework for Analyzing Students’ Reasoning about the Past", href: "https://doi.org/10.1007/s10648-007-9056-1", note: "Forskningsrammeverk for spørsmål, kildebruk, kontekstualisering, argumentasjon, begreper og metakunnskap.", rights: "Springer-siden oppgir CC BY-NC 2.0; egen norsk parafrase; kontrollert 27. august 2026." },
+    { id: "P-02", title: "Digital Inquiry Group · History Lessons", href: "https://www.inquirygroup.org/history-lessons", note: "Pedagogisk designreferanse for sentralt spørsmål, sourcing, contextualization, corroboration og evidensbasert svar.", rights: "Åpen beskrivelse; egne formuleringer, ingen leksjonsfiler eller postere kopiert; kontrollert 27. august 2026." },
+    { id: "M-02", title: "Ottar Dahl (1966–67) · Terminologi og systematikk i kildeteorien", href: "https://tidsskrift.dk/historiejyskesamling/article/download/38515/41662?inline=1", note: "Metodestøtte for kilde relativt til problem, levning/beretning som funksjon og ledd i kildegransking.", rights: "Åpent tilgjengelig tidsskriftartikkel; kort egen parafrase; kontrollert 27. august 2026." },
+    { id: "S-01", title: "Kjersheim og Roos · levning (historievitenskap), Store norske leksikon", href: "https://snl.no/levning_-_historievitenskap", note: "Norsk oppslagsstøtte for at samme materiale kan undersøkes som levning eller beretning.", rights: "SNL oppgir fri gjenbruk; egen kort parafrase og kreditering; kontrollert 27. august 2026." },
+    { id: "H-01", title: "National Park Service · Manzanar National Historic Site", href: "https://www.nps.gov/places/manzanar-national-historic-site.htm", note: "Sted, driftsperiode, konteksttall og institusjonell oversikt.", rights: "U.S. Government-side; tekst parafrasert, ingen medier kopiert; kontrollert 27. august 2026." },
+    { id: "H-02", title: "National Park Service · Japanese Americans at Manzanar", href: "https://www.nps.gov/manz/learn/historyculture/japanese-americans-at-manzanar.htm", note: "Bakgrunn om WRA, boligblokker, fellesfunksjoner, aktiviteter og befolkningsendringer.", rights: "U.S. Government-side; egen parafrase, medieinnhold ikke kopiert; kontrollert 27. august 2026." },
+    { id: "H-04", title: "National Park Service · Timeline: Manzanar 1942–1945", href: "https://home.nps.gov/articles/000/timeline-manzanar-1942-1945.htm", note: "Kontrollpunkter for start, befolkningsutvikling og stenging.", rights: "U.S. Government-side; egen parafrase og lenke; kontrollert 27. august 2026." },
+    { id: "H-05", title: "National Park Service · Manzanar camp layout", href: "https://www.nps.gov/articles/000/manzanar-camp-layout.htm", note: "Romlig bakgrunn om leirens utstrekning, 36 boligblokker, brakker og fellesfunksjoner.", rights: "NPS-tekst parafrasert; kart og illustrasjoner ikke kopiert; kontrollert 27. august 2026." },
+    { id: "M-01", title: "National Park Service · Community archaeology at Manzanar", href: "https://www.nps.gov/articles/community-archeology-at-manzanar.htm", note: "Hovedkilde for Block 15-anlegget, 2010-undersøkelsen og skillet mellom konkret funn og bredere hageprosjekt.", rights: "NPS-tekst parafrasert; bilder og tredjepartsmateriale ikke kopiert; kontrollert 27. august 2026." },
+    { id: "W-01", title: "Manzanar Free Press, vol. II nr. 41, 24. oktober 1942 · Densho ddr-densho-125-1", href: "https://ddr.densho.org/ddr-densho-125-1/", note: "Objektmetadata, masthead og kort parafrase av stoff om møter, komitéarbeid og hverdagsordninger.", rights: "Arbeidet oppgis fri for kjente opphavsrettsbegrensninger; Densho-grensesnitt CC BY-NC-SA 4.0; Courtesy of Densho; kontrollert 27. august 2026." },
+    { id: "V-01", title: "Dorothea Lange · Japanese relocation, California. A view of the quarters at Manzanar…, LOC 2017699966", href: "https://www.loc.gov/item/2017699966/", note: "Ekstern katalogpost for ett fotografisk utsnitt, april–juli 1942; ingen lokal bildekopi.", rights: "LOC item Rights Advisory viser til samlingssiden; FSA/OWI-samlingen beskrives som public domain; ingen CC-lisens påstås; kontrollert 28. august 2026." },
+    { id: "Q-01", title: "WRA/NARA · Final Accountability Roster, FAR Manzanar CSV via Densho Names Registry", href: "https://ddr.densho.org/names/", note: "Separat CSV transkribert fra NARA-mikrofilm av NPS-ansatte i 2002; bare aggregater fra f_destinationstate brukes. SHA-256 47B861F15809EC0CF60213A7D6A514B98AE2B065CEE7D8D621BE84BE97332B72.", rights: "Densho oppgir CC0 for nedlastbart ikke-Ancestry-datasett; ingen rådata eller personopplysninger gjengis; kontrollert 28. august 2026." },
+    { id: "Q-02", title: "National Archives · Records of the War Relocation Authority, Record Group 210", href: "https://www.archives.gov/research/guide-fed-records/groups/210.html", note: "Arkivproveniens for statistiske rapporter og final accountability rosters; brukes ikke som elevdatasett.", rights: "Offentlig NARA-katalogside; referanse og egen parafrase; kontrollert 27. august 2026." },
+  ],
+  lastChecked: "30. august 2026",
+};
+
 export const jordbruksrevolusjonen: Chapter = {
   id: "2.2",
   number: "2.2",
@@ -2023,7 +2838,7 @@ export const byerUtenEnOppskrift: Chapter = {
   lastChecked: "26. august 2026",
 };
 
-export const chapters = [jordbruksrevolusjonen, byerUtenEnOppskrift];
+export const chapters = [historiskMetode, jordbruksrevolusjonen, byerUtenEnOppskrift];
 
 export const curriculumSections = curriculumSectionDefinitions.map((section) => ({
   ...section,
@@ -2094,6 +2909,10 @@ export function getSourceWorkshopIssues(
   validateStringList(chapterId, "begrensninger i kildeverkstedet", workshop.context?.limitations, issues);
   validateStringList(chapterId, "sammenstillingskriterier", workshop.synthesisCriteria, issues);
   validateStringList(chapterId, "vurderingskriterier i kildeverkstedet", workshop.rubric, issues);
+  const minimumMaterials = workshop.synthesisMinimumMaterials ?? 2;
+  if (!Number.isInteger(minimumMaterials) || minimumMaterials < 2 || minimumMaterials > (workshop.materials?.length ?? 0)) issues.push("Kildeverkstedet for " + chapterId + " har ugyldig materialkrav");
+  const wordRange = workshop.conclusionWordRange;
+  if (wordRange && (!Number.isInteger(wordRange.min) || !Number.isInteger(wordRange.max) || wordRange.min < 15 || wordRange.max < wordRange.min)) issues.push("Kildeverkstedet for " + chapterId + " har ugyldig ordkrav");
   const sourceIds = new Set(availableSourceIds);
   for (const sourceId of workshop.sourceIds ?? []) {
     if (!sourceIds.has(sourceId)) issues.push("Ukjent kilde-ID i kildeverkstedet for " + chapterId + ": " + sourceId);
@@ -2118,6 +2937,10 @@ export function getSourceWorkshopIssues(
       if (!sourceIds.has(sourceId)) issues.push("Ukjent kilde-ID i materialet " + material.id + ": " + sourceId);
     }
     validateSourceRights(material.label || material.id, material.rights, issues);
+    if (material.externalLink) {
+      if (!hasText(material.externalLink.label)) issues.push("Eksternlenken for " + material.id + " mangler etikett");
+      if (!material.externalLink.href.startsWith("https://")) issues.push("Eksternlenken for " + material.id + " må bruke HTTPS");
+    }
     if (material.media) {
       if (!availablePublicAssets.has(material.media.path)) issues.push("Mediefilen for " + material.id + " finnes ikke i public: " + material.media.path);
       if (!hasText(material.media.altText)) issues.push("Mediefilen for " + material.id + " mangler alternativtekst");
@@ -2225,6 +3048,10 @@ export function getTeacherGuideIssues(chapterId: string, teacherGuide: TeacherGu
       if (!hasText(criterion.shortAnswer) || !hasText(criterion.extendedAnswer)) issues.push("Vurderingsområdet " + criterion.area + " i " + chapterId + " mangler kriterietekst");
     }
     for (const area of teacherAssessmentAreas) if (!areas.has(area)) issues.push("Vurderingsområdet " + area + " mangler i " + chapterId);
+  }
+  if (teacherGuide.adaptation) {
+    validateStringList(chapterId, "tilpasningsstøtte", teacherGuide.adaptation.supports, issues);
+    validateStringList(chapterId, "utvidelsesstøtte", teacherGuide.adaptation.extensions, issues);
   }
   if (!Array.isArray(teacherGuide.resources) || teacherGuide.resources.length === 0) {
     issues.push("Læreroversikten for " + chapterId + " mangler ressursmarkører");
