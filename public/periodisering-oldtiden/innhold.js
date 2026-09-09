@@ -29,9 +29,9 @@ window.HISTORIE_CONTENT = {
     brand: 'Historie VG2',
     heroEyebrow: 'Læringsside · Historie VG2',
     title: 'Periodisering og oldtiden',
-    subtitle: 'Test om du kan stoffet,
+    subtitle: 'Test om du kan stoffet',
     intro: 'Her kan du teste deg selv. Start med fakta og begreper. Etter hvert blir oppgavene litt vanskeligere.',
-    heroNote: ,
+    heroNote: '',
     footerNote: 'Svar og progresjon lagres bare lokalt i denne nettleseren. Ingen elevdata sendes til eksterne tjenester.'
   },
 
