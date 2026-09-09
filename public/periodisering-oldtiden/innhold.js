@@ -25,13 +25,13 @@
 
 window.HISTORIE_CONTENT = {
   site: {
-    documentTitle: 'Periodisering og oldtiden – kan du stoffet?',
+    documentTitle: 'Periodisering og oldtiden – test deg selv',
     brand: 'Historie VG2',
     heroEyebrow: 'Læringsside · Historie VG2',
     title: 'Periodisering og oldtiden',
-    subtitle: 'Hvor godt kan du stoffet?',
+    subtitle: 'Test om du kan stoffet,
     intro: 'Her kan du teste deg selv. Start med fakta og begreper. Etter hvert blir oppgavene litt vanskeligere.',
-    heroNote: '✓ Trening og mestring · ingen karakter',
+    heroNote: ,
     footerNote: 'Svar og progresjon lagres bare lokalt i denne nettleseren. Ingen elevdata sendes til eksterne tjenester.'
   },
 
