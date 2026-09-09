@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="no">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light" />
+  <meta name="theme-color" content="#1f5a50" />
+  <title>Periodisering og oldtiden – kan du stoffet?</title>
+  <style>
+    :root{
+      --green:#1f5a50; --green-2:#2d6c60; --green-soft:#e7f0ed;
+      --orange:#bb6b2c; --orange-soft:#f5e8dc; --cream:#f8f3e9;
+      --ink:#21312d; --muted:#64736e; --line:#d9dedb; --white:#fff;
+      --ok:#25705b; --warn:#a46d18; --bad:#a24437; --shadow:0 10px 28px rgba(29,55,48,.08);
+      --radius:18px; --max:1120px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:#fbfcfb;line-height:1.55}
+    button,select,input,textarea{font:inherit}
+    button{cursor:pointer}
+    button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible,a:focus-visible{outline:3px solid rgba(187,107,44,.35);outline-offset:2px}
+    .topbar{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+    .topbar-inner{max-width:var(--max);margin:auto;padding:.75rem 1rem;display:flex;align-items:center;gap:1rem}
+    .brand{font-weight:800;color:var(--green);white-space:nowrap}
+    .progress-wrap{flex:1;min-width:140px}
+    .progress-meta{display:flex;justify-content:space-between;gap:1rem;font-size:.82rem;color:var(--muted);margin-bottom:.28rem}
+    .progress{height:9px;background:#e5e9e7;border-radius:999px;overflow:hidden}
+    .progress > span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--green),var(--orange));transition:width .3s ease}
+    .toolbar{display:flex;gap:.45rem;flex-wrap:wrap;justify-content:flex-end}
+    .btn{border:0;border-radius:12px;padding:.72rem 1rem;font-weight:750;min-height:44px;background:var(--green);color:white;box-shadow:none}
+    .btn:hover{filter:brightness(.97)}
+    .btn.secondary{background:white;color:var(--green);border:1px solid #b9cbc6}
+    .btn.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
+    .btn.orange{background:var(--orange)}
+    .btn.small{padding:.48rem .7rem;min-height:38px;font-size:.9rem}
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+    main{max-width:var(--max);margin:auto;padding:1.3rem 1rem 5rem}
+    .hero{background:var(--green);color:white;border-radius:26px;padding:clamp(1.6rem,4vw,3.3rem);box-shadow:var(--shadow);position:relative;overflow:hidden}
+    .hero:after{content:"";position:absolute;right:-90px;bottom:-130px;width:320px;height:320px;border:48px solid rgba(255,255,255,.07);border-radius:50%}
+    .eyebrow{text-transform:uppercase;letter-spacing:.14em;font-size:.74rem;font-weight:800;color:#d7e7e1}
+    .hero h1{font-size:clamp(2rem,5vw,4rem);line-height:1.03;margin:.45rem 0 .65rem;max-width:850px}
+    .hero h2{font-size:clamp(1.2rem,2.5vw,1.65rem);margin:0 0 .7rem;color:#ffe6d1}
+    .hero p{max-width:760px;font-size:1.08rem;color:#edf5f2}
+    .hero-note{display:inline-flex;gap:.55rem;align-items:center;margin-top:.7rem;background:rgba(255,255,255,.1);padding:.55rem .8rem;border-radius:999px;font-size:.9rem}
+    .section-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:1.3rem 0 0}
+    .section-card{background:var(--white);border:1px solid var(--line);border-radius:16px;padding:1rem;text-align:left;min-height:138px;transition:.18s transform,.18s box-shadow,.18s border-color;position:relative}
+    .section-card:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:#b7c8c3}
+    .section-card .num{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:var(--cream);color:var(--orange);font-weight:900;margin-bottom:.55rem}
+    .section-card h3{margin:.15rem 0;font-size:1.06rem;color:var(--green)}
+    .section-card p{font-size:.88rem;color:var(--muted);margin:.35rem 0 0}
+    .section-card.done:after{content:"✓";position:absolute;top:.8rem;right:.8rem;width:28px;height:28px;display:grid;place-items:center;border-radius:50%;background:var(--green);color:white;font-weight:900}
+    .view{display:none}.view.active{display:block}
+    .section-head{display:flex;justify-content:space-between;align-items:flex-end;gap:1rem;margin:1rem 0 1.2rem;padding:1.3rem 0 .8rem;border-bottom:2px solid var(--line)}
+    .section-head h1{font-size:clamp(1.65rem,3vw,2.5rem);margin:.18rem 0;color:var(--green)}
+    .section-head p{margin:0;color:var(--muted);max-width:760px}
+    .level-tag{display:inline-flex;align-items:center;gap:.4rem;padding:.38rem .62rem;border-radius:999px;background:var(--cream);font-weight:800;color:var(--orange);font-size:.82rem}
+    .question{background:white;border:1px solid var(--line);border-radius:var(--radius);padding:1.05rem 1.1rem;margin:1rem 0;box-shadow:0 3px 14px rgba(36,65,57,.035)}
+    .question.correct{border-color:#8ab9aa;background:#fbfefd}
+    .q-top{display:flex;gap:.7rem;align-items:flex-start}
+    .q-no{flex:none;width:30px;height:30px;border-radius:9px;background:var(--green-soft);color:var(--green);display:grid;place-items:center;font-weight:900}
+    .q-body{flex:1;min-width:0}
+    .q-title{font-weight:800;margin:.1rem 0 .7rem;font-size:1.03rem}
+    .q-context{background:var(--cream);border-left:4px solid var(--orange);padding:.72rem .82rem;border-radius:0 10px 10px 0;margin:.55rem 0 .8rem;color:#4d5652}
+    .options{display:grid;gap:.55rem}
+    .option{display:flex;align-items:flex-start;gap:.65rem;border:1px solid var(--line);border-radius:12px;padding:.7rem .8rem;background:white;cursor:pointer}
+    .option:hover{border-color:#a8bbb5;background:#fbfdfc}
+    .option input{margin-top:.2rem;accent-color:var(--green);transform:scale(1.15)}
+    .inline-row{display:flex;flex-wrap:wrap;gap:.55rem;align-items:center}
+    .field{width:100%;padding:.72rem .8rem;border:1px solid #bfc9c6;border-radius:10px;background:white;min-height:44px}
+    textarea.field{min-height:110px;resize:vertical}
+    .feedback{margin-top:.7rem;padding:.68rem .78rem;border-radius:10px;font-size:.94rem;display:none}
+    .feedback.show{display:block}
+    .feedback.ok{background:#e8f3ef;color:#1c5f4e;border:1px solid #bdd8ce}
+    .feedback.hint{background:#fff4df;color:#815711;border:1px solid #ead4aa}
+    .feedback.reveal{background:#f8e8e4;color:#7f342b;border:1px solid #e2bcb4}
+    .checklist{background:var(--cream);border-radius:12px;padding:.75rem .9rem;margin-top:.7rem}
+    .checklist ul{margin:.35rem 0 .15rem;padding-left:1.2rem}
+    .checklist li{margin:.25rem 0}
+    .match-grid{display:grid;grid-template-columns:minmax(180px,1fr) minmax(220px,1.6fr);gap:.55rem .8rem;align-items:center}
+    .match-term{font-weight:800;color:var(--green)}
+    .timeline-wrap{background:var(--cream);border:1px solid #eadfce;border-radius:18px;padding:1rem;overflow-x:auto;margin:1rem 0}
+    .timeline{min-width:800px;position:relative;padding:1rem 0 2.4rem}
+    .timeline-axis{height:3px;background:#81968f;position:absolute;left:72px;right:20px;bottom:26px}
+    .tick{position:absolute;bottom:12px;font-size:.76rem;color:#68756f;transform:translateX(-50%)}
+    .tick:before{content:"";position:absolute;left:50%;top:-9px;width:1px;height:10px;background:#81968f}
+    .bar-row{display:grid;grid-template-columns:145px 1fr;gap:.7rem;align-items:center;height:38px}
+    .bar-label{font-size:.84rem;font-weight:800;color:var(--green)}
+    .track{height:21px;background:#e4ebe8;border-radius:999px;position:relative}
+    .bar{position:absolute;top:2px;height:17px;border-radius:999px;background:#d9c2ab;border:1px solid #c49c76;min-width:4px}
+    .bar.green{background:#b7d4cb;border-color:#89b7a8}.bar.orange{background:#e7c19f;border-color:#cd9767}
+    .bar span{position:absolute;left:8px;top:-1px;white-space:nowrap;font-size:.72rem;font-weight:750;color:#4b4b45}
+    .chain{display:flex;flex-wrap:wrap;align-items:center;gap:.45rem;margin:.65rem 0}
+    .chain-item{display:flex;align-items:center;gap:.35rem;background:var(--cream);border:1px solid #e2d6c5;border-radius:10px;padding:.55rem .62rem}
+    .chain-controls{display:inline-flex;gap:.2rem}.chain-controls button{border:1px solid #c9d1ce;background:white;border-radius:7px;width:30px;height:30px}
+    .notice{border-left:4px solid var(--green);background:var(--green-soft);padding:.75rem .9rem;border-radius:0 12px 12px 0;margin:.8rem 0}
+    .source-card{background:var(--cream);border:1px solid #eadbc9;border-radius:18px;padding:1.1rem;margin:1rem 0}
+    .source-card h3{margin:.1rem 0 .35rem;color:var(--green)}
+    .source-stamp{display:inline-block;background:var(--orange-soft);color:#8a4e20;border-radius:999px;padding:.32rem .6rem;font-weight:800;font-size:.8rem}
+    .goal-card{background:white;border:1px solid var(--line);border-radius:18px;padding:1rem;margin:1rem 0}
+    .goal-card h3{color:var(--green);margin:.1rem 0 .4rem}
+    .rating{display:flex;gap:.55rem;flex-wrap:wrap;margin:.8rem 0}
+    .rating button{border:1px solid var(--line);background:white;border-radius:12px;padding:.7rem .8rem;min-height:44px;font-weight:750}
+    .rating button.selected{border-color:var(--green);background:var(--green-soft);color:var(--green)}
+    .result-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:1rem}
+    .result-card{background:white;border:1px solid var(--line);border-radius:18px;padding:1.05rem}
+    .score-row{display:grid;grid-template-columns:1fr auto;gap:.7rem;padding:.58rem 0;border-bottom:1px solid #edf0ee}
+    .score-row:last-child{border-bottom:0}
+    .status-pill{display:inline-block;border-radius:999px;padding:.4rem .72rem;font-weight:900;font-size:.8rem;letter-spacing:.03em}
+    .status-good{background:#e6f1ed;color:#1f6854}.status-mid{background:#fff1da;color:#8b5e16}.status-low{background:#f8e7e3;color:#8b3b30}
+    .review-list{display:grid;gap:.6rem;margin:.7rem 0}.review-item{background:var(--cream);padding:.65rem .75rem;border-radius:10px}
+    .footer-note{margin-top:1.2rem;color:var(--muted);font-size:.86rem;text-align:center}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    @media(max-width:820px){.section-grid{grid-template-columns:repeat(2,1fr)}.result-grid{grid-template-columns:1fr}.topbar-inner{align-items:flex-start}.brand{display:none}.toolbar .btn.ghost{display:none}.match-grid{grid-template-columns:1fr}.section-head{align-items:flex-start;flex-direction:column}}
+    @media(max-width:560px){main{padding:.9rem .75rem 4rem}.section-grid{grid-template-columns:1fr}.hero{border-radius:20px}.question{padding:.9rem}.topbar-inner{padding:.6rem .7rem}.toolbar{flex-wrap:nowrap}.toolbar .btn{font-size:.82rem;padding:.55rem .65rem}.progress-meta span:first-child{display:none}.section-head{margin-top:.4rem}.rating{display:grid;grid-template-columns:1fr}.inline-row .btn{width:100%}}
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand" id="brand">Historie VG2</div>
+      <div class="progress-wrap">
+        <div class="progress-meta"><span>Progresjon</span><span id="progressText">0 av 6 deler fullført</span></div>
+        <div class="progress" aria-label="Samlet progresjon"><span id="progressBar"></span></div>
+      </div>
+      <div class="toolbar">
+        <button class="btn secondary small" id="homeBtn" type="button">Til start</button>
+        <button class="btn ghost small" id="resetSectionBtn" type="button">Start delen på nytt</button>
+        <button class="btn ghost small" id="resetAllBtn" type="button">Nullstill alt</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="home" class="view active" aria-labelledby="homeTitle">
+      <div class="hero">
+        <div class="eyebrow" id="heroEyebrow">Læringsside · Historie VG2</div>
+        <h1 id="homeTitle">Periodisering og oldtiden</h1>
+        <h2 id="homeSubtitle">Hvor godt kan du stoffet?</h2>
+        <p id="homeIntro">Her kan du teste deg selv. Start med fakta og begreper. Etter hvert blir oppgavene litt vanskeligere.</p>
+        <div class="hero-note" id="heroNote">✓ Trening og mestring · ingen karakter</div>
+      </div>
+      <div class="section-grid" id="sectionGrid" aria-label="Velg del"></div>
+      <p class="footer-note" id="footerNote">Svar og progresjon lagres bare lokalt i denne nettleseren. Ingen elevdata sendes til eksterne tjenester.</p>
+    </section>
+
+    <section id="sectionView" class="view" aria-live="polite"></section>
+    <section id="resultsView" class="view" aria-live="polite"></section>
+    <section id="reviewView" class="view" aria-live="polite"></section>
+  </main>
+
+<script src="innhold.js"></script>
+<script>
+(() => {
+  'use strict';
+
+  const STORAGE_KEY = 'historie-vg2-periodisering-oldtid-v1';
+
+  const content = window.HISTORIE_CONTENT;
+  if (!content) throw new Error('Mangler innhold.js / HISTORIE_CONTENT');
+  const sections = content.sections;
+  const Q = content.questions;
+  const sourceOpen = content.sourceOpen;
+  const sectionOpen = {
+    1:[{id:'b7'}],
+    5:sourceOpen.map(x=>({id:x.id})),
+    6:[{id:'mainAnswer'}]
+  };
+
+  function applySiteContent(){
+    const s=content.site||{};
+    if(s.documentTitle) document.title=s.documentTitle;
+    if(s.brand) document.getElementById('brand').textContent=s.brand;
+    if(s.heroEyebrow) document.getElementById('heroEyebrow').textContent=s.heroEyebrow;
+    if(s.title) document.getElementById('homeTitle').textContent=s.title;
+    if(s.subtitle) document.getElementById('homeSubtitle').textContent=s.subtitle;
+    if(s.intro) document.getElementById('homeIntro').textContent=s.intro;
+    if(s.heroNote) document.getElementById('heroNote').textContent=s.heroNote;
+    if(s.footerNote) document.getElementById('footerNote').textContent=s.footerNote;
+  }
+
+  function defaultState(){return {q:{},openDone:{},completedSections:[],selfRatings:{},lastSection:0,reviewSolved:{}};}
+  let state = loadState();
+  let currentSection = 0;
+
+  function loadState(){
+    try{const x=JSON.parse(localStorage.getItem(STORAGE_KEY));return x&&x.q?Object.assign(defaultState(),x):defaultState();}
+    catch(e){return defaultState();}
+  }
+  function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state));updateProgress();renderHomeCards();}
+  function qState(id){if(!state.q[id]) state.q[id]={attempts:0,correct:false,firstOutcome:null,everWrong:false};return state.q[id];}
+  function esc(s){return String(s).replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':'&quot;'}[c]));}
+  function norm(s){return String(s).trim().toLowerCase().replace(/\s+/g,' ').replace(/\.$/,'');}
+
+  function renderHomeCards(){
+    const grid=document.getElementById('sectionGrid'); if(!grid)return;
+    grid.innerHTML=sections.map(s=>`<button class="section-card ${state.completedSections.includes(s.id)?'done':''}" data-go="${s.id}" type="button"><span class="num">${s.id}</span><h3>${esc(s.title)}</h3><p>${esc(s.desc)}</p></button>`).join('');
+    grid.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>showSection(Number(b.dataset.go))));
+  }
+
+  function updateProgress(){
+    const n=state.completedSections.length;
+    document.getElementById('progressText').textContent=`${n} av ${sections.length} deler fullført`;
+    document.getElementById('progressBar').style.width=`${(n/6)*100}%`;
+  }
+
+  function showOnly(id){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
+  function goHome(){currentSection=0;showOnly('home');document.getElementById('resetSectionBtn').disabled=true;}
+
+  function showSection(id){
+    currentSection=id;state.lastSection=id;save();
+    const target=document.getElementById('sectionView');
+    target.innerHTML=renderSection(id);showOnly('sectionView');document.getElementById('resetSectionBtn').disabled=false;bindSection(id);updateSectionCompletion(id);
+  }
+
+  function sectionIntro(id){
+    const text=content.sectionIntros[id];
+    return `<span class="level-tag">${esc(text[0])}</span><p>${esc(text[1])}</p>`;
+  }
+
+  function renderSection(id){
+    const s=sections.find(x=>x.id===id);
+    let body='';
+    if(id===3) body+=renderTimeline();
+    if(id===5) body+=renderSourceSection();
+    else if(id===6) body+=renderGoals();
+    else body+=(Q[id]||[]).map((q,i)=>renderQuestion(q,i+1)).join('');
+    body+=`<div class="inline-row" style="justify-content:space-between;margin-top:1.2rem"><button class="btn secondary" data-nav="${id-1}" ${id===1?'disabled':''}>← Forrige del</button>${id<sections.length?`<button class="btn orange" data-nav="${id+1}">Neste del →</button>`:`<button class="btn orange" id="resultsBtn">Se din oversikt →</button>`}</div>`;
+    return `<div class="section-head"><div><div class="eyebrow" style="color:var(--orange)">Del ${id} av ${sections.length}</div><h1>${esc(s.title)}</h1>${sectionIntro(id)}</div><div id="sectionStatus"></div></div>${body}`;
+  }
+
+  function displayOptions(q){
+    const base=q.type==='tf'
+      ? ['Sant','Usant','Både sant og usant','Kan ikke avgjøres ut fra læringsarket']
+      : q.options.slice();
+    const correct=q.answer;
+    const others=base.filter(o=>o!==correct);
+    const digits=(q.id.match(/\d+/)||['0'])[0];
+    const seed=(parseInt(digits,10)+(q.id.charCodeAt(0)||0))%base.length;
+    const out=others.slice();
+    out.splice(seed,0,correct);
+    return out;
+  }
+
+  function renderQuestion(q,no){
+    const st=qState(q.id);let control='';
+    if(q.type==='mc'||q.type==='tf'){
+      const opts=displayOptions(q);
+      control=`<div class="options">${opts.map(o=>`<label class="option"><input type="radio" name="${q.id}" value="${esc(o)}" ${st.correct&&o===q.answer?'checked':''} ${st.correct?'disabled':''}><span>${esc(o)}</span></label>`).join('')}</div>`;
+    }else if(q.type==='fill'){
+      control=`<div class="inline-row"><span>${esc(q.prefix||'')}</span><input class="field" style="max-width:220px" id="input-${q.id}" aria-label="Svar" value="${st.correct?esc(q.answers[0]):''}" ${st.correct?'disabled':''}><span>${esc(q.suffix||'')}</span></div>`;
+    }else if(q.type==='match'){
+      const all=[...new Set(q.pairs.map(p=>p[1]))];
+      control=`<div class="match-grid">${q.pairs.map((p,idx)=>`<div class="match-term">${esc(p[0])}</div><select class="field match-select" data-q="${q.id}" data-i="${idx}" ${st.correct?'disabled':''}><option value="">Velg forklaring …</option>${all.map(x=>`<option value="${esc(x)}" ${st.correct&&x===q.pairs[idx][1]?'selected':''}>${esc(x)}</option>`).join('')}</select>`).join('')}</div>`;
+    }else if(q.type==='order'){
+      const arr=(st.order&&st.order.length?st.order:q.items.slice().reverse());
+      st.order=arr; control=`<div class="chain" id="order-${q.id}">${arr.map((x,idx)=>`<div class="chain-item" data-item="${esc(x)}" draggable="true"><strong>${idx+1}.</strong> ${esc(x)} <span class="chain-controls"><button type="button" data-move="up" data-q="${q.id}" data-i="${idx}" aria-label="Flytt opp">↑</button><button type="button" data-move="down" data-q="${q.id}" data-i="${idx}" aria-label="Flytt ned">↓</button></span></div>`).join('')}</div><p style="font-size:.85rem;color:var(--muted)">Du kan bruke pilknappene. På PC kan du også dra leddene når nettleseren støtter det.</p>`;
+    }else if(q.type==='open'){
+      return `<article class="question" id="card-${q.id}"><div class="q-top"><div class="q-no">${no}</div><div class="q-body"><div class="q-title">${esc(q.prompt)}</div><textarea class="field" id="open-${q.id}" placeholder="Skriv med egne ord …"></textarea><div class="inline-row" style="margin-top:.65rem"><button class="btn secondary small" data-open="${q.id}" type="button">Hva bør svaret inneholde?</button></div><div class="feedback" id="fb-${q.id}"></div></div></div></article>`;
+    }
+    return `<article class="question ${st.correct?'correct':''}" id="card-${q.id}"><div class="q-top"><div class="q-no">${no}</div><div class="q-body"><div class="q-title">${esc(q.prompt)}</div>${q.context?`<div class="q-context">${esc(q.context)}</div>`:''}${control}<div class="inline-row" style="margin-top:.65rem"><button class="btn small check-btn" data-check="${q.id}" type="button" ${st.correct?'disabled':''}>${st.correct?'✓ Mestret':'Sjekk svar'}</button></div><div class="feedback ${st.correct?'show ok':''}" id="fb-${q.id}">${st.correct?'✓ Riktig! '+esc(q.explain):''}</div></div></div></article>`;
+  }
+
+  function renderTimeline(){
+    const t=content.timeline;
+    const start=t.start,end=t.end,span=start-end;
+    const pos=y=>((start-y)/span)*100; const width=(a,b)=>Math.max(1,((a-b)/span)*100);
+    const rows=t.rows;
+    return `<div class="timeline-wrap"><div class="timeline" aria-label="${esc(t.ariaLabel)}">${rows.map(r=>`<div class="bar-row"><div class="bar-label">${esc(r[0])}</div><div class="track"><div class="bar ${r[4]}" style="left:${pos(r[1])}%;width:${width(r[1],r[2])}%"><span>${esc(r[3])}</span></div></div></div>`).join('')}<div class="timeline-axis"></div>${t.ticks.map(y=>`<div class="tick" style="left:calc(145px + .7rem + (100% - 165px) * ${pos(y)/100})">${y} f.Kr.</div>`).join('')}</div></div><div class="notice"><strong>${esc(t.noteTitle)}</strong> ${esc(t.noteText)}</div>${Q[3].map((q,i)=>renderQuestion(q,i+1)).join('')}`;
+  }
+
+  function renderSourceSection(){
+    const s=content.sourceCard;
+    return `<div class="source-card"><span class="source-stamp">${esc(s.stamp)}</span><h3>${esc(s.title)}</h3><p>${s.html}</p></div>${sourceOpen.map((o,i)=>`<article class="question" id="card-${o.id}"><div class="q-top"><div class="q-no">${i+1}</div><div class="q-body"><div class="q-title">${esc(o.prompt)}</div><textarea class="field" id="open-${o.id}" placeholder="Skriv først ditt eget svar …"></textarea><div class="inline-row" style="margin-top:.65rem"><button class="btn secondary small" data-source-open="${o.id}" type="button">Sammenlign med et godt svar</button></div><div class="feedback" id="fb-${o.id}"></div></div></div></article>`).join('')}`;
+  }
+
+  function renderGoals(){
+    const goals=content.goals;
+    let html=goals.map(g=>`<div class="goal-card"><h3>Læringsmål ${g.n}</h3><p>${esc(g.title)}</p>${Q[6].filter(q=>q.goal===g.n).map((q,i)=>renderQuestion(q,i+1)).join('')}<div><strong>Egenvurdering:</strong><div class="rating" data-goal="${g.n}">${[['green','🟢 Jeg kan dette'],['yellow','🟡 Jeg er litt usikker'],['red','🔴 Dette må jeg øve mer på']].map(([v,l])=>`<button type="button" data-rate="${v}" class="${state.selfRatings[g.n]===v?'selected':''}">${l}</button>`).join('')}</div></div></div>`).join('');
+    html+=`<div class="goal-card"><span class="level-tag">HOVEDSPØRSMÅL</span><h3>${esc(content.mainQuestion)}</h3><textarea class="field" id="mainAnswer" placeholder="Skriv et kort svar med egne ord …"></textarea><div class="inline-row" style="margin-top:.65rem"><button class="btn secondary" id="mainChecklistBtn" type="button">Hva bør svaret mitt inneholde?</button></div><div class="feedback" id="fb-mainAnswer"></div></div>`;
+    return html;
+  }
+
+  function bindSection(id){
+    const root=document.getElementById('sectionView');
+    root.querySelectorAll('[data-nav]').forEach(b=>b.addEventListener('click',()=>showSection(Number(b.dataset.nav))));
+    root.querySelectorAll('[data-check]').forEach(b=>b.addEventListener('click',()=>checkQuestion(findQuestion(b.dataset.check),false)));
+    root.querySelectorAll('[data-open]').forEach(b=>b.addEventListener('click',()=>revealOpen(findQuestion(b.dataset.open))));
+    root.querySelectorAll('[data-source-open]').forEach(b=>b.addEventListener('click',()=>revealSource(b.dataset.sourceOpen)));
+    root.querySelectorAll('[data-move]').forEach(b=>b.addEventListener('click',()=>moveOrder(b.dataset.q,Number(b.dataset.i),b.dataset.move)));
+    bindDragOrder(root);
+    root.querySelectorAll('[data-rate]').forEach(b=>b.addEventListener('click',()=>{const goal=b.closest('[data-goal]').dataset.goal;state.selfRatings[goal]=b.dataset.rate;save();showSection(6);}));
+    const rb=document.getElementById('resultsBtn'); if(rb)rb.addEventListener('click',showResults);
+    const mb=document.getElementById('mainChecklistBtn'); if(mb)mb.addEventListener('click',revealMainChecklist);
+  }
+
+  function findQuestion(id){for(const arr of Object.values(Q)){const q=arr.find(x=>x.id===id);if(q)return q;}return null;}
+
+  function readAnswer(q){
+    if(q.type==='mc'||q.type==='tf'){const el=document.querySelector(`input[name="${q.id}"]:checked`);return el?el.value:null;}
+    if(q.type==='fill'){return document.getElementById(`input-${q.id}`)?.value||'';}
+    if(q.type==='match'){return [...document.querySelectorAll(`select[data-q="${q.id}"]`)].map(s=>s.value);}
+    if(q.type==='order'){return qState(q.id).order||[];}
+  }
+
+  function isCorrect(q,a){
+    if(q.type==='fill')return q.answers.map(norm).includes(norm(a));
+    if(q.type==='match')return a.length===q.pairs.length&&a.every((v,i)=>v===q.pairs[i][1]);
+    if(q.type==='order')return a.length===q.answer.length&&a.every((v,i)=>v===q.answer[i]);
+    return a===q.answer;
+  }
+
+  function checkQuestion(q,reviewMode){
+    if(!q)return; const st=qState(q.id); const a=readAnswer(q); const fb=document.getElementById(`fb-${q.id}`);
+    if((a===null)||(Array.isArray(a)&&a.some(x=>!x))||(q.type==='fill'&&!String(a).trim())){fb.className='feedback show hint';fb.textContent='Velg eller skriv et svar først.';return;}
+    const ok=isCorrect(q,a);
+    if(st.firstOutcome===null)st.firstOutcome=ok;
+    st.attempts++;
+    if(ok){st.correct=true;if(reviewMode)state.reviewSolved[q.id]=true;fb.className='feedback show ok';fb.textContent='✓ Riktig! '+q.explain;document.getElementById(`card-${q.id}`)?.classList.add('correct');const btn=document.querySelector(`[data-check="${q.id}"]`);if(btn){btn.textContent='✓ Mestret';btn.disabled=true;}}
+    else{st.everWrong=true;fb.className=`feedback show ${st.attempts>=2?'reveal':'hint'}`;fb.textContent=st.attempts>=2?`Riktig svar: ${answerText(q)}. ${q.explain}`:`Ikke helt. ${q.hint}`;}
+    save();updateSectionCompletion(currentSection);
+  }
+
+  function answerText(q){if(q.type==='match')return q.pairs.map(p=>`${p[0]} → ${p[1]}`).join(' · ');if(q.type==='order')return q.answer.join(' → ');if(q.type==='fill')return q.answers[0];return q.answer;}
+
+  function revealOpen(q){const ta=document.getElementById(`open-${q.id}`);const fb=document.getElementById(`fb-${q.id}`);if(!ta.value.trim()){fb.className='feedback show hint';fb.textContent='Skriv først et kort svar med egne ord. Da får du mer ut av sammenligningen.';return;}state.openDone[q.id]=true;fb.className='feedback show ok';fb.innerHTML=`<strong>Sammenlign med disse punktene:</strong><div class="checklist"><ul>${q.checklist.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`;save();updateSectionCompletion(currentSection);}
+
+  function revealSource(id){const o=sourceOpen.find(x=>x.id===id);const ta=document.getElementById(`open-${id}`);const fb=document.getElementById(`fb-${id}`);if(!ta.value.trim()){fb.className='feedback show hint';fb.textContent='Skriv først ditt eget svar. Deretter kan du sammenligne.';return;}state.openDone[id]=true;fb.className='feedback show ok';fb.innerHTML=`<strong>Et godt svar kan få fram:</strong><div class="checklist"><ul>${o.model.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`;save();updateSectionCompletion(5);}
+
+  function revealMainChecklist(){const ta=document.getElementById('mainAnswer');const fb=document.getElementById('fb-mainAnswer');if(!ta.value.trim()){fb.className='feedback show hint';fb.textContent='Skriv først ditt eget svar. Bruk så sjekklisten.';return;}state.openDone.mainAnswer=true;const items=content.mainChecklist;fb.className='feedback show ok';fb.innerHTML=`<strong>Et godt svar forklarer blant annet:</strong><div class="checklist"><ul>${items.map(x=>`<li>□ ${esc(x)}</li>`).join('')}</ul></div>`;save();updateSectionCompletion(6);}
+
+  function moveOrder(id,i,dir){const st=qState(id);const q=findQuestion(id);if(st.correct)return;const a=st.order||q.items.slice().reverse();const j=dir==='up'?i-1:i+1;if(j<0||j>=a.length)return;[a[i],a[j]]=[a[j],a[i]];st.order=a;save();showSection(currentSection);}
+
+  function bindDragOrder(root){
+    let drag={id:null,index:null};
+    root.querySelectorAll('.chain-item[draggable="true"]').forEach(el=>{
+      el.addEventListener('dragstart',e=>{
+        const chain=el.parentElement; drag.id=chain.id.replace('order-',''); drag.index=[...chain.children].indexOf(el);
+        e.dataTransfer.effectAllowed='move';
+      });
+      el.addEventListener('dragover',e=>{e.preventDefault();e.dataTransfer.dropEffect='move';});
+      el.addEventListener('drop',e=>{
+        e.preventDefault(); const chain=el.parentElement; const id=chain.id.replace('order-',''); const to=[...chain.children].indexOf(el);
+        if(drag.id!==id||drag.index===null||drag.index===to)return;
+        const st=qState(id),q=findQuestion(id); const a=(st.order&&st.order.length?st.order:q.items.slice().reverse());
+        const [moved]=a.splice(drag.index,1);a.splice(to,0,moved);st.order=a;save();showSection(currentSection);
+      });
+    });
+  }
+
+  function sectionRequired(id){
+    if(id===5)return {q:[],open:['k1','k2','k3'],ratings:[]};
+    if(id===6)return {q:Q[6].map(x=>x.id),open:['mainAnswer'],ratings:['1','2','3']};
+    return {q:(Q[id]||[]).filter(x=>x.type!=='open').map(x=>x.id),open:(Q[id]||[]).filter(x=>x.type==='open').map(x=>x.id),ratings:[]};
+  }
+  function updateSectionCompletion(id){
+    if(!id)return;const r=sectionRequired(id);const done=r.q.every(x=>qState(x).correct)&&r.open.every(x=>state.openDone[x])&&r.ratings.every(x=>state.selfRatings[x]);
+    const has=state.completedSections.includes(id);if(done&&!has)state.completedSections.push(id);if(!done&&has)state.completedSections=state.completedSections.filter(x=>x!==id);state.completedSections.sort();localStorage.setItem(STORAGE_KEY,JSON.stringify(state));updateProgress();renderHomeCards();
+    const el=document.getElementById('sectionStatus');if(el)el.innerHTML=done?'<span class="status-pill status-good">✓ Del fullført</span>':'<span class="status-pill status-mid">Jobb videre</span>';
+  }
+
+  function scoreFor(sectionId){const ids=(Q[sectionId]||[]).filter(q=>q.type!=='open').map(q=>q.id);const scored=ids.filter(id=>qState(id).firstOutcome!==null);const correct=scored.filter(id=>qState(id).firstOutcome===true).length;return {correct,total:ids.length,attempted:scored.length};}
+  function statusFor(correct,total){const p=total?correct/total:1;return p>=.8?['GOD KONTROLL','status-good']:p>=.6?['NESTEN DER','status-mid']:['ØV LITT MER','status-low'];}
+  function learningGoalSecure(n){const ids=Q[6].filter(q=>q.goal===n).map(q=>q.id);const all=ids.every(id=>qState(id).correct);return all&&state.selfRatings[n]==='green';}
+  function weakAreas(){
+    const map={};for(const arr of Object.values(Q))for(const q of arr){const st=qState(q.id);if(st.everWrong)map[q.area]=(map[q.area]||0)+1;}
+    return Object.entries(map).sort((a,b)=>b[1]-a[1]).slice(0,4).map(x=>x[0]);
+  }
+
+  function showResults(){
+    currentSection=0;const rows=[[1,'Begreper'],[2,'Fakta'],[3,'Tidslinje'],[4,'Sammenhenger']].map(([id,name])=>{const s=scoreFor(id);const st=statusFor(s.correct,s.total);return `<div class="score-row"><div><strong>${name}</strong><div style="font-size:.82rem;color:var(--muted)">${st[0]}</div></div><div><strong>${s.correct}/${s.total}</strong></div></div>`}).join('');
+    const secure=[1,2,3].filter(learningGoalSecure).length;const weak=weakAreas();const wrong=allWrongQuestions().length;
+    document.getElementById('resultsView').innerHTML=`<div class="section-head"><div><div class="eyebrow" style="color:var(--orange)">${esc(content.resultText.eyebrow)}</div><h1>${esc(content.resultText.title)}</h1><p>${esc(content.resultText.intro)}</p></div></div><div class="result-grid"><div class="result-card"><h3 style="margin-top:0;color:var(--green)">${esc(content.resultText.firstAttempt)}</h3>${rows}<div class="score-row"><div><strong>Kildeblikk</strong></div><div>${['k1','k2','k3'].every(x=>state.openDone[x])?'fullført':'ikke fullført'}</div></div><div class="score-row"><div><strong>Læringsmål</strong></div><div>${secure} av 3 sikre</div></div></div><div class="result-card"><h3 style="margin-top:0;color:var(--green)">${esc(content.resultText.practiceMore)}</h3>${weak.length?`<div class="review-list">${weak.map(x=>`<div class="review-item">${esc(x)}</div>`).join('')}</div>`:'<p>Du har ikke registrerte feilområder ennå. Bra kontroll.</p>'}<button class="btn orange" id="reviewBtn" ${wrong===0?'disabled':''}>Øv på det jeg ikke kunne (${wrong})</button></div></div><div class="notice" style="margin-top:1rem"><strong>Tips:</strong> Se særlig på mønsteret i feilene dine. Hvis flere handler om samme tema, er det smartere å repetere akkurat det enn å lese hele arket på nytt.</div><div class="inline-row" style="margin-top:1rem"><button class="btn secondary" id="backHomeResults">Til start</button><button class="btn" id="backGoal">Til læringsmålene</button></div>`;
+    showOnly('resultsView');document.getElementById('resetSectionBtn').disabled=true;document.getElementById('backHomeResults').onclick=goHome;document.getElementById('backGoal').onclick=()=>showSection(6);const rb=document.getElementById('reviewBtn');if(rb)rb.onclick=showReview;
+  }
+
+  function allWrongQuestions(){const out=[];for(const arr of Object.values(Q))for(const q of arr){if(q.type==='open')continue;const st=qState(q.id);if(st.everWrong&&!state.reviewSolved[q.id])out.push(q);}return out;}
+  function showReview(){
+    const qs=allWrongQuestions();document.getElementById('reviewView').innerHTML=`<div class="section-head"><div><div class="eyebrow" style="color:var(--orange)">KORT REPETISJON</div><h1>${esc(content.resultText.reviewTitle)}</h1><p>${esc(content.resultText.reviewIntro)}</p></div></div>${qs.length?qs.map((q,i)=>renderReviewQuestion(q,i+1)).join(''):'<div class="notice"><strong>Ferdig!</strong> Du har løst alle oppgavene som lå i repetisjonsrunden.</div>'}<div class="inline-row" style="margin-top:1rem"><button class="btn secondary" id="reviewResults">Til oversikten</button>${qs.length?'<button class="btn" id="refreshReview">Oppdater repetisjonen</button>':''}</div>`;showOnly('reviewView');bindReview();
+  }
+  function renderReviewQuestion(q,no){
+    if(q.type==='order'){
+      const correct=q.answer.join(' → '), options=[correct,[...q.answer].reverse().join(' → '),[q.answer[0],q.answer[2],q.answer[1],...q.answer.slice(3)].filter(Boolean).join(' → ')];
+      const uniq=[...new Set(options)];
+      return `<article class="question" id="card-${q.id}"><div class="q-top"><div class="q-no">${no}</div><div class="q-body"><div class="q-title">${esc(q.prompt)}</div><div class="options">${uniq.map(o=>`<label class="option"><input type="radio" name="review-${q.id}" value="${esc(o)}"><span>${esc(o)}</span></label>`).join('')}</div><div class="inline-row" style="margin-top:.65rem"><button class="btn small" data-review-check="${q.id}" type="button">Sjekk svar</button></div><div class="feedback" id="fb-${q.id}"></div></div></div></article>`;
+    }
+    const clone=Object.assign({},q);const original=state.q[q.id];state.q[q.id]=Object.assign({},original,{correct:false,attempts:0,order:null});const html=renderQuestion(clone,no);state.q[q.id]=original;return html;
+  }
+  function bindReview(){
+    document.getElementById('reviewView').querySelectorAll('[data-check]').forEach(b=>b.addEventListener('click',()=>checkReviewQuestion(findQuestion(b.dataset.check))));
+    document.getElementById('reviewView').querySelectorAll('[data-review-check]').forEach(b=>b.addEventListener('click',()=>checkReviewOrder(findQuestion(b.dataset.reviewCheck))));
+    document.getElementById('reviewResults').onclick=showResults;const rr=document.getElementById('refreshReview');if(rr)rr.onclick=showReview;
+  }
+  function checkReviewOrder(q){
+    const el=document.querySelector(`input[name="review-${q.id}"]:checked`);const fb=document.getElementById(`fb-${q.id}`);
+    if(!el){fb.className='feedback show hint';fb.textContent='Velg et svar først.';return;}
+    if(el.value===q.answer.join(' → ')){state.reviewSolved[q.id]=true;fb.className='feedback show ok';fb.textContent='✓ Riktig i repetisjonen! '+q.explain;save();}
+    else{fb.className='feedback show hint';fb.textContent='Ikke helt ennå. '+q.hint;}
+  }
+
+  function checkReviewQuestion(q){
+    const a=readAnswer(q);const fb=document.getElementById(`fb-${q.id}`);if((a===null)||(Array.isArray(a)&&a.some(x=>!x))||(q.type==='fill'&&!String(a).trim())){fb.className='feedback show hint';fb.textContent='Velg eller skriv et svar først.';return;}
+    if(isCorrect(q,a)){state.reviewSolved[q.id]=true;fb.className='feedback show ok';fb.textContent='✓ Riktig i repetisjonen! '+q.explain;save();}else{fb.className='feedback show hint';fb.textContent='Ikke helt ennå. '+q.hint;}
+  }
+
+  function resetSection(){
+    if(!currentSection)return;if(!confirm(`Starte del ${currentSection} på nytt? Svarene i denne delen nullstilles.`))return;const ids=(Q[currentSection]||[]).map(q=>q.id);ids.forEach(id=>delete state.q[id]);(sectionOpen[currentSection]||[]).forEach(x=>delete state.openDone[x.id]);if(currentSection===5)['k1','k2','k3'].forEach(id=>delete state.openDone[id]);if(currentSection===6){['1','2','3'].forEach(x=>delete state.selfRatings[x]);delete state.openDone.mainAnswer;}state.completedSections=state.completedSections.filter(x=>x!==currentSection);save();showSection(currentSection);
+  }
+  function resetAll(){if(!confirm('Nullstille all progresjon og alle resultater på denne enheten?'))return;state=defaultState();save();goHome();}
+
+  applySiteContent();
+  document.getElementById('homeBtn').addEventListener('click',goHome);
+  document.getElementById('resetSectionBtn').addEventListener('click',resetSection);
+  document.getElementById('resetAllBtn').addEventListener('click',resetAll);
+  document.getElementById('resetSectionBtn').disabled=true;
+  renderHomeCards();updateProgress();
+
+  // Lightweight data checks used during development and available in the console.
+  window.__historySelfTest = function(){
+    const ids=[];for(const arr of Object.values(Q))for(const q of arr){if(ids.includes(q.id))throw new Error('Duplicate question id: '+q.id);ids.push(q.id);if((q.type==='mc')&&!q.options.includes(q.answer))throw new Error('Answer missing in options: '+q.id);if(q.type==='match'&&q.pairs.some(p=>!p[0]||!p[1]))throw new Error('Bad match pair: '+q.id);}
+    return {ok:true,questions:ids.length,sections:sections.length};
+  };
+})();
+</script>
+</body>
+</html>
