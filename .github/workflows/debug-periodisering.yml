@@ -1,0 +1,63 @@
+name: Debug periodisering page
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .debug/PERIODISERING
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Run browser-like smoke test
+        shell: bash
+        run: |
+          node <<'NODE'
+          import { JSDOM, VirtualConsole } from 'jsdom';
+          import path from 'node:path';
+          import { pathToFileURL } from 'node:url';
+
+          const file = path.resolve('public/periodisering-oldtiden/index.html');
+          const errors = [];
+          const vc = new VirtualConsole();
+          vc.on('jsdomError', e => { errors.push(String(e?.stack || e)); console.error('JSDOM ERROR:', e); });
+          vc.on('error', (...args) => console.error('CONSOLE ERROR:', ...args));
+
+          const dom = await JSDOM.fromFile(file, {
+            runScripts: 'dangerously',
+            resources: 'usable',
+            pretendToBeVisual: true,
+            url: pathToFileURL(file).href,
+            virtualConsole: vc,
+            beforeParse(window) {
+              window.scrollTo = () => {};
+              window.confirm = () => true;
+            }
+          });
+
+          await new Promise(resolve => setTimeout(resolve, 1200));
+          const { document } = dom.window;
+          console.log('content loaded:', !!dom.window.HISTORIE_CONTENT);
+          console.log('cards:', document.querySelectorAll('[data-go]').length);
+          console.log('home active:', document.getElementById('home')?.classList.contains('active'));
+          const first = document.querySelector('[data-go="1"]');
+          console.log('first card exists:', !!first);
+          if (first) first.click();
+          await new Promise(resolve => setTimeout(resolve, 50));
+          console.log('section active after click:', document.getElementById('sectionView')?.classList.contains('active'));
+          console.log('section html length:', document.getElementById('sectionView')?.innerHTML.length || 0);
+          console.log('errors:', errors.length);
+          if (!dom.window.HISTORIE_CONTENT || document.querySelectorAll('[data-go]').length !== 6 || !document.getElementById('sectionView')?.classList.contains('active') || errors.length) {
+            process.exitCode = 1;
+          }
+          NODE
