@@ -1,0 +1,68 @@
+name: Fix periodisering storage fallback
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .fix/PERIODISERING_STORAGE
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Make storage optional and resilient
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('public/periodisering-oldtiden/index.html')
+          s = p.read_text(encoding='utf-8')
+          s = s.replace("const x=JSON.parse(localStorage.getItem(STORAGE_KEY));", "const x=JSON.parse(window.localStorage.getItem(STORAGE_KEY));")
+          s = s.replace("function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state));updateProgress();renderHomeCards();}", "function save(){try{window.localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){}updateProgress();renderHomeCards();}")
+          p.write_text(s, encoding='utf-8')
+      - name: Smoke test page interaction
+        shell: bash
+        run: |
+          node <<'NODE'
+          import { JSDOM, VirtualConsole } from 'jsdom';
+          import path from 'node:path';
+          import { pathToFileURL } from 'node:url';
+          const file = path.resolve('public/periodisering-oldtiden/index.html');
+          const errors = [];
+          const vc = new VirtualConsole();
+          vc.on('jsdomError', e => { errors.push(String(e?.stack || e)); console.error('JSDOM ERROR:', e); });
+          const dom = await JSDOM.fromFile(file, {
+            runScripts:'dangerously', resources:'usable', pretendToBeVisual:true,
+            url:pathToFileURL(file).href, virtualConsole:vc,
+            beforeParse(window){ window.scrollTo=()=>{}; window.confirm=()=>true; }
+          });
+          await new Promise(r=>setTimeout(r,1200));
+          const d=dom.window.document;
+          const first=d.querySelector('[data-go="1"]');
+          if(!first) throw new Error('Mangler første delknapp');
+          first.click();
+          await new Promise(r=>setTimeout(r,50));
+          if(!d.getElementById('sectionView')?.classList.contains('active')) throw new Error('Del 1 åpnet ikke');
+          if(errors.length) throw new Error('Runtime-feil: '+errors.join('\n'));
+          console.log('Smoke test OK: first section opens even without available localStorage');
+          NODE
+      - name: Commit fix
+        shell: bash
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add public/periodisering-oldtiden/index.html
+          if ! git diff --cached --quiet; then
+            git commit -m 'fix: allow self-test without localStorage'
+            git push origin main
+          fi
