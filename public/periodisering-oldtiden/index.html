@@ -184,10 +184,10 @@
   let currentSection = 0;
 
   function loadState(){
-    try{const x=JSON.parse(localStorage.getItem(STORAGE_KEY));return x&&x.q?Object.assign(defaultState(),x):defaultState();}
+    try{const x=JSON.parse(window.localStorage.getItem(STORAGE_KEY));return x&&x.q?Object.assign(defaultState(),x):defaultState();}
     catch(e){return defaultState();}
   }
-  function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state));updateProgress();renderHomeCards();}
+  function save(){try{window.localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){}updateProgress();renderHomeCards();}
   function qState(id){if(!state.q[id]) state.q[id]={attempts:0,correct:false,firstOutcome:null,everWrong:false};return state.q[id];}
   function esc(s){return String(s).replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':'&quot;'}[c]));}
   function norm(s){return String(s).trim().toLowerCase().replace(/\s+/g,' ').replace(/\.$/,'');}
@@ -355,7 +355,7 @@
   }
   function updateSectionCompletion(id){
     if(!id)return;const r=sectionRequired(id);const done=r.q.every(x=>qState(x).correct)&&r.open.every(x=>state.openDone[x])&&r.ratings.every(x=>state.selfRatings[x]);
-    const has=state.completedSections.includes(id);if(done&&!has)state.completedSections.push(id);if(!done&&has)state.completedSections=state.completedSections.filter(x=>x!==id);state.completedSections.sort();localStorage.setItem(STORAGE_KEY,JSON.stringify(state));updateProgress();renderHomeCards();
+    const has=state.completedSections.includes(id);if(done&&!has)state.completedSections.push(id);if(!done&&has)state.completedSections=state.completedSections.filter(x=>x!==id);state.completedSections.sort();try{window.localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){}updateProgress();renderHomeCards();
     const el=document.getElementById('sectionStatus');if(el)el.innerHTML=done?'<span class="status-pill status-good">✓ Del fullført</span>':'<span class="status-pill status-mid">Jobb videre</span>';
   }
 
