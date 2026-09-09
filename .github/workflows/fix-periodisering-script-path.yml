@@ -1,0 +1,65 @@
+name: Fix periodisering script path
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .fix/PERIODISERING_SCRIPT_PATH
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Fix absolute content script path
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('public/periodisering-oldtiden/index.html')
+          s = p.read_text(encoding='utf-8')
+          s = s.replace('<script src="innhold.js"></script>', '<script src="/periodisering-oldtiden/innhold.js"></script>')
+          p.write_text(s, encoding='utf-8')
+      - name: Validate interactive page in jsdom
+        shell: bash
+        run: |
+          node <<'NODE'
+          import { JSDOM, VirtualConsole } from 'jsdom';
+          import fs from 'node:fs';
+          const index = fs.readFileSync('public/periodisering-oldtiden/index.html','utf8');
+          const content = fs.readFileSync('public/periodisering-oldtiden/innhold.js','utf8');
+          const html = index.replace('<script src="/periodisering-oldtiden/innhold.js"></script>', `<script>${content.replace(/<\/script>/gi,'<\\/script>')}</script>`);
+          const errors=[];
+          const vc=new VirtualConsole();
+          vc.on('jsdomError',e=>{errors.push(String(e?.stack||e));console.error(e);});
+          const dom=new JSDOM(html,{runScripts:'dangerously',pretendToBeVisual:true,url:'https://example.test/periodisering-oldtiden/index.html',virtualConsole:vc,beforeParse(w){w.scrollTo=()=>{};w.confirm=()=>true;}});
+          await new Promise(r=>setTimeout(r,100));
+          const d=dom.window.document;
+          if(d.querySelectorAll('[data-go]').length!==6) throw new Error('Expected 6 section buttons');
+          d.querySelector('[data-go="1"]').click();
+          await new Promise(r=>setTimeout(r,20));
+          if(!d.getElementById('sectionView')?.classList.contains('active')) throw new Error('Section 1 did not open');
+          if(errors.length) throw new Error(errors.join('\n'));
+          console.log('Interactive smoke test passed');
+          NODE
+      - name: Build application
+        run: npm run build
+      - name: Commit fix
+        shell: bash
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add public/periodisering-oldtiden/index.html
+          if ! git diff --cached --quiet; then
+            git commit -m 'fix: use absolute script path for periodisering self-test'
+            git push origin main
+          fi
