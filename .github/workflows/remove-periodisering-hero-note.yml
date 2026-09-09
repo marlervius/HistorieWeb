@@ -1,0 +1,55 @@
+name: Remove periodisering hero note
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .maintenance/remove-periodisering-hero-note
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Remove badge and repair editable content
+        shell: python
+        run: |
+          from pathlib import Path
+
+          content_path = Path('public/periodisering-oldtiden/innhold.js')
+          text = content_path.read_text(encoding='utf-8')
+          text = text.replace("subtitle: 'Test om du kan stoffet,", "subtitle: 'Test om du kan stoffet',")
+          text = text.replace("heroNote: ,", "heroNote: '',")
+          content_path.write_text(text, encoding='utf-8')
+
+          index_path = Path('public/periodisering-oldtiden/index.html')
+          html = index_path.read_text(encoding='utf-8')
+          html = html.replace(
+              '<div class="hero-note" id="heroNote">✓ Trening og mestring · ingen karakter</div>',
+              '<div class="hero-note" id="heroNote" hidden></div>'
+          )
+          html = html.replace(
+              "if(s.heroNote) document.getElementById('heroNote').textContent=s.heroNote;",
+              "const heroNote=document.getElementById('heroNote'); if(heroNote){const note=String(s.heroNote||'').trim();heroNote.textContent=note;heroNote.hidden=!note;}"
+          )
+          index_path.write_text(html, encoding='utf-8')
+
+      - name: Commit change and remove temporary workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f .maintenance/remove-periodisering-hero-note
+          rm -f .github/workflows/remove-periodisering-hero-note.yml
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add -A
+          git commit -m 'fix: remove hero note from periodisering self-test'
+          git push origin main
