@@ -221,7 +221,7 @@
     const s=sections.find(x=>x.id===id);
     let body='';
     if(id===3) body+=renderTimeline();
-    if(id===5) body+=renderGoals();
+    else if(id===5) body+=renderGoals();
     else body+=(Q[id]||[]).map((q,i)=>renderQuestion(q,i+1)).join('');
     body+=`<div class="inline-row" style="justify-content:space-between;margin-top:1.2rem"><button class="btn secondary" data-nav="${id-1}" ${id===1?'disabled':''}>← Forrige del</button>${id<sections.length?`<button class="btn orange" data-nav="${id+1}">Neste del →</button>`:`<button class="btn orange" id="resultsBtn">Se din oversikt →</button>`}</div>`;
     return `<div class="section-head"><div><div class="eyebrow" style="color:var(--orange)">Del ${id} av ${sections.length}</div><h1>${esc(s.title)}</h1>${sectionIntro(id)}</div><div id="sectionStatus"></div></div>${body}`;
@@ -325,7 +325,7 @@
 
   function revealSource(id){const o=sourceOpen.find(x=>x.id===id);const ta=document.getElementById(`open-${id}`);const fb=document.getElementById(`fb-${id}`);if(!ta.value.trim()){fb.className='feedback show hint';fb.textContent='Skriv først ditt eget svar. Deretter kan du sammenligne.';return;}state.openDone[id]=true;fb.className='feedback show ok';fb.innerHTML=`<strong>Et godt svar kan få fram:</strong><div class="checklist"><ul>${o.model.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`;save();updateSectionCompletion(5);}
 
-  function revealMainChecklist(){const ta=document.getElementById('mainAnswer');const fb=document.getElementById('fb-mainAnswer');if(!ta.value.trim()){fb.className='feedback show hint';fb.textContent='Skriv først ditt eget svar. Bruk så sjekklisten.';return;}state.openDone.mainAnswer=true;const items=content.mainChecklist;fb.className='feedback show ok';fb.innerHTML=`<strong>Et godt svar forklarer blant annet:</strong><div class="checklist"><ul>${items.map(x=>`<li>□ ${esc(x)}</li>`).join('')}</ul></div>`;save();updateSectionCompletion(6);}
+  function revealMainChecklist(){const ta=document.getElementById('mainAnswer');const fb=document.getElementById('fb-mainAnswer');if(!ta.value.trim()){fb.className='feedback show hint';fb.textContent='Skriv først ditt eget svar. Bruk så sjekklisten.';return;}state.openDone.mainAnswer=true;const items=content.mainChecklist;fb.className='feedback show ok';fb.innerHTML=`<strong>Et godt svar forklarer blant annet:</strong><div class="checklist"><ul>${items.map(x=>`<li>□ ${esc(x)}</li>`).join('')}</ul></div>`;save();updateSectionCompletion(5);}
 
   function moveOrder(id,i,dir){const st=qState(id);const q=findQuestion(id);if(st.correct)return;const a=st.order||q.items.slice().reverse();const j=dir==='up'?i-1:i+1;if(j<0||j>=a.length)return;[a[i],a[j]]=[a[j],a[i]];st.order=a;save();showSection(currentSection);}
 
