@@ -25,12 +25,8 @@ jobs:
           s = s.replace("const x=JSON.parse(localStorage.getItem(STORAGE_KEY));", "const x=JSON.parse(window.localStorage.getItem(STORAGE_KEY));")
           s = s.replace("function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state));updateProgress();renderHomeCards();}", "function save(){try{window.localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){}updateProgress();renderHomeCards();}")
           s = s.replace("state.completedSections.sort();localStorage.setItem(STORAGE_KEY,JSON.stringify(state));updateProgress();renderHomeCards();", "state.completedSections.sort();try{window.localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){}updateProgress();renderHomeCards();")
-          old = """    if(id===3) body+=renderTimeline();
-    if(id===5) body+=renderGoals();
-    else body+=(Q[id]||[]).map((q,i)=>renderQuestion(q,i+1)).join('');"""
-          new = """    if(id===3) body+=renderTimeline();
-    else if(id===5) body+=renderGoals();
-    else body+=(Q[id]||[]).map((q,i)=>renderQuestion(q,i+1)).join('');"""
+          old = "    if(id===3) body+=renderTimeline();\n    if(id===5) body+=renderGoals();\n    else body+=(Q[id]||[]).map((q,i)=>renderQuestion(q,i+1)).join('');"
+          new = "    if(id===3) body+=renderTimeline();\n    else if(id===5) body+=renderGoals();\n    else body+=(Q[id]||[]).map((q,i)=>renderQuestion(q,i+1)).join('');"
           if old in s:
               s = s.replace(old, new, 1)
           s = s.replace("save();updateSectionCompletion(6);", "save();updateSectionCompletion(5);", 1)
@@ -40,9 +36,7 @@ jobs:
         run: |
           from pathlib import Path
           s = Path('public/periodisering-oldtiden/index.html').read_text(encoding='utf-8')
-          expected = """    if(id===3) body+=renderTimeline();
-    else if(id===5) body+=renderGoals();
-    else body+=(Q[id]||[]).map((q,i)=>renderQuestion(q,i+1)).join('');"""
+          expected = "    if(id===3) body+=renderTimeline();\n    else if(id===5) body+=renderGoals();\n    else body+=(Q[id]||[]).map((q,i)=>renderQuestion(q,i+1)).join('');"
           assert expected in s, 'Timeline questions can still be rendered twice'
           assert 'save();updateSectionCompletion(6);' not in s, 'Old section number remains'
           print('OK: timeline questions render once and matching controls can be read as one set')
