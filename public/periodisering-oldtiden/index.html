@@ -163,8 +163,7 @@
   const sourceOpen = content.sourceOpen;
   const sectionOpen = {
     1:[{id:'b7'}],
-    5:sourceOpen.map(x=>({id:x.id})),
-    6:[{id:'mainAnswer'}]
+    5:[{id:'mainAnswer'}]
   };
 
   function applySiteContent(){
@@ -201,7 +200,7 @@
   function updateProgress(){
     const n=state.completedSections.length;
     document.getElementById('progressText').textContent=`${n} av ${sections.length} deler fullført`;
-    document.getElementById('progressBar').style.width=`${(n/6)*100}%`;
+    document.getElementById('progressBar').style.width=`${(n/sections.length)*100}%`;
   }
 
   function showOnly(id){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
@@ -222,8 +221,7 @@
     const s=sections.find(x=>x.id===id);
     let body='';
     if(id===3) body+=renderTimeline();
-    if(id===5) body+=renderSourceSection();
-    else if(id===6) body+=renderGoals();
+    if(id===5) body+=renderGoals();
     else body+=(Q[id]||[]).map((q,i)=>renderQuestion(q,i+1)).join('');
     body+=`<div class="inline-row" style="justify-content:space-between;margin-top:1.2rem"><button class="btn secondary" data-nav="${id-1}" ${id===1?'disabled':''}>← Forrige del</button>${id<sections.length?`<button class="btn orange" data-nav="${id+1}">Neste del →</button>`:`<button class="btn orange" id="resultsBtn">Se din oversikt →</button>`}</div>`;
     return `<div class="section-head"><div><div class="eyebrow" style="color:var(--orange)">Del ${id} av ${sections.length}</div><h1>${esc(s.title)}</h1>${sectionIntro(id)}</div><div id="sectionStatus"></div></div>${body}`;
@@ -276,7 +274,7 @@
 
   function renderGoals(){
     const goals=content.goals;
-    let html=goals.map(g=>`<div class="goal-card"><h3>Læringsmål ${g.n}</h3><p>${esc(g.title)}</p>${Q[6].filter(q=>q.goal===g.n).map((q,i)=>renderQuestion(q,i+1)).join('')}<div><strong>Egenvurdering:</strong><div class="rating" data-goal="${g.n}">${[['green','🟢 Jeg kan dette'],['yellow','🟡 Jeg er litt usikker'],['red','🔴 Dette må jeg øve mer på']].map(([v,l])=>`<button type="button" data-rate="${v}" class="${state.selfRatings[g.n]===v?'selected':''}">${l}</button>`).join('')}</div></div></div>`).join('');
+    let html=goals.map(g=>`<div class="goal-card"><h3>Læringsmål ${g.n}</h3><p>${esc(g.title)}</p>${Q[5].filter(q=>q.goal===g.n).map((q,i)=>renderQuestion(q,i+1)).join('')}<div><strong>Egenvurdering:</strong><div class="rating" data-goal="${g.n}">${[['green','🟢 Jeg kan dette'],['yellow','🟡 Jeg er litt usikker'],['red','🔴 Dette må jeg øve mer på']].map(([v,l])=>`<button type="button" data-rate="${v}" class="${state.selfRatings[g.n]===v?'selected':''}">${l}</button>`).join('')}</div></div></div>`).join('');
     html+=`<div class="goal-card"><span class="level-tag">HOVEDSPØRSMÅL</span><h3>${esc(content.mainQuestion)}</h3><textarea class="field" id="mainAnswer" placeholder="Skriv et kort svar med egne ord …"></textarea><div class="inline-row" style="margin-top:.65rem"><button class="btn secondary" id="mainChecklistBtn" type="button">Hva bør svaret mitt inneholde?</button></div><div class="feedback" id="fb-mainAnswer"></div></div>`;
     return html;
   }
@@ -289,7 +287,7 @@
     root.querySelectorAll('[data-source-open]').forEach(b=>b.addEventListener('click',()=>revealSource(b.dataset.sourceOpen)));
     root.querySelectorAll('[data-move]').forEach(b=>b.addEventListener('click',()=>moveOrder(b.dataset.q,Number(b.dataset.i),b.dataset.move)));
     bindDragOrder(root);
-    root.querySelectorAll('[data-rate]').forEach(b=>b.addEventListener('click',()=>{const goal=b.closest('[data-goal]').dataset.goal;state.selfRatings[goal]=b.dataset.rate;save();showSection(6);}));
+    root.querySelectorAll('[data-rate]').forEach(b=>b.addEventListener('click',()=>{const goal=b.closest('[data-goal]').dataset.goal;state.selfRatings[goal]=b.dataset.rate;save();showSection(5);}));
     const rb=document.getElementById('resultsBtn'); if(rb)rb.addEventListener('click',showResults);
     const mb=document.getElementById('mainChecklistBtn'); if(mb)mb.addEventListener('click',revealMainChecklist);
   }
@@ -349,8 +347,7 @@
   }
 
   function sectionRequired(id){
-    if(id===5)return {q:[],open:['k1','k2','k3'],ratings:[]};
-    if(id===6)return {q:Q[6].map(x=>x.id),open:['mainAnswer'],ratings:['1','2','3']};
+    if(id===5)return {q:Q[5].map(x=>x.id),open:['mainAnswer'],ratings:['1','2','3']};
     return {q:(Q[id]||[]).filter(x=>x.type!=='open').map(x=>x.id),open:(Q[id]||[]).filter(x=>x.type==='open').map(x=>x.id),ratings:[]};
   }
   function updateSectionCompletion(id){
@@ -361,7 +358,7 @@
 
   function scoreFor(sectionId){const ids=(Q[sectionId]||[]).filter(q=>q.type!=='open').map(q=>q.id);const scored=ids.filter(id=>qState(id).firstOutcome!==null);const correct=scored.filter(id=>qState(id).firstOutcome===true).length;return {correct,total:ids.length,attempted:scored.length};}
   function statusFor(correct,total){const p=total?correct/total:1;return p>=.8?['GOD KONTROLL','status-good']:p>=.6?['NESTEN DER','status-mid']:['ØV LITT MER','status-low'];}
-  function learningGoalSecure(n){const ids=Q[6].filter(q=>q.goal===n).map(q=>q.id);const all=ids.every(id=>qState(id).correct);return all&&state.selfRatings[n]==='green';}
+  function learningGoalSecure(n){const ids=Q[5].filter(q=>q.goal===n).map(q=>q.id);const all=ids.every(id=>qState(id).correct);return all&&state.selfRatings[n]==='green';}
   function weakAreas(){
     const map={};for(const arr of Object.values(Q))for(const q of arr){const st=qState(q.id);if(st.everWrong)map[q.area]=(map[q.area]||0)+1;}
     return Object.entries(map).sort((a,b)=>b[1]-a[1]).slice(0,4).map(x=>x[0]);
@@ -370,8 +367,8 @@
   function showResults(){
     currentSection=0;const rows=[[1,'Begreper'],[2,'Fakta'],[3,'Tidslinje'],[4,'Sammenhenger']].map(([id,name])=>{const s=scoreFor(id);const st=statusFor(s.correct,s.total);return `<div class="score-row"><div><strong>${name}</strong><div style="font-size:.82rem;color:var(--muted)">${st[0]}</div></div><div><strong>${s.correct}/${s.total}</strong></div></div>`}).join('');
     const secure=[1,2,3].filter(learningGoalSecure).length;const weak=weakAreas();const wrong=allWrongQuestions().length;
-    document.getElementById('resultsView').innerHTML=`<div class="section-head"><div><div class="eyebrow" style="color:var(--orange)">${esc(content.resultText.eyebrow)}</div><h1>${esc(content.resultText.title)}</h1><p>${esc(content.resultText.intro)}</p></div></div><div class="result-grid"><div class="result-card"><h3 style="margin-top:0;color:var(--green)">${esc(content.resultText.firstAttempt)}</h3>${rows}<div class="score-row"><div><strong>Kildeblikk</strong></div><div>${['k1','k2','k3'].every(x=>state.openDone[x])?'fullført':'ikke fullført'}</div></div><div class="score-row"><div><strong>Læringsmål</strong></div><div>${secure} av 3 sikre</div></div></div><div class="result-card"><h3 style="margin-top:0;color:var(--green)">${esc(content.resultText.practiceMore)}</h3>${weak.length?`<div class="review-list">${weak.map(x=>`<div class="review-item">${esc(x)}</div>`).join('')}</div>`:'<p>Du har ikke registrerte feilområder ennå. Bra kontroll.</p>'}<button class="btn orange" id="reviewBtn" ${wrong===0?'disabled':''}>Øv på det jeg ikke kunne (${wrong})</button></div></div><div class="notice" style="margin-top:1rem"><strong>Tips:</strong> Se særlig på mønsteret i feilene dine. Hvis flere handler om samme tema, er det smartere å repetere akkurat det enn å lese hele arket på nytt.</div><div class="inline-row" style="margin-top:1rem"><button class="btn secondary" id="backHomeResults">Til start</button><button class="btn" id="backGoal">Til læringsmålene</button></div>`;
-    showOnly('resultsView');document.getElementById('resetSectionBtn').disabled=true;document.getElementById('backHomeResults').onclick=goHome;document.getElementById('backGoal').onclick=()=>showSection(6);const rb=document.getElementById('reviewBtn');if(rb)rb.onclick=showReview;
+    document.getElementById('resultsView').innerHTML=`<div class="section-head"><div><div class="eyebrow" style="color:var(--orange)">${esc(content.resultText.eyebrow)}</div><h1>${esc(content.resultText.title)}</h1><p>${esc(content.resultText.intro)}</p></div></div><div class="result-grid"><div class="result-card"><h3 style="margin-top:0;color:var(--green)">${esc(content.resultText.firstAttempt)}</h3>${rows}<div class="score-row"><div><strong>Læringsmål</strong></div><div>${secure} av 3 sikre</div></div></div><div class="result-card"><h3 style="margin-top:0;color:var(--green)">${esc(content.resultText.practiceMore)}</h3>${weak.length?`<div class="review-list">${weak.map(x=>`<div class="review-item">${esc(x)}</div>`).join('')}</div>`:'<p>Du har ikke registrerte feilområder ennå. Bra kontroll.</p>'}<button class="btn orange" id="reviewBtn" ${wrong===0?'disabled':''}>Øv på det jeg ikke kunne (${wrong})</button></div></div><div class="notice" style="margin-top:1rem"><strong>Tips:</strong> Se særlig på mønsteret i feilene dine. Hvis flere handler om samme tema, er det smartere å repetere akkurat det enn å lese hele arket på nytt.</div><div class="inline-row" style="margin-top:1rem"><button class="btn secondary" id="backHomeResults">Til start</button><button class="btn" id="backGoal">Til læringsmålene</button></div>`;
+    showOnly('resultsView');document.getElementById('resetSectionBtn').disabled=true;document.getElementById('backHomeResults').onclick=goHome;document.getElementById('backGoal').onclick=()=>showSection(5);const rb=document.getElementById('reviewBtn');if(rb)rb.onclick=showReview;
   }
 
   function allWrongQuestions(){const out=[];for(const arr of Object.values(Q))for(const q of arr){if(q.type==='open')continue;const st=qState(q.id);if(st.everWrong&&!state.reviewSolved[q.id])out.push(q);}return out;}
@@ -404,7 +401,7 @@
   }
 
   function resetSection(){
-    if(!currentSection)return;if(!confirm(`Starte del ${currentSection} på nytt? Svarene i denne delen nullstilles.`))return;const ids=(Q[currentSection]||[]).map(q=>q.id);ids.forEach(id=>delete state.q[id]);(sectionOpen[currentSection]||[]).forEach(x=>delete state.openDone[x.id]);if(currentSection===5)['k1','k2','k3'].forEach(id=>delete state.openDone[id]);if(currentSection===6){['1','2','3'].forEach(x=>delete state.selfRatings[x]);delete state.openDone.mainAnswer;}state.completedSections=state.completedSections.filter(x=>x!==currentSection);save();showSection(currentSection);
+    if(!currentSection)return;if(!confirm(`Starte del ${currentSection} på nytt? Svarene i denne delen nullstilles.`))return;const ids=(Q[currentSection]||[]).map(q=>q.id);ids.forEach(id=>delete state.q[id]);(sectionOpen[currentSection]||[]).forEach(x=>delete state.openDone[x.id]);if(currentSection===5){['1','2','3'].forEach(x=>delete state.selfRatings[x]);delete state.openDone.mainAnswer;}state.completedSections=state.completedSections.filter(x=>x!==currentSection);save();showSection(currentSection);
   }
   function resetAll(){if(!confirm('Nullstille all progresjon og alle resultater på denne enheten?'))return;state=defaultState();save();goHome();}
 

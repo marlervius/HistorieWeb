@@ -40,8 +40,7 @@ window.HISTORIE_CONTENT = {
     {id:2,title:'Kan du fakta?',desc:'Korte oppgaver om periodisering, skrift, oldtid og riker.'},
     {id:3,title:'Kan du tidslinjen?',desc:'Plasser samfunn og riker grovt i tid – og se at perioder varierer.'},
     {id:4,title:'Forstår du sammenhengene?',desc:'Årsaker, systemer, brudd, kontinuitet og perspektiv.'},
-    {id:5,title:'Kildeblikk',desc:'Hva kan en tidlig leirtavle fortelle – og ikke fortelle?'},
-    {id:6,title:'Kan du læringsmålene?',desc:'Sluttkontroll og egenvurdering før hovedspørsmålet.'}
+    {id:5,title:'Kan du læringsmålene?',desc:'Sluttkontroll og egenvurdering før hovedspørsmålet.'}
   ],
 
   sectionIntros: {
@@ -49,8 +48,7 @@ window.HISTORIE_CONTENT = {
     2: ['FAKTA','Korte kontrolloppgaver. Ingen lureoppgaver – bruk det du har lest i læringsarket.'],
     3: ['FAKTA → FORSTÅELSE','Bruk omtrentlige dateringer som holdepunkter. Legg merke til at samme periode ikke starter samtidig overalt.'],
     4: ['FORSTÅELSE','Nå handler det mer om hvorfor og hvordan: årsaker, periodiseringssystemer, perspektiv og lange linjer.'],
-    5: ['KILDEBLIKK','En liten kildeøvelse med den tidlige leirtavlen fra Mesopotamia. Skriv først selv – sammenlign etterpå.'],
-    6: ['LANGE LINJER','Test læringsmålene, vurder egen sikkerhet og avslutt med hovedspørsmålet.']
+    5: ['LANGE LINJER','Test læringsmålene, vurder egen sikkerhet og avslutt med hovedspørsmålet.']
   },
 
   questions: {
@@ -135,7 +133,7 @@ window.HISTORIE_CONTENT = {
       {id:'s7',type:'mc',area:'makt og administrasjon',prompt:'Hva er den beste forklaringen på sammenhengen mellom mer mat, arbeidsdeling og sterkere styring?',options:['Mer mat kunne gjøre det mulig å forsørge spesialiserte grupper, og skrift, skatt og administrasjon kunne bli redskaper for makt','Mer mat førte automatisk til imperier overalt','Arbeidsdeling gjorde skrift unødvendig','Stater oppsto bare der det fantes bronse'],answer:'Mer mat kunne gjøre det mulig å forsørge spesialiserte grupper, og skrift, skatt og administrasjon kunne bli redskaper for makt',hint:'Legg merke til ordet «kunne» i læringsarket.',explain:'Dette beskrives som en mulig sammenheng, ikke en automatisk utviklingslov.'},
       {id:'s8',type:'mc',area:'ikke én oppskrift',prompt:'Hvilken påstand passer best med «HUSK: IKKE ÉN OPPSKRIFT»?',options:['Byer, stater, skrift og monumentalbygg oppsto i ulike kombinasjoner og på ulike tidspunkt','Alle sivilisasjoner måtte først få skrift og deretter byer','Alle riker fulgte den samme utviklingskjeden','Ett områdes tidslinje kan brukes som mal for hele verden'],answer:'Byer, stater, skrift og monumentalbygg oppsto i ulike kombinasjoner og på ulike tidspunkt',hint:'Læringsarket advarer mot én universell utviklingsmodell.',explain:'Utviklingen var forskjellig fra sted til sted, og trekkene oppsto i ulike kombinasjoner.'}
     ],
-    6: [
+    5: [
       {id:'g1a',type:'mc',goal:1,area:'periodisering',prompt:'Hva betyr periodisering?',options:['Å dele historien inn i perioder for å få oversikt','Å finne én universell tidslinje','Å bruke bare skriftlige kilder','Å dele verden i geografiske regioner'],answer:'Å dele historien inn i perioder for å få oversikt',hint:'Tenk på fortiden som en lang tidslinje vi lager kapittelinndeling i.',explain:'Periodisering er å dele historien inn i perioder for å få oversikt.'},
       {id:'g1b',type:'mc',goal:1,area:'periodisering',prompt:'Hvorfor må periodegrenser forklares – ikke bare pugges?',options:['Fordi de bygger på valgte kriterier og kan variere mellom områder','Fordi historikere ikke bruker kronologi','Fordi alle grenser er tilfeldige','Fordi årstall ikke kan brukes i historie'],answer:'Fordi de bygger på valgte kriterier og kan variere mellom områder',hint:'Kriterier og sted er viktige.',explain:'Periodegrenser er menneskeskapte og avhenger av hva vi velger å legge vekt på.'},
       {id:'g2a',type:'mc',goal:2,area:'systemer',prompt:'Hva er hovedkriteriet i treperiodesystemet?',options:['materialer og teknologi','store endringer i samfunn, makt og kultur','skriftens utbredelse','religion alene'],answer:'materialer og teknologi',hint:'Se på navnene stein, bronse og jern.',explain:'Treperiodesystemet bygger på materialer og teknologi.'},
