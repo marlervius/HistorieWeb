@@ -1,0 +1,90 @@
+name: Remove periodisering source section
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .fix/REMOVE_PERIODISERING_SOURCE
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Remove source section and renumber learning goals
+        shell: python
+        run: |
+          from pathlib import Path
+
+          cp = Path('public/periodisering-oldtiden/innhold.js')
+          s = cp.read_text(encoding='utf-8')
+          s = s.replace("    {id:5,title:'Kildeblikk',desc:'Hva kan en tidlig leirtavle fortelle – og ikke fortelle?'},\n", "")
+          s = s.replace("    {id:6,title:'Kan du læringsmålene?',desc:'Sluttkontroll og egenvurdering før hovedspørsmålet.'}", "    {id:5,title:'Kan du læringsmålene?',desc:'Sluttkontroll og egenvurdering før hovedspørsmålet.'}")
+          s = s.replace("    5: ['KILDEBLIKK','En liten kildeøvelse med den tidlige leirtavlen fra Mesopotamia. Skriv først selv – sammenlign etterpå.'],\n", "")
+          s = s.replace("    6: ['LANGE LINJER','Test læringsmålene, vurder egen sikkerhet og avslutt med hovedspørsmålet.']", "    5: ['LANGE LINJER','Test læringsmålene, vurder egen sikkerhet og avslutt med hovedspørsmålet.']")
+          s = s.replace("    6: [\n      {id:'g1a'", "    5: [\n      {id:'g1a'")
+          cp.write_text(s, encoding='utf-8')
+
+          ip = Path('public/periodisering-oldtiden/index.html')
+          h = ip.read_text(encoding='utf-8')
+          h = h.replace("  const sectionOpen = {\n    1:[{id:'b7'}],\n    5:sourceOpen.map(x=>({id:x.id})),\n    6:[{id:'mainAnswer'}]\n  };", "  const sectionOpen = {\n    1:[{id:'b7'}],\n    5:[{id:'mainAnswer'}]\n  };")
+          h = h.replace("document.getElementById('progressBar').style.width=`${(n/6)*100}%`;", "document.getElementById('progressBar').style.width=`${(n/sections.length)*100}%`;")
+          h = h.replace("    if(id===5) body+=renderSourceSection();\n    else if(id===6) body+=renderGoals();", "    if(id===5) body+=renderGoals();")
+          h = h.replace("${Q[6].filter(q=>q.goal===g.n)", "${Q[5].filter(q=>q.goal===g.n)")
+          h = h.replace("save();showSection(6);", "save();showSection(5);")
+          h = h.replace("if(id===5)return {q:[],open:['k1','k2','k3'],ratings:[]};\n    if(id===6)return {q:Q[6].map(x=>x.id),open:['mainAnswer'],ratings:['1','2','3']};", "if(id===5)return {q:Q[5].map(x=>x.id),open:['mainAnswer'],ratings:['1','2','3']};")
+          h = h.replace("const ids=Q[6].filter(q=>q.goal===n).map(q=>q.id);", "const ids=Q[5].filter(q=>q.goal===n).map(q=>q.id);")
+          h = h.replace("<div class=\"score-row\"><div><strong>Kildeblikk</strong></div><div>${['k1','k2','k3'].every(x=>state.openDone[x])?'fullført':'ikke fullført'}</div></div>", "")
+          h = h.replace("document.getElementById('backGoal').onclick=()=>showSection(6);", "document.getElementById('backGoal').onclick=()=>showSection(5);")
+          h = h.replace("if(currentSection===5)['k1','k2','k3'].forEach(id=>delete state.openDone[id]);if(currentSection===6){['1','2','3'].forEach(x=>delete state.selfRatings[x]);delete state.openDone.mainAnswer;}", "if(currentSection===5){['1','2','3'].forEach(x=>delete state.selfRatings[x]);delete state.openDone.mainAnswer;}")
+          ip.write_text(h, encoding='utf-8')
+
+      - name: Validate content and interactions
+        shell: bash
+        run: |
+          node --check public/periodisering-oldtiden/innhold.js
+          node <<'NODE'
+          import { JSDOM, VirtualConsole } from 'jsdom';
+          import path from 'node:path';
+          import { pathToFileURL } from 'node:url';
+          const file = path.resolve('public/periodisering-oldtiden/index.html');
+          const errors=[];
+          const vc=new VirtualConsole();
+          vc.on('jsdomError',e=>errors.push(String(e?.stack||e)));
+          const dom=await JSDOM.fromFile(file,{runScripts:'dangerously',resources:'usable',pretendToBeVisual:true,url:pathToFileURL(file).href,virtualConsole:vc,beforeParse(w){w.scrollTo=()=>{};w.confirm=()=>true;}});
+          await new Promise(r=>setTimeout(r,1200));
+          const d=dom.window.document;
+          const cards=[...d.querySelectorAll('[data-go]')];
+          if(cards.length!==5) throw new Error('Expected 5 section cards, got '+cards.length);
+          if(cards.some((x,i)=>Number(x.dataset.go)!==i+1)) throw new Error('Section ids are not 1-5');
+          if(d.body.textContent.includes('Kildeblikk')) throw new Error('Kildeblikk still visible');
+          for (const card of cards) {
+            card.click();
+            await new Promise(r=>setTimeout(r,20));
+            if(!d.getElementById('sectionView')?.classList.contains('active')) throw new Error('Section '+card.dataset.go+' did not open');
+            d.getElementById('homeBtn').click();
+          }
+          if(errors.length) throw new Error(errors.join('\n'));
+          console.log('OK: 5 sections, Kildeblikk removed, all section cards open');
+          NODE
+          npm run build
+      - name: Commit changes
+        shell: bash
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add public/periodisering-oldtiden/index.html public/periodisering-oldtiden/innhold.js
+          if ! git diff --cached --quiet; then
+            git commit -m 'feat: remove Kildeblikk from periodisering self-test'
+            git push origin main
+          fi
