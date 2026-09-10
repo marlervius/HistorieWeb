@@ -1,0 +1,109 @@
+name: Randomize periodisering dropdowns
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .fix/RANDOMIZE_PERIODISERING_DROPDOWNS
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+      - name: Randomize all match dropdown options
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          p = Path('public/periodisering-oldtiden/index.html')
+          s = p.read_text(encoding='utf-8')
+
+          old_display = """  function displayOptions(q){
+    const base=q.type==='tf'
+      ? ['Sant','Usant','Både sant og usant','Kan ikke avgjøres ut fra læringsarket']
+      : q.options.slice();
+    const correct=q.answer;
+    const others=base.filter(o=>o!==correct);
+    const digits=(q.id.match(/\\d+/)||['0'])[0];
+    const seed=(parseInt(digits,10)+(q.id.charCodeAt(0)||0))%base.length;
+    const out=others.slice();
+    out.splice(seed,0,correct);
+    return out;
+  }
+"""
+
+          new_display = """  function seededNumber(str){
+    let h=2166136261;
+    for(let i=0;i<str.length;i++){
+      h^=str.charCodeAt(i);
+      h=Math.imul(h,16777619);
+    }
+    return h>>>0;
+  }
+
+  function shuffled(arr, seedKey){
+    const out=arr.slice();
+    let seed=seededNumber(String(seedKey));
+    for(let i=out.length-1;i>0;i--){
+      seed=(Math.imul(seed,1664525)+1013904223)>>>0;
+      const j=seed%(i+1);
+      [out[i],out[j]]=[out[j],out[i]];
+    }
+    return out;
+  }
+
+  function displayOptions(q){
+    const base=q.type==='tf'
+      ? ['Sant','Usant','Både sant og usant','Kan ikke avgjøres ut fra læringsarket']
+      : q.options.slice();
+    return shuffled(base, q.id);
+  }
+"""
+
+          if old_display not in s:
+              raise SystemExit('Expected displayOptions block not found')
+          s = s.replace(old_display, new_display, 1)
+
+          old_match = """    }else if(q.type==='match'){
+      const all=[...new Set(q.pairs.map(p=>p[1]))];
+      control=`<div class=\"match-grid\">${q.pairs.map((p,idx)=>`<div class=\"match-term\">${esc(p[0])}</div><select class=\"field match-select\" data-q=\"${q.id}\" data-i=\"${idx}\" ${st.correct?'disabled':''}><option value=\"\">Velg forklaring …</option>${all.map(x=>`<option value=\"${esc(x)}\" ${st.correct&&x===q.pairs[idx][1]?'selected':''}>${esc(x)}</option>`).join('')}</select>`).join('')}</div>`;
+"""
+
+          new_match = """    }else if(q.type==='match'){
+      const all=[...new Set(q.pairs.map(p=>p[1]))];
+      control=`<div class=\"match-grid\">${q.pairs.map((p,idx)=>{
+        const opts=shuffled(all, `${q.id}-${idx}`);
+        return `<div class=\"match-term\">${esc(p[0])}</div><select class=\"field match-select\" data-q=\"${q.id}\" data-i=\"${idx}\" ${st.correct?'disabled':''}><option value=\"\">Velg forklaring …</option>${opts.map(x=>`<option value=\"${esc(x)}\" ${st.correct&&x===q.pairs[idx][1]?'selected':''}>${esc(x)}</option>`).join('')}</select>`;
+      }).join('')}</div>`;
+"""
+
+          if old_match not in s:
+              raise SystemExit('Expected match block not found')
+          s = s.replace(old_match, new_match, 1)
+          p.write_text(s, encoding='utf-8')
+
+      - name: Validate change
+        shell: bash
+        run: |
+          grep -q "function shuffled" public/periodisering-oldtiden/index.html
+          grep -q "const opts=shuffled(all" public/periodisering-oldtiden/index.html
+          grep -q "else if(id===5) body+=renderGoals" public/periodisering-oldtiden/index.html
+          ! grep -q "Kildeblikk</strong>" public/periodisering-oldtiden/index.html
+
+      - name: Commit change
+        shell: bash
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add public/periodisering-oldtiden/index.html
+          if ! git diff --cached --quiet; then
+            git commit -m 'feat: randomize all matching dropdown options'
+            git push origin main
+          fi
