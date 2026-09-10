@@ -1,0 +1,106 @@
+name: Fix periodisering matching question
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .fix/FIX_PERIODISERING_MATCH
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+
+      - name: Fix duplicated timeline questions
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('public/periodisering-oldtiden/index.html')
+          s = p.read_text(encoding='utf-8')
+          old = """    if(id===3) body+=renderTimeline();
+    if(id===5) body+=renderGoals();
+    else body+=(Q[id]||[]).map((q,i)=>renderQuestion(q,i+1)).join('');"""
+          new = """    if(id===3) body+=renderTimeline();
+    else if(id===5) body+=renderGoals();
+    else body+=(Q[id]||[]).map((q,i)=>renderQuestion(q,i+1)).join('');"""
+          if old not in s:
+              raise SystemExit('Expected renderSection block not found')
+          s = s.replace(old, new, 1)
+          s = s.replace("save();updateSectionCompletion(6);", "save();updateSectionCompletion(5);", 1)
+          p.write_text(s, encoding='utf-8')
+
+      - name: Test matching question interaction
+        shell: bash
+        run: |
+          node --check public/periodisering-oldtiden/innhold.js
+          node <<'NODE'
+          import { JSDOM, VirtualConsole } from 'jsdom';
+          import fs from 'node:fs';
+          import path from 'node:path';
+          import { pathToFileURL } from 'node:url';
+
+          const htmlPath = path.resolve('public/periodisering-oldtiden/index.html');
+          const contentPath = path.resolve('public/periodisering-oldtiden/innhold.js');
+          let html = fs.readFileSync(htmlPath, 'utf8');
+          html = html.replace('/periodisering-oldtiden/innhold.js', pathToFileURL(contentPath).href);
+          const errors = [];
+          const vc = new VirtualConsole();
+          vc.on('jsdomError', e => errors.push(String(e?.stack || e)));
+          const dom = new JSDOM(html, {
+            runScripts: 'dangerously',
+            resources: 'usable',
+            pretendToBeVisual: true,
+            url: pathToFileURL(htmlPath).href,
+            virtualConsole: vc,
+            beforeParse(w){ w.scrollTo=()=>{}; w.confirm=()=>true; }
+          });
+          await new Promise(r=>setTimeout(r,1200));
+          const d = dom.window.document;
+
+          const section3 = d.querySelector('[data-go="3"]');
+          if (!section3) throw new Error('Section 3 card missing');
+          section3.click();
+          await new Promise(r=>setTimeout(r,50));
+
+          const content = dom.window.HISTORIE_CONTENT;
+          const q = content.questions[3].find(x=>x.type==='match');
+          if (!q) throw new Error('No matching question in section 3');
+          const selects = [...d.querySelectorAll(`select[data-q="${q.id}"]`)];
+          if (selects.length !== q.pairs.length) {
+            throw new Error(`Matching question rendered ${selects.length} selects; expected ${q.pairs.length}`);
+          }
+          selects.forEach((s,i)=>{ s.value = q.pairs[i][1]; });
+          const btn = d.querySelector(`[data-check="${q.id}"]`);
+          if (!btn) throw new Error('Check button missing');
+          btn.click();
+          await new Promise(r=>setTimeout(r,30));
+          const fb = d.getElementById(`fb-${q.id}`);
+          if (!fb || !fb.textContent.includes('Riktig')) {
+            throw new Error('Correct matching answers were not registered: '+(fb?.textContent||'no feedback'));
+          }
+          if (errors.length) throw new Error(errors.join('\n'));
+          console.log('OK: matching question registers all selected answers correctly');
+          NODE
+          npm run build
+
+      - name: Commit fix
+        shell: bash
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add public/periodisering-oldtiden/index.html
+          if ! git diff --cached --quiet; then
+            git commit -m 'fix: register timeline matching answers correctly'
+            git push origin main
+          fi
