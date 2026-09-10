@@ -53,11 +53,19 @@ jobs:
         shell: bash
         run: |
           node --check public/periodisering-oldtiden/innhold.js
+          cp public/periodisering-oldtiden/index.html public/periodisering-oldtiden/index.test.html
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('public/periodisering-oldtiden/index.test.html')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace('src="/periodisering-oldtiden/innhold.js"','src="innhold.js"')
+          p.write_text(s,encoding='utf-8')
+          PY
           node <<'NODE'
           import { JSDOM, VirtualConsole } from 'jsdom';
           import path from 'node:path';
           import { pathToFileURL } from 'node:url';
-          const file = path.resolve('public/periodisering-oldtiden/index.html');
+          const file = path.resolve('public/periodisering-oldtiden/index.test.html');
           const errors=[];
           const vc=new VirtualConsole();
           vc.on('jsdomError',e=>errors.push(String(e?.stack||e)));
@@ -77,6 +85,7 @@ jobs:
           if(errors.length) throw new Error(errors.join('\n'));
           console.log('OK: 5 sections, Kildeblikk removed, all section cards open');
           NODE
+          rm public/periodisering-oldtiden/index.test.html
           npm run build
       - name: Commit changes
         shell: bash
