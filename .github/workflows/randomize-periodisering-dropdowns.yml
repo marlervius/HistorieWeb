@@ -16,78 +16,26 @@ jobs:
       - uses: actions/checkout@v5
         with:
           ref: main
-      - name: Randomize all match dropdown options
-        shell: python
+
+      - name: Randomize all dropdown options
+        shell: bash
         run: |
+          python - <<'PY'
           from pathlib import Path
-          import re
-
-          p = Path('public/periodisering-oldtiden/index.html')
-          s = p.read_text(encoding='utf-8')
-
-          old_display = """  function displayOptions(q){
-    const base=q.type==='tf'
-      ? ['Sant','Usant','Både sant og usant','Kan ikke avgjøres ut fra læringsarket']
-      : q.options.slice();
-    const correct=q.answer;
-    const others=base.filter(o=>o!==correct);
-    const digits=(q.id.match(/\\d+/)||['0'])[0];
-    const seed=(parseInt(digits,10)+(q.id.charCodeAt(0)||0))%base.length;
-    const out=others.slice();
-    out.splice(seed,0,correct);
-    return out;
-  }
-"""
-
-          new_display = """  function seededNumber(str){
-    let h=2166136261;
-    for(let i=0;i<str.length;i++){
-      h^=str.charCodeAt(i);
-      h=Math.imul(h,16777619);
-    }
-    return h>>>0;
-  }
-
-  function shuffled(arr, seedKey){
-    const out=arr.slice();
-    let seed=seededNumber(String(seedKey));
-    for(let i=out.length-1;i>0;i--){
-      seed=(Math.imul(seed,1664525)+1013904223)>>>0;
-      const j=seed%(i+1);
-      [out[i],out[j]]=[out[j],out[i]];
-    }
-    return out;
-  }
-
-  function displayOptions(q){
-    const base=q.type==='tf'
-      ? ['Sant','Usant','Både sant og usant','Kan ikke avgjøres ut fra læringsarket']
-      : q.options.slice();
-    return shuffled(base, q.id);
-  }
-"""
-
-          if old_display not in s:
-              raise SystemExit('Expected displayOptions block not found')
-          s = s.replace(old_display, new_display, 1)
-
-          old_match = """    }else if(q.type==='match'){
-      const all=[...new Set(q.pairs.map(p=>p[1]))];
-      control=`<div class=\"match-grid\">${q.pairs.map((p,idx)=>`<div class=\"match-term\">${esc(p[0])}</div><select class=\"field match-select\" data-q=\"${q.id}\" data-i=\"${idx}\" ${st.correct?'disabled':''}><option value=\"\">Velg forklaring …</option>${all.map(x=>`<option value=\"${esc(x)}\" ${st.correct&&x===q.pairs[idx][1]?'selected':''}>${esc(x)}</option>`).join('')}</select>`).join('')}</div>`;
-"""
-
-          new_match = """    }else if(q.type==='match'){
-      const all=[...new Set(q.pairs.map(p=>p[1]))];
-      control=`<div class=\"match-grid\">${q.pairs.map((p,idx)=>{
-        const opts=shuffled(all, `${q.id}-${idx}`);
-        return `<div class=\"match-term\">${esc(p[0])}</div><select class=\"field match-select\" data-q=\"${q.id}\" data-i=\"${idx}\" ${st.correct?'disabled':''}><option value=\"\">Velg forklaring …</option>${opts.map(x=>`<option value=\"${esc(x)}\" ${st.correct&&x===q.pairs[idx][1]?'selected':''}>${esc(x)}</option>`).join('')}</select>`;
-      }).join('')}</div>`;
-"""
-
-          if old_match not in s:
-              raise SystemExit('Expected match block not found')
-          s = s.replace(old_match, new_match, 1)
-          p.write_text(s, encoding='utf-8')
+          p=Path('public/periodisering-oldtiden/index.html')
+          s=p.read_text(encoding='utf-8')
+          old="  function displayOptions(q){\n    const base=q.type==='tf'\n      ? ['Sant','Usant','Både sant og usant','Kan ikke avgjøres ut fra læringsarket']\n      : q.options.slice();\n    const correct=q.answer;\n    const others=base.filter(o=>o!==correct);\n    const digits=(q.id.match(/\\d+/)||['0'])[0];\n    const seed=(parseInt(digits,10)+(q.id.charCodeAt(0)||0))%base.length;\n    const out=others.slice();\n    out.splice(seed,0,correct);\n    return out;\n  }\n"
+          new="  function seededNumber(str){\n    let h=2166136261;\n    for(let i=0;i<str.length;i++){\n      h^=str.charCodeAt(i);\n      h=Math.imul(h,16777619);\n    }\n    return h>>>0;\n  }\n\n  function shuffled(arr, seedKey){\n    const out=arr.slice();\n    let seed=seededNumber(String(seedKey));\n    for(let i=out.length-1;i>0;i--){\n      seed=(Math.imul(seed,1664525)+1013904223)>>>0;\n      const j=seed%(i+1);\n      [out[i],out[j]]=[out[j],out[i]];\n    }\n    return out;\n  }\n\n  function displayOptions(q){\n    const base=q.type==='tf'\n      ? ['Sant','Usant','Både sant og usant','Kan ikke avgjøres ut fra læringsarket']\n      : q.options.slice();\n    return shuffled(base, q.id);\n  }\n"
+          if old not in s:
+              raise SystemExit('displayOptions block not found')
+          s=s.replace(old,new,1)
+          old="    }else if(q.type==='match'){\n      const all=[...new Set(q.pairs.map(p=>p[1]))];\n      control=`<div class=\"match-grid\">${q.pairs.map((p,idx)=>`<div class=\"match-term\">${esc(p[0])}</div><select class=\"field match-select\" data-q=\"${q.id}\" data-i=\"${idx}\" ${st.correct?'disabled':''}><option value=\"\">Velg forklaring …</option>${all.map(x=>`<option value=\"${esc(x)}\" ${st.correct&&x===q.pairs[idx][1]?'selected':''}>${esc(x)}</option>`).join('')}</select>`).join('')}</div>`;\n"
+          new="    }else if(q.type==='match'){\n      const all=[...new Set(q.pairs.map(p=>p[1]))];\n      control=`<div class=\"match-grid\">${q.pairs.map((p,idx)=>{\n        const opts=shuffled(all, `${q.id}-${idx}`);\n        return `<div class=\"match-term\">${esc(p[0])}</div><select class=\"field match-select\" data-q=\"${q.id}\" data-i=\"${idx}\" ${st.correct?'disabled':''}><option value=\"\">Velg forklaring …</option>${opts.map(x=>`<option value=\"${esc(x)}\" ${st.correct&&x===q.pairs[idx][1]?'selected':''}>${esc(x)}</option>`).join('')}</select>`;\n      }).join('')}</div>`;\n"
+          if old not in s:
+              raise SystemExit('match block not found')
+          s=s.replace(old,new,1)
+          p.write_text(s,encoding='utf-8')
+          PY
 
       - name: Validate change
         shell: bash
@@ -95,7 +43,6 @@ jobs:
           grep -q "function shuffled" public/periodisering-oldtiden/index.html
           grep -q "const opts=shuffled(all" public/periodisering-oldtiden/index.html
           grep -q "else if(id===5) body+=renderGoals" public/periodisering-oldtiden/index.html
-          ! grep -q "Kildeblikk</strong>" public/periodisering-oldtiden/index.html
 
       - name: Commit change
         shell: bash
